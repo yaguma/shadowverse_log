@@ -1,0 +1,28 @@
+[
+  {
+    "id": "176c8a68-d53b-445f-a595-a362d0a66df0",
+    "date": "2025-08-10",
+    "battleType": "ランクマッチ",
+    "turn": "先行",
+    "myDeckId": "2",
+    "opponentDeckId": "2",
+    "result": "WIN",
+    "rank": "A",
+    "group": "サファイア",
+    "createdAt": "2025-08-10T14:42:43.844Z",
+    "updatedAt": "2025-08-10T14:42:43.844Z"
+  },
+  {
+    "id": "7e4a38fa-e5a6-4a37-9d23-eb45852bce16",
+    "date": "2025-08-10",
+    "battleType": "ランクマッチ",
+    "turn": "後攻",
+    "myDeckId": "2",
+    "opponentDeckId": "7",
+    "result": "LOSE",
+    "rank": "A",
+    "group": "サファイア",
+    "createdAt": "2025-08-10T14:45:03.651Z",
+    "updatedAt": "2025-08-10T14:45:03.651Z"
+  }
+]

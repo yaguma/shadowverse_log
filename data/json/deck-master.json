@@ -1,0 +1,50 @@
+[
+  {
+    "id": "1",
+    "className": "エルフ",
+    "deckName": "アクセラレートエルフ",
+    "sortOrder": 1
+  },
+  {
+    "id": "2",
+    "className": "ロイヤル",
+    "deckName": "連携ロイヤル",
+    "sortOrder": 2
+  },
+  {
+    "id": "3",
+    "className": "ウィッチ",
+    "deckName": "スペルブーストウィッチ",
+    "sortOrder": 3
+  },
+  {
+    "id": "4",
+    "className": "ドラゴン",
+    "deckName": "ランプドラゴン",
+    "sortOrder": 4
+  },
+  {
+    "id": "5",
+    "className": "ネクロマンサー",
+    "deckName": "ミッドレンジネクロ",
+    "sortOrder": 5
+  },
+  {
+    "id": "6",
+    "className": "ヴァンパイア",
+    "deckName": "アグロヴァンプ",
+    "sortOrder": 6
+  },
+  {
+    "id": "7",
+    "className": "ビショップ",
+    "deckName": "回復ビショップ",
+    "sortOrder": 7
+  },
+  {
+    "id": "8",
+    "className": "ネメシス",
+    "deckName": "AFネメシス",
+    "sortOrder": 8
+  }
+]
