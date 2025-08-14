@@ -1,10 +1,17 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { BattleLog, DeckMaster, MyDeck } from '../types';
+import { BlobStorageService } from './blobStorageService';
 
 const DATA_DIR = path.join(__dirname, '../../../data/json');
 
 export class DataService {
+  private blobStorageService: BlobStorageService;
+
+  constructor() {
+    this.blobStorageService = new BlobStorageService();
+  }
+
   private async readJsonFile<T>(filename: string): Promise<T[]> {
     try {
       const filePath = path.join(DATA_DIR, filename);
@@ -20,6 +27,14 @@ export class DataService {
     try {
       const filePath = path.join(DATA_DIR, filename);
       await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+      
+      if (filename === 'battle-logs.json') {
+        try {
+          await this.blobStorageService.uploadBattleLogsJson(filePath);
+        } catch (blobError) {
+          console.error('Failed to upload to blob storage:', blobError);
+        }
+      }
     } catch (error) {
       console.error(`Error writing ${filename}:`, error);
       throw error;
