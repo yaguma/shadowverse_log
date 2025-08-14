@@ -23,7 +23,7 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@azure/functions-core-tools": "^4.0.0",
+    "@azure/functions-core-tools": "^4.1.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/multer": "^2.0.0",
