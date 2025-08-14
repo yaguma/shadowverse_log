@@ -27,9 +27,7 @@ export class BlobStorageService {
       const blockBlobClient = containerClient.getBlockBlobClient(blobName);
       
       const data = await fs.readFile(filePath);
-      await blockBlobClient.uploadData(data, {
-        overwrite: true
-      });
+      await blockBlobClient.uploadData(data);
       
       console.log(`File uploaded successfully: ${blobName}`);
     } catch (error) {
