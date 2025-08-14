@@ -1,50 +1,21 @@
 [
-  {
-    "id": "1",
-    "className": "エルフ",
-    "deckName": "アクセラレートエルフ",
-    "sortOrder": 1
-  },
-  {
-    "id": "2",
-    "className": "ロイヤル",
-    "deckName": "連携ロイヤル",
-    "sortOrder": 2
-  },
-  {
-    "id": "3",
-    "className": "ウィッチ",
-    "deckName": "スペルブーストウィッチ",
-    "sortOrder": 3
-  },
-  {
-    "id": "4",
-    "className": "ドラゴン",
-    "deckName": "ランプドラゴン",
-    "sortOrder": 4
-  },
-  {
-    "id": "5",
-    "className": "ネクロマンサー",
-    "deckName": "ミッドレンジネクロ",
-    "sortOrder": 5
-  },
-  {
-    "id": "6",
-    "className": "ヴァンパイア",
-    "deckName": "アグロヴァンプ",
-    "sortOrder": 6
-  },
-  {
-    "id": "7",
-    "className": "ビショップ",
-    "deckName": "回復ビショップ",
-    "sortOrder": 7
-  },
-  {
-    "id": "8",
-    "className": "ネメシス",
-    "deckName": "AFネメシス",
-    "sortOrder": 8
-  }
+  { "id": "1", "className": "ウィッチ", "deckName": "土スペルウィッチ", "sortOrder": 1 },
+  { "id": "2", "className": "ロイヤル", "deckName": "ミッドレンジロイヤル", "sortOrder": 2 },
+  { "id": "3", "className": "ナイトメア", "deckName": "ミッドレンジナイトメア", "sortOrder": 3 },
+  { "id": "4", "className": "ナイトメア", "deckName": "アグロナイトメア", "sortOrder": 4 },
+  { "id": "5", "className": "ビショップ", "deckName": "守護ビショップ", "sortOrder": 5 },
+  { "id": "6", "className": "エルフ", "deckName": "リノエルフ", "sortOrder": 8 },
+  { "id": "7", "className": "ウィッチ", "deckName": "スペルウィッチ", "sortOrder": 10 },
+  { "id": "8", "className": "ネメシス", "deckName": "アーティファクトネメシス", "sortOrder": 6 },
+  { "id": "9", "className": "ネメシス", "deckName": "人形ネメシス", "sortOrder": 7 },
+  { "id": "10", "className": "ドラゴン", "deckName": "ほーちゃんドラゴン", "sortOrder": 9 },
+  { "id": "11", "className": "ドラゴン", "deckName": "疾走ランプドラゴン", "sortOrder": 11 },
+  { "id": "12", "className": "ドラゴン", "deckName": "フェイスドラゴン", "sortOrder": 12 },
+  { "id": "13", "className": "エルフ", "deckName": "テンポエルフ", "sortOrder": 13 },
+  { "id": "14", "className": "ウィッチ", "deckName": "秘術ウィッチ", "sortOrder": 14 },
+  { "id": "15", "className": "ロイヤル", "deckName": "アグロロイヤル", "sortOrder": 15 },
+  { "id": "16", "className": "ビショップ", "deckName": "コントロールビショップ", "sortOrder": 16 },
+  { "id": "17", "className": "エルフ", "deckName": "薔薇エルフ", "sortOrder": 17 },
+  { "id": "18", "className": "ロイヤル", "deckName": "潜伏ロイヤル", "sortOrder": 18 },
+  { "id": "19", "className": "ビショップ", "deckName": "疾走ビショップ", "sortOrder": 19 }
 ]
