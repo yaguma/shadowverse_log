@@ -1,6 +1,6 @@
 import type { BattleLog, CreateBattleLogRequest, DeckMaster, MyDeck } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'
+const API_BASE_URL = import.meta.env.FUNCTIONS_API_URL || 'http://localhost:3001/api'
 const API_KEY = import.meta.env.FUNCTIONS_API_KEY  || ''
 
 class ApiService {
