@@ -1,7 +1,7 @@
 import type { BattleLog, CreateBattleLogRequest, DeckMaster, MyDeck } from '@/types'
 
-const API_BASE_URL = process.env.FUNCTIONS_API_URL || 'http://localhost:3001/api'
-const API_KEY = process.env.FUNCTIONS_API_KEY  || ''
+const API_BASE_URL = process.env.VITE_FUNCTIONS_API_URL || 'http://localhost:3001/api'
+const API_KEY = process.env.VITE_FUNCTIONS_API_KEY  || ''
 
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
