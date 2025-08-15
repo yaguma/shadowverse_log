@@ -8,7 +8,7 @@ class ApiService {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
-        'x-functions-key': API_KEY
+        'x-functions-key': API_KEY,
         ...options?.headers
       },
       ...options
