@@ -542,7 +542,7 @@ export default defineConfig({
 
 ### TASK-0003: バックエンド環境構築
 
-- [ ] **タスク完了**
+- [x] **タスク完了**
 - **推定工数**: 8時間
 - **タスクタイプ**: DIRECT
 - **要件**: REQ-604 (Azure Functions使用)
