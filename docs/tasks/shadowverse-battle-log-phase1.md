@@ -803,7 +803,7 @@ touch utils/index.ts
 
 ### TASK-0004: Azure Blob Storage設定
 
-- [ ] **タスク完了**
+- [x] **タスク完了**
 - **推定工数**: 8時間
 - **タスクタイプ**: DIRECT
 - **要件**: REQ-602 (Azure Blob Storage使用)
