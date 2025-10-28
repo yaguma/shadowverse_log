@@ -148,12 +148,36 @@ npm run test
 | `/api/export/json` | GET | JSON形式エクスポート |
 | `/api/master` | GET | マスターデータ取得 |
 
+## 完了した機能
+
+### TASK-0005: 共有型定義実装
+- **実装日**: 2025-10-27
+- **概要**: フロントエンド・バックエンドで共通の TypeScript 型定義を実装
+- **成果物**:
+  - `frontend/src/types/index.ts`: フロントエンド型定義 (180行)
+  - `backend/src/types/index.ts`: バックエンド型定義 (180行、フロントエンドと同一)
+- **型定義内容**:
+  - 基本型: BattleType, Rank, Group, Turn, BattleResult
+  - エンティティ: BattleLog, DeckMaster, MyDeck
+  - APIレスポンス: ApiResponse, BattleLogsResponse, StatisticsResponse
+  - 定数: BATTLE_TYPES, RANKS, GROUPS, TURNS, BATTLE_RESULTS
+- **品質保証**:
+  - ✅ TypeScript strict mode 準拠
+  - ✅ フロントエンド型チェック成功
+  - ✅ バックエンドビルド成功
+  - ✅ 型定義の完全一致（diff 差分なし）
+  - ✅ JSDocコメント完備
+  - ✅ readonly 修飾子による不変性保証
+
 ## プロジェクトフェーズ
 
-### Phase 1: MVP開発（完了予定）
-- ✅ 基本的なCRUD機能
-- ✅ データエクスポート機能
-- ✅ マスターデータ管理
+### Phase 1: 基盤構築・環境設定（進行中）
+- ✅ TASK-0001: プロジェクト初期化とGit設定
+- ✅ TASK-0002: フロントエンド環境構築
+- ✅ TASK-0003: バックエンド環境構築
+- ✅ TASK-0004: Azure Blob Storage設定
+- ✅ TASK-0005: 共有型定義実装
+- 🚧 TASK-0006: Blob Storage クライアント実装（次タスク）
 
 ### Phase 2: 機能拡張（計画中）
 - 統計・分析ダッシュボード

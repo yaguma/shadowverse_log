@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["ES2023"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "removeComments": true,
     "strict": true,
     "noUnusedLocals": true,
@@ -18,8 +18,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "types": ["node", "@azure/functions"]
+    "types": ["node", "@azure/functions", "jest"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
