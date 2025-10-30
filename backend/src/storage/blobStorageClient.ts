@@ -15,11 +15,8 @@
  * 🔵 信頼性レベル: 青信号（REQ-602, EDGE-001, EDGE-002 より）
  */
 
-import {
-  BlobServiceClient,
-  ContainerClient,
-} from '@azure/storage-blob';
-import { BattleLog, DeckMaster, MyDeck } from '../types';
+import { BlobServiceClient, type ContainerClient } from '@azure/storage-blob';
+import type { BattleLog, DeckMaster, MyDeck } from '../types';
 
 /**
  * 【クラス定義】: BlobStorageClient
@@ -62,8 +59,7 @@ export class BlobStorageClient {
     // 【初期化処理】: BlobServiceClient を接続文字列から生成
     // 【エラー処理】: 不正な接続文字列の場合は SDK が例外をスロー（TC-101 対応）
     // 🔵 信頼性レベル: 青信号
-    const blobServiceClient =
-      BlobServiceClient.fromConnectionString(connectionString);
+    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
 
     // 【コンテナクライアント取得】: 指定されたコンテナへのアクセスを確立
     // 【エラー処理】: 空文字列の場合は SDK が例外をスロー（TC-204 対応）
@@ -216,9 +212,7 @@ export class BlobStorageClient {
 
         // 【ストリームを文字列に変換】: ReadableStream を文字列に変換
         // 🔵 信頼性レベル: 青信号
-        const content = await this.streamToString(
-          downloadResponse.readableStreamBody
-        );
+        const content = await this.streamToString(downloadResponse.readableStreamBody);
 
         // 【JSON パース】: 文字列を JSON としてパース
         // 【エラーケース】: 不正な JSON の場合は SyntaxError がスロー（TC-104 対応）
@@ -240,7 +234,7 @@ export class BlobStorageClient {
           // 【指数バックオフ】: リトライ回数に応じて待機時間を増加（1秒 → 2秒 → 4秒）
           // 【計算式】: delay = retryDelayMs * 2^attempt
           // 🔵 信頼性レベル: 青信号（EDGE-001 より）
-          const delay = this.retryDelayMs * Math.pow(2, attempt);
+          const delay = this.retryDelayMs * 2 ** attempt;
           await this.sleep(delay);
         }
       }
@@ -282,8 +276,7 @@ export class BlobStorageClient {
       try {
         // 【Block Blob クライアント取得】: 書き込み用の Block Blob クライアントを取得
         // 🔵 信頼性レベル: 青信号
-        const blockBlobClient =
-          this.containerClient.getBlockBlobClient(blobName);
+        const blockBlobClient = this.containerClient.getBlockBlobClient(blobName);
 
         // 【JSON シリアライズ】: データを整形された JSON 文字列に変換
         // 【フォーマット】: インデント2スペースで整形（可読性のため）
@@ -313,7 +306,7 @@ export class BlobStorageClient {
         if (attempt < this.maxRetries - 1) {
           // 【指数バックオフ】: リトライ回数に応じて待機時間を増加
           // 🔵 信頼性レベル: 青信号（EDGE-001 より）
-          const delay = this.retryDelayMs * Math.pow(2, attempt);
+          const delay = this.retryDelayMs * 2 ** attempt;
           await this.sleep(delay);
         }
       }
@@ -340,9 +333,7 @@ export class BlobStorageClient {
    * @param readableStream - Node.js ReadableStream
    * @returns Promise<string> - 変換された文字列
    */
-  private async streamToString(
-    readableStream: NodeJS.ReadableStream
-  ): Promise<string> {
+  private async streamToString(readableStream: NodeJS.ReadableStream): Promise<string> {
     // 【Promise による非同期処理】: ストリームの読み込みを Promise でラップ
     // 🔵 信頼性レベル: 青信号
     return new Promise((resolve, reject) => {
@@ -358,9 +349,7 @@ export class BlobStorageClient {
       // 【end イベント】: ストリームの読み込みが完了したときに実行
       // 【処理内容】: すべてのチャンクを結合し、UTF-8 文字列として resolve
       // 🔵 信頼性レベル: 青信号
-      readableStream.on('end', () =>
-        resolve(Buffer.concat(chunks).toString('utf8'))
-      );
+      readableStream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
 
       // 【error イベント】: ストリームの読み込み中にエラーが発生した場合に実行
       // 【処理内容】: エラーを reject

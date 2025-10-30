@@ -9,7 +9,7 @@
  */
 
 import { BlobStorageClient } from '../../src/storage/blobStorageClient';
-import { BattleLog, MyDeck } from '../../src/types';
+import type { BattleLog, MyDeck } from '../../src/types';
 import {
   setupAzuriteTestEnvironment,
   teardownAzuriteTestEnvironment,
@@ -50,7 +50,8 @@ const mockMyDecks: MyDeck[] = [
   {
     id: '1',
     deckId: '1',
-    deckCode: '3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1',
+    deckCode:
+      '3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1.3.1',
     deckName: '秘術オデンスペル',
     isActive: true,
     createdAt: '2024-01-01T00:00:00.000Z',
@@ -252,7 +253,9 @@ describe('BlobStorageClient', () => {
       // 【実際の処理実行】: コンストラクタでエラーが発生する
       // 【期待される結果】: コンストラクタでTypeError がスローされる
       // 【エラーメッセージの内容】: Azure SDK の標準エラーメッセージ "Invalid URL"
-      expect(() => new BlobStorageClient(invalidConnectionString, TEST_CONTAINER_NAME)).toThrow('Invalid URL'); // 【確認内容】: エラーがスローされる 🔵
+      expect(() => new BlobStorageClient(invalidConnectionString, TEST_CONTAINER_NAME)).toThrow(
+        'Invalid URL'
+      ); // 【確認内容】: エラーがスローされる 🔵
     });
   });
 
@@ -271,7 +274,9 @@ describe('BlobStorageClient', () => {
       // 【実際の処理実行】: 存在しないコンテナのファイルを読み込もうとする
       // 【期待される結果】: ContainerNotFound エラーがスローされる
       // 【エラーメッセージの内容】: "Failed to read battle-logs.json after 3 attempts: The specified container does not exist"
-      await expect(client.getBattleLogs()).rejects.toThrow('The specified container does not exist'); // 【確認内容】: エラーがスローされる 🔵
+      await expect(client.getBattleLogs()).rejects.toThrow(
+        'The specified container does not exist'
+      ); // 【確認内容】: エラーがスローされる 🔵
     });
   });
 
@@ -286,7 +291,8 @@ describe('BlobStorageClient', () => {
       // 【不正な理由】: ネットワーク接続の不安定性、Azure Storage の一時的な障害
       // 【実際の発生シナリオ】: Wi-Fi接続の不安定、データセンター障害、タイムアウト
       // 不正なポート番号を使用して接続エラーを発生させる
-      const invalidConnectionString = 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:19999/devstoreaccount1;';
+      const invalidConnectionString =
+        'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:19999/devstoreaccount1;';
       const client = new BlobStorageClient(invalidConnectionString, TEST_CONTAINER_NAME);
 
       // 【実際の処理実行】: ネットワークエラーが発生する環境で getBattleLogs() を呼び出す

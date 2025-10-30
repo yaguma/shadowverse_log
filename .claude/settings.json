@@ -15,6 +15,15 @@
       "Bash(git log:*)",
       "Bash(npm install:*)",
       "Bash(pnpm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run tsc:*)",
+      "Bash(npm exec:*)",
+      "Bash(npx:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run format:*)",
       "Bash(rm *)",
       "Bash(ls:*)",
       "Bash(cat **)",
@@ -37,6 +46,41 @@
     ]
   },
   "model": "opus",
-  "enableAllProjectMcpServers": false
+  "enableAllProjectMcpServers": false,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/bin/windows-notify 'Claude Code' --title 'Command Execution' --message 'Executing bash command...' --audio 'default' --duration 'short'"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/bin/windows-notify 'Claude Code' --title 'Notification' --message 'Claude Code has a notification for you.' --audio 'default' --duration 'long'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/bin/windows-notify 'Claude Code' --title 'Task Complete' --message 'Claude Code has finished the task.' --audio 'default' --duration 'long'"
+          }
+        ]
+      }
+    ]
+  }
 }
 

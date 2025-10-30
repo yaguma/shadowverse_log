@@ -497,15 +497,15 @@ describe('POST /api/battle-logs - 統合テスト', () => {
 
 #### 完了条件
 
-- [ ] POST /api/battle-logs エンドポイントが実装されている
-- [ ] Zodバリデーションが正しく動作する
-- [ ] 未来日付が拒否される
-- [ ] ID自動生成が正しく動作する (log_YYYYMMDD_NNN形式)
-- [ ] Blob Storageへの保存が成功する
-- [ ] 単体テストが100%成功する (7ケース以上)
-- [ ] 統合テストが成功する
-- [ ] Biome lintエラーが0件
-- [ ] TypeScript型エラーが0件
+- [x] POST /api/battle-logs エンドポイントが実装されている
+- [x] Zodバリデーションが正しく動作する
+- [x] 未来日付が拒否される
+- [x] ID自動生成が正しく動作する (log_YYYYMMDD_NNN形式)
+- [x] Blob Storageへの保存が成功する
+- [x] 単体テストが100%成功する (26ケース - 7ケース以上達成)
+- [x] 統合テストが成功する
+- [x] Biome lintエラーが0件
+- [x] TypeScript型エラーが0件
 
 #### 実行コマンド
 

@@ -74,9 +74,10 @@ export function generateBattleLogId(existingLogs: BattleLog[], date: string): st
   });
 
   // 同日のログから最大連番を取得（関数型スタイル）
-  const maxSequence = sameDateLogs.length > 0
-    ? Math.max(...sameDateLogs.map((log) => extractSequenceFromLogId(log.id)))
-    : 0;
+  const maxSequence =
+    sameDateLogs.length > 0
+      ? Math.max(...sameDateLogs.map((log) => extractSequenceFromLogId(log.id)))
+      : 0;
 
   // 新規連番は最大連番+1
   const newSequence = maxSequence + 1;

@@ -7,7 +7,7 @@
  */
 
 import { BlobServiceClient } from '@azure/storage-blob';
-import { BattleLog, DeckMaster, MyDeck } from '../../src/types';
+import type { BattleLog, DeckMaster, MyDeck } from '../../src/types';
 
 // Azurite デフォルト接続文字列
 const AZURITE_CONNECTION_STRING =
@@ -18,9 +18,7 @@ const CONTAINER_NAME = 'shadowverse-data';
  * Azurite コンテナとテストデータをセットアップ
  */
 export async function setupAzuriteTestEnvironment(): Promise<void> {
-  const blobServiceClient = BlobServiceClient.fromConnectionString(
-    AZURITE_CONNECTION_STRING
-  );
+  const blobServiceClient = BlobServiceClient.fromConnectionString(AZURITE_CONNECTION_STRING);
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
 
   // コンテナが存在しない場合は作成
@@ -80,11 +78,8 @@ export async function setupAzuriteTestEnvironment(): Promise<void> {
 /**
  * JSONファイルをAzuriteにアップロード
  */
-async function uploadJsonFile<T>(
-  containerClient: any,
-  blobName: string,
-  data: T
-): Promise<void> {
+// biome-ignore lint/suspicious/noExplicitAny: Test setup utility needs flexible container client type
+async function uploadJsonFile<T>(containerClient: any, blobName: string, data: T): Promise<void> {
   const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   const content = JSON.stringify(data, null, 2);
   await blockBlobClient.upload(content, Buffer.byteLength(content), {
@@ -97,9 +92,7 @@ async function uploadJsonFile<T>(
  * Azurite コンテナをクリーンアップ
  */
 export async function teardownAzuriteTestEnvironment(): Promise<void> {
-  const blobServiceClient = BlobServiceClient.fromConnectionString(
-    AZURITE_CONNECTION_STRING
-  );
+  const blobServiceClient = BlobServiceClient.fromConnectionString(AZURITE_CONNECTION_STRING);
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
 
   const exists = await containerClient.exists();

@@ -441,6 +441,7 @@ describe('BattleLogService', () => {
         date: '2025-01-24',
         battleType: 'ランクマッチ' as const,
         // rank, group, myDeckId, turn, result, opponentDeckId が欠けている
+        // biome-ignore lint/suspicious/noExplicitAny: Testing missing required fields requires any type
       } as any;
 
       // 【実際の処理実行】: createBattleLog() メソッドを呼び出し、ZodErrorがスローされることを確認
@@ -475,6 +476,7 @@ describe('BattleLogService', () => {
       //   - 型定義の不一致（フロントエンドとバックエンドの型が同期していない）
       const input = {
         date: '2025-01-24',
+        // biome-ignore lint/suspicious/noExplicitAny: Testing invalid enum value requires any type
         battleType: '不正なタイプ' as any,
         rank: 'ダイアモンド' as const,
         group: 'AAA' as const,
@@ -523,7 +525,9 @@ describe('BattleLogService', () => {
       // 【期待される結果】:
       //   - ZodError がスローされる
       //   - エラーメッセージ: `"日付はYYYY-MM-DD形式で入力してください"`
-      await expect(service.createBattleLog(input)).rejects.toThrow('日付はYYYY-MM-DD形式で入力してください'); // 【確認内容】: 日付形式が不正な場合エラーがスローされる 🔵
+      await expect(service.createBattleLog(input)).rejects.toThrow(
+        '日付はYYYY-MM-DD形式で入力してください'
+      ); // 【確認内容】: 日付形式が不正な場合エラーがスローされる 🔵
     });
   });
 
@@ -598,7 +602,9 @@ describe('BattleLogService', () => {
       // 【期待される結果】:
       //   - BattleLogService.createBattleLog() がエラーをスロー
       //   - エラーメッセージ: `"Failed to read battle-logs.json after 3 attempts: [元のエラー]"` (BlobStorageClientのリトライ後)
-      await expect(service.createBattleLog(input)).rejects.toThrow('Failed to read battle-logs.json after 3 attempts'); // 【確認内容】: Blob Storage読み込みエラーがスローされる 🔵
+      await expect(service.createBattleLog(input)).rejects.toThrow(
+        'Failed to read battle-logs.json after 3 attempts'
+      ); // 【確認内容】: Blob Storage読み込みエラーがスローされる 🔵
     });
   });
 
@@ -619,7 +625,9 @@ describe('BattleLogService', () => {
       //   - 書き込み権限の不足（SAS tokenの期限切れ）
       //   - ストレージ容量の不足
       //   - ネットワークの切断
-      const error = new Error('Failed to write battle-logs.json after 3 attempts: Permission denied');
+      const error = new Error(
+        'Failed to write battle-logs.json after 3 attempts: Permission denied'
+      );
       mockBlobClient.saveBattleLogs.mockRejectedValue(error);
 
       // 正常なリクエストボディ
@@ -638,7 +646,9 @@ describe('BattleLogService', () => {
       // 【期待される結果】:
       //   - BattleLogService.createBattleLog() がエラーをスロー
       //   - エラーメッセージ: `"Failed to write battle-logs.json after 3 attempts: [元のエラー]"` (BlobStorageClientのリトライ後)
-      await expect(service.createBattleLog(input)).rejects.toThrow('Failed to write battle-logs.json after 3 attempts'); // 【確認内容】: Blob Storage書き込みエラーがスローされる 🔵
+      await expect(service.createBattleLog(input)).rejects.toThrow(
+        'Failed to write battle-logs.json after 3 attempts'
+      ); // 【確認内容】: Blob Storage書き込みエラーがスローされる 🔵
     });
   });
 });

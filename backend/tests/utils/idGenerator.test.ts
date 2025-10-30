@@ -8,8 +8,8 @@
  * 🔵 要件定義書: docs/implements/shadowverse-battle-log/TASK-0007/requirements.md
  */
 
-import { generateBattleLogId } from '../../src/utils/idGenerator';
 import type { BattleLog } from '../../src/types';
+import { generateBattleLogId } from '../../src/utils/idGenerator';
 
 describe('generateBattleLogId', () => {
   // =============================================================================
