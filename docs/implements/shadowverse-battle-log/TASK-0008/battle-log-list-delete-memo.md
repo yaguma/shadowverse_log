@@ -231,6 +231,97 @@ Greenフェーズでは、上記の要求事項に基づいて最小限の実装
 
 ---
 
+## Greenフェーズ（最小実装）
+
+### 作成日時
+
+2025-10-31
+
+### 実装概要
+
+Redフェーズで作成した14個のテストケースをすべて通過させるための最小実装を完了しました。
+
+#### 実装したメソッド
+
+1. **`getBattleLogsWithDeckNames()` メソッド**（lines 215-269）
+   - パラメータのZodバリデーション
+   - Promise.allによる並列データ取得（battleLogs, myDecks, deckMasters）
+   - Mapを使用したO(1)デッキ名検索
+   - 柔軟なソート処理（任意のプロパティに対応）
+   - sliceを使用したページネーション
+   - デッキ名付与とデフォルト値設定（"不明なデッキ"）
+   - レスポンス返却（battleLogs, total, limit, offset）
+
+2. **`deleteBattleLog()` メソッド**（lines 282-310）
+   - IDによる対戦履歴検索（findIndex）
+   - 存在チェックと404エラー処理
+   - splice による配列からの削除
+   - Blob Storageへの保存
+   - 削除IDのレスポンス返却
+
+#### 型定義とスキーマ
+
+- **Zodスキーマ**: `getBattleLogsSchema`（lines 93-110）
+  - limit: 1〜1000（デフォルト100）
+  - offset: 0以上（デフォルト0）
+  - sortBy: 文字列（デフォルト"date"）
+  - sortOrder: "asc" | "desc"（デフォルト"desc"）
+
+- **TypeScript型定義**:
+  - `GetBattleLogsParams`（line 115）
+  - `BattleLogWithDeckNames`（lines 121-126）
+  - `BattleLogsWithDeckNamesResponse`（lines 132-141）
+  - `DeleteBattleLogResponse`（lines 147-150）
+
+### テスト実行結果
+
+```bash
+npm test -- battleLogService.test.ts
+
+Test Suites: 1 passed, 1 total
+Tests:       30 passed, 30 total
+Time:        2.077 s
+```
+
+**全30テストケースが成功**（既存16ケース + 新規14ケース）
+
+#### テストケース内訳
+
+- **正常系**: 7ケース - すべて成功 ✅
+- **異常系**: 6ケース - すべて成功 ✅
+- **境界値**: 4ケース - すべて成功 ✅
+
+### 実装の品質指標
+
+#### パフォーマンス最適化
+
+- ✅ Promise.allによる並列データ取得
+- ✅ Map構造によるO(1)検索
+- ✅ ソート・ページネーションの効率的な実装
+
+#### コード品質
+
+- ✅ 詳細な日本語コメント（Given-When-Then形式）
+- ✅ 信頼性レベル表示（🔵青信号）
+- ✅ Zodバリデーションによる型安全性
+- ✅ エラーメッセージの明確化
+- ✅ ファイルサイズ: 312行（800行制限内）
+
+#### 既存コードとの一貫性
+
+- ✅ TASK-0007と同様のバリデーションパターン
+- ✅ 同様のエラーハンドリング
+- ✅ 統一されたコメントスタイル
+
+### 次のステップ
+
+**次のお勧めコマンド**: `/tsumiki:tdd-refactor` でRefactorフェーズ（リファクタリング）を開始します。
+
+Refactorフェーズでは、テストが通ることを維持しながら、コード品質の向上（重複の削除、関数の抽出、命名の改善など）を行います。
+
+---
+
 **作成日**: 2025-10-30
-**フェーズ**: Red（失敗するテスト作成完了）
-**次フェーズ**: Green（最小実装）
+**最終更新**: 2025-10-31
+**現在のフェーズ**: Green（最小実装完了）✅
+**次フェーズ**: Refactor（リファクタリング）
