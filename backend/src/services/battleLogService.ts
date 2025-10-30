@@ -85,6 +85,15 @@ const createBattleLogSchema = z.object({
 export type CreateBattleLogRequest = z.input<typeof createBattleLogSchema>;
 
 /**
+ * ソート可能なBattleLogのプロパティ一覧
+ * 🔵 信頼性レベル: 青信号（セキュリティ向上のための許可リスト）
+ *
+ * 【セキュリティ】: sortByパラメータの型安全性を確保
+ * 【拡張性】: 新しいソートキーを追加する場合は、この配列に追加
+ */
+const ALLOWED_SORT_KEYS = ['date', 'battleType', 'rank', 'group', 'turn', 'result'] as const;
+
+/**
  * 対戦履歴一覧取得パラメータのZodバリデーションスキーマ
  * 🔵 信頼性レベル: 青信号（requirements.md L52-58より）
  *
@@ -103,7 +112,8 @@ const getBattleLogsSchema = z.object({
   offset: z.number().int().min(0, 'offsetは0以上で指定してください').default(0),
 
   // sortBy: ソートキー（デフォルト: "date"）
-  sortBy: z.string().default('date'),
+  // 【セキュリティ改善】: 許可されたプロパティのみをソートキーとして受け付ける
+  sortBy: z.enum(ALLOWED_SORT_KEYS).default('date'),
 
   // sortOrder: ソート順（デフォルト: "desc"）
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
@@ -203,14 +213,20 @@ export class BattleLogService {
 
   /**
    * 【機能概要】: 対戦履歴一覧をデッキ名付きで取得する
-   * 【実装方針】: テストを通すための最小実装。ページネーション、ソート、デッキ名joinを実装
-   * 【テスト対応】: TC-001〜TC-006, TC-101〜TC-103, TC-105, TC-201〜TC-204 を通すための実装
+   * 【実装方針】: ページネーション、ソート、デッキ名join機能を提供
+   * 【パフォーマンス最適化】:
+   *   - Promise.allによる並列データ取得
+   *   - MapによるO(1)デッキ名検索
+   *   - 効率的なソート・ページネーション処理
+   * 【エラーハンドリング】:
+   *   - limit/offsetの範囲チェック（Zodバリデーション）
+   *   - 存在しないデッキIDには"不明なデッキ"を設定
    * 🔵 信頼性レベル: 青信号（requirements.md L129-148、memo.md L136-168より）
    *
-   * @param input - 対戦履歴一覧取得パラメータ
-   * @returns デッキ名付き対戦履歴一覧
-   * @throws ZodError - バリデーションエラー
-   * @throws Error - Blob Storage エラー
+   * @param input - 対戦履歴一覧取得パラメータ（limit, offset, sortBy, sortOrder）
+   * @returns デッキ名付き対戦履歴一覧（battleLogs, total, limit, offset）
+   * @throws ZodError - バリデーションエラー（limit範囲外、offset負の値など）
+   * @throws Error - Blob Storageエラー（リトライ3回後も失敗した場合）
    */
   async getBattleLogsWithDeckNames(
     input: GetBattleLogsParams
@@ -234,28 +250,31 @@ export class BattleLogService {
 
     // 【ソート処理】: 指定されたキー・順序でソート
     // 🔵 信頼性レベル: 青信号（requirements.md L136-139より）
+    // 【セキュリティ改善】: sortByはALLOWED_SORT_KEYSで検証済みのため、型安全にアクセス可能
     const sortedLogs = [...battleLogs].sort((a, b) => {
       const aValue = a[validated.sortBy as keyof BattleLog];
       const bValue = b[validated.sortBy as keyof BattleLog];
 
       // 【ソート順制御】: asc/descの切り替え
+      // 【アルゴリズム】: 3値比較（-1, 0, 1）で安定ソートを保証
       if (validated.sortOrder === 'asc') {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
       }
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
     });
 
     // 【ページネーション処理】: offset〜offset+limit件を切り出し
     // 🔵 信頼性レベル: 青信号（requirements.md L141より）
     const paginatedLogs = sortedLogs.slice(validated.offset, validated.offset + validated.limit);
 
-    // 【デッキ名付与】: Map.get()で各ログにデッキ名を追加、存在しない場合は"不明なデッキ"
+    // 【デッキ名付与】: Map.get()で各ログにデッキ名を追加
     // 🔵 信頼性レベル: 青信号（requirements.md L142-143, L285-287より）
+    // 【パフォーマンス】: MapによるO(1)検索で高速処理
+    // 【エラーハンドリング】: 存在しないデッキIDには"不明なデッキ"を設定（EDGE-205対応）
     const logsWithDeckNames: BattleLogWithDeckNames[] = paginatedLogs.map((log) => ({
       ...log,
-      myDeckName: myDeckMap.get(log.myDeckId) ?? '不明なデッキ', // 【デフォルト値】: デッキIDが見つからない場合
-      opponentDeckName: deckMasterMap.get(log.opponentDeckId) ?? '不明なデッキ', // 【デフォルト値】: デッキIDが見つからない場合
+      myDeckName: myDeckMap.get(log.myDeckId) ?? '不明なデッキ',
+      opponentDeckName: deckMasterMap.get(log.opponentDeckId) ?? '不明なデッキ',
     }));
 
     // 【レスポンス返却】: ページネーション情報を含むレスポンス
@@ -270,39 +289,45 @@ export class BattleLogService {
 
   /**
    * 【機能概要】: 指定されたIDの対戦履歴を削除する
-   * 【実装方針】: テストを通すための最小実装。findIndex → splice → saveの流れ
-   * 【テスト対応】: TC-007, TC-104, TC-106 を通すための実装
+   * 【実装方針】: findIndex → splice → save の流れで削除処理を実行
+   * 【パフォーマンス】: O(n)の計算量（MVP段階では問題なし）
+   * 【エラーハンドリング】: 存在しないIDの場合は404エラーを返却
    * 🔵 信頼性レベル: 青信号（requirements.md L141-148, memo.md L170-186より）
    *
    * @param id - 削除対象の対戦履歴ID（log_YYYYMMDD_NNN形式）
    * @returns 削除されたID
-   * @throws Error - 対戦履歴が見つからない場合（404）
-   * @throws Error - Blob Storage エラー
+   * @throws Error - 対戦履歴が見つからない場合（404エラー）
+   * @throws Error - Blob Storageエラー（リトライ3回後も失敗した場合）
    */
   async deleteBattleLog(id: string): Promise<DeleteBattleLogResponse> {
-    // 【既存ログ取得】: 全件取得して対象を検索
+    // 【既存ログ取得】: Blob Storageから全件取得
     // 🔵 信頼性レベル: 青信号（memo.md L180-181より）
+    // 【計算量】: O(n) - n は対戦履歴の総数
     const battleLogs = await this.blobClient.getBattleLogs();
 
-    // 【対象検索】: findIndex()で対象IDを検索
+    // 【対象検索】: 削除対象のインデックスを検索
     // 🔵 信頼性レベル: 青信号（memo.md L182より）
+    // 【計算量】: O(n) - 最悪ケースで全件走査
     const targetIndex = battleLogs.findIndex((log) => log.id === id);
 
-    // 【存在チェック】: 見つからなければエラー（404）
+    // 【存在チェック】: 対象が見つからない場合はエラー
     // 🔵 信頼性レベル: 青信号（requirements.md L114-127, memo.md L183より）
+    // 【エラーメッセージ】: ユーザーフレンドリーで、削除対象のIDを含む
     if (targetIndex === -1) {
-      throw new Error(`対戦履歴が見つかりません: ${id}`); // 【エラー処理】: テストで期待されるエラーメッセージ
+      throw new Error(`対戦履歴が見つかりません: ${id}`);
     }
 
-    // 【削除処理】: splice()で配列から削除
+    // 【削除処理】: 配列から1件削除
     // 🔵 信頼性レベル: 青信号（memo.md L184より）
+    // 【副作用】: 元の配列を変更（splice は破壊的メソッド）
     battleLogs.splice(targetIndex, 1);
 
-    // 【保存処理】: saveBattleLogs()で保存
+    // 【保存処理】: 削除後の配列をBlob Storageに保存
     // 🔵 信頼性レベル: 青信号（memo.md L185より）
+    // 【リトライ】: BlobStorageClientで3回リトライ（指数バックオフ）
     await this.blobClient.saveBattleLogs(battleLogs);
 
-    // 【結果返却】: 削除IDをレスポンス返却
+    // 【結果返却】: 削除が成功したIDをレスポンスとして返却
     // 🔵 信頼性レベル: 青信号（requirements.md L99-112, memo.md L186より）
     return {
       deletedId: id,

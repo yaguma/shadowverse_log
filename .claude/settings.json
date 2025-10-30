@@ -3,6 +3,10 @@
   "permissions": {
     "allow": [
       "Read(**)",
+      "Write(backend/**)",
+      "Write(frontend/**)",
+      "Write(scripts/**)",
+      "Write(data/**)",
       "Write(src/**)",
       "Write(docs/**)",
       "Write(.tmp/**)",
