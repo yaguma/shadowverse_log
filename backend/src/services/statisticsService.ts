@@ -82,6 +82,10 @@ export class StatisticsService {
     const byOpponentDeck = this.calculateByOpponentDeck(filteredLogs, deckMasters);
     const byRank = this.calculateByRank(filteredLogs);
     const byTurn = this.calculateByTurn(filteredLogs);
+    const opponentDeckDistribution = this.calculateOpponentDeckDistribution(
+      filteredLogs,
+      deckMasters
+    );
 
     // 【レスポンス構築】: StatisticsResponse 形式で返却
     // 🔵 信頼性レベル: 青信号（requirements.md Lines 118-210 より）
@@ -91,7 +95,7 @@ export class StatisticsService {
       byOpponentDeck,
       byRank,
       byTurn,
-      opponentDeckDistribution: [], // Phase 1では空配列
+      opponentDeckDistribution,
       dateRange: {
         startDate,
         endDate,
@@ -497,6 +501,110 @@ export class StatisticsService {
     // 【例】: 2 / 3 = 0.6666... → Math.round(666.666...) / 10 = 66.7
     // 🔵 信頼性レベル: 青信号
     return Math.round((wins / totalGames) * 1000) / 10;
+  }
+
+  /**
+   * 【プライベートメソッド】: 対戦相手デッキ分布を計算（円グラフ用データ）
+   *
+   * 【機能概要】:
+   * 1. opponentDeckId でグループ化し、出現回数をカウント
+   * 2. デッキ名を deckMasters から参照（存在しない場合は "不明なデッキ"）
+   * 3. パーセンテージを計算（小数点第1位まで）
+   * 4. count の降順でソート
+   *
+   * 【実装方針】:
+   * - Map を使用した効率的なグループ化（O(n)）
+   * - 勝率計算と同じ丸め方式を採用（一貫性）
+   * - データ0件の早期リターンでパフォーマンス最適化
+   *
+   * 【パフォーマンス】:
+   * - グループ化: O(n) - n = 対戦履歴件数
+   * - パーセンテージ計算: O(m) - m = デッキ種類数
+   * - ソート: O(m log m) - m = デッキ種類数（10-20種類程度）
+   * - 総計算量: O(n + m log m) ≈ O(n)（m << n のため）
+   *
+   * 【保守性】:
+   * - デッキマスター不整合に対する堅牢な処理（"不明なデッキ"でフォールバック）
+   * - ゼロ除算の回避（totalGames === 0 で空配列を返却）
+   * - 丸め誤差の許容（パーセンテージ合計が100%±0.1%の範囲内）
+   *
+   * 🔵 信頼性レベル: 青信号（requirements.md Lines 186-228 より）
+   *
+   * @param logs - フィルタリング済み対戦履歴配列
+   * @param deckMasters - デッキマスターデータ
+   * @returns 相手デッキ分布配列（出現回数降順）
+   */
+  private calculateOpponentDeckDistribution(
+    logs: BattleLog[],
+    deckMasters: DeckMaster[]
+  ): Array<{
+    deckId: string;
+    deckName: string;
+    count: number;
+    percentage: number;
+  }> {
+    const totalGames = logs.length;
+
+    // 【データ0件の早期リターン】: ゼロ除算を回避し、空配列を返す
+    // 【パフォーマンス最適化】: 不要な処理をスキップして効率化
+    // 🔵 信頼性レベル: 青信号（requirements.md Lines 466-490 より）
+    if (totalGames === 0) {
+      return [];
+    }
+
+    // 【グループ化フェーズ】: opponentDeckId でグループ化し、出現回数をカウント
+    // 【実装詳細】: Map を使用して O(n) の効率的な集計を実現
+    // 【堅牢性】: 同じデッキIDが複数回登場しても正確にカウント
+    // 🔵 信頼性レベル: 青信号（requirements.md Lines 201-208 より）
+    const deckCountMap = new Map<string, number>();
+
+    for (const log of logs) {
+      const count = deckCountMap.get(log.opponentDeckId) ?? 0;
+      deckCountMap.set(log.opponentDeckId, count + 1);
+    }
+
+    // 【マップ作成】: deckId → deckName の高速参照マップ
+    // 【パフォーマンス】: O(1) の参照を可能にする最適化
+    // 🔵 信頼性レベル: 青信号（requirements.md Lines 210-214 より）
+    const deckMasterMap = new Map(deckMasters.map((deck) => [deck.id, deck.deckName]));
+
+    // 【配列変換フェーズ】: Map → 配列に変換し、デッキ名とパーセンテージを計算
+    // 【計算式】: percentage = Math.round((count / totalGames) * 1000) / 10
+    // 【丸め方式】: 勝率計算と同じ方式（小数点第1位まで四捨五入）
+    // 【一貫性】: calculateWinRate() メソッドと同じロジック
+    // 🔵 信頼性レベル: 青信号（requirements.md Lines 215-223, 230-243 より）
+    const distribution: Array<{
+      deckId: string;
+      deckName: string;
+      count: number;
+      percentage: number;
+    }> = [];
+
+    deckCountMap.forEach((count, deckId) => {
+      // 【デッキ名参照】: deckMasters から名前を取得、存在しない場合はフォールバック
+      // 【堅牢性】: デッキ削除後も対戦履歴が残るケースに対応
+      // 🔵 信頼性レベル: 青信号（requirements.md Lines 521-541 より）
+      const deckName = deckMasterMap.get(deckId) ?? '不明なデッキ';
+
+      // 【パーセンテージ計算】: 小数点第1位まで四捨五入
+      // 【計算例】: count=45, totalGames=150 → (45/150)*1000=300 → Math.round(300)/10=30.0
+      // 【丸め誤差】: 合計が100%±0.1%の範囲内になる可能性あり（許容範囲）
+      // 🔵 信頼性レベル: 青信号（requirements.md Lines 230-243 より）
+      const percentage = Math.round((count / totalGames) * 1000) / 10;
+
+      distribution.push({
+        deckId,
+        deckName,
+        count,
+        percentage,
+      });
+    });
+
+    // 【ソートフェーズ】: count の降順でソート（出現回数が多い順）
+    // 【UI要件】: 円グラフで大きい順に表示するための並び順
+    // 【パフォーマンス】: O(m log m) - m = デッキ種類数（10-20種類程度）
+    // 🔵 信頼性レベル: 青信号（requirements.md Lines 224-226 より）
+    return distribution.sort((a, b) => b.count - a.count);
   }
 
   /**

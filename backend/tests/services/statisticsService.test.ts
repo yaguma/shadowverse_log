@@ -388,8 +388,18 @@ describe('StatisticsService', () => {
       ];
 
       const mockDeckMasters: DeckMaster[] = [
-        { id: 'deck_master_005', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 5 },
-        { id: 'deck_master_002', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 2 },
+        {
+          id: 'deck_master_005',
+          className: 'ネクロマンサー',
+          deckName: '進化ネクロ',
+          sortOrder: 5,
+        },
+        {
+          id: 'deck_master_002',
+          className: 'ロイヤル',
+          deckName: 'ミッドレンジロイヤル',
+          sortOrder: 2,
+        },
         { id: 'deck_master_010', className: 'ロイヤル', deckName: '連携ロイヤル', sortOrder: 10 },
       ];
 
@@ -617,12 +627,62 @@ describe('StatisticsService', () => {
       // 【初期条件設定】: 期間内（15〜20日）と期間外（10日、25日）のデータを混在
       const mockBattleLogs: BattleLog[] = [
         // 範囲外: 2025/01/10（2件）
-        { id: 'log_20250110_001', date: '2025/01/10', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_001' },
-        { id: 'log_20250110_002', date: '2025/01/10', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '後攻', result: '勝ち', opponentDeckId: 'deck_master_002' },
+        {
+          id: 'log_20250110_001',
+          date: '2025/01/10',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_001',
+        },
+        {
+          id: 'log_20250110_002',
+          date: '2025/01/10',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '後攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_002',
+        },
         // 範囲内: 2025/01/15（3件）
-        { id: 'log_20250115_001', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_001' },
-        { id: 'log_20250115_002', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '後攻', result: '勝ち', opponentDeckId: 'deck_master_002' },
-        { id: 'log_20250115_003', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_003' },
+        {
+          id: 'log_20250115_001',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_001',
+        },
+        {
+          id: 'log_20250115_002',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '後攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_002',
+        },
+        {
+          id: 'log_20250115_003',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_003',
+        },
         // 範囲内: 2025/01/18（5件）
         ...Array.from({ length: 5 }, (_, i) => ({
           id: `log_20250118_${String(i + 1).padStart(3, '0')}`,
@@ -636,12 +696,62 @@ describe('StatisticsService', () => {
           opponentDeckId: 'deck_master_001',
         })),
         // 範囲内: 2025/01/20（2件）
-        { id: 'log_20250120_001', date: '2025/01/20', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_001' },
-        { id: 'log_20250120_002', date: '2025/01/20', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '後攻', result: '負け', opponentDeckId: 'deck_master_002' },
+        {
+          id: 'log_20250120_001',
+          date: '2025/01/20',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_001',
+        },
+        {
+          id: 'log_20250120_002',
+          date: '2025/01/20',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '後攻',
+          result: '負け',
+          opponentDeckId: 'deck_master_002',
+        },
         // 範囲外: 2025/01/25（3件）
-        { id: 'log_20250125_001', date: '2025/01/25', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_001' },
-        { id: 'log_20250125_002', date: '2025/01/25', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '後攻', result: '負け', opponentDeckId: 'deck_master_002' },
-        { id: 'log_20250125_003', date: '2025/01/25', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_003' },
+        {
+          id: 'log_20250125_001',
+          date: '2025/01/25',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_001',
+        },
+        {
+          id: 'log_20250125_002',
+          date: '2025/01/25',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '後攻',
+          result: '負け',
+          opponentDeckId: 'deck_master_002',
+        },
+        {
+          id: 'log_20250125_003',
+          date: '2025/01/25',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_003',
+        },
       ];
 
       mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
@@ -801,7 +911,9 @@ describe('StatisticsService', () => {
 
       // 【不正な理由】: ネットワーク障害、Storageアカウントの設定ミス、認証エラー
       // 【実際の発生シナリオ】: ネットワーク障害、Azure Storage障害、接続文字列の設定ミス
-      mockBlobClient.getBattleLogs = jest.fn().mockRejectedValue(new Error('Blob Storage connection failed'));
+      mockBlobClient.getBattleLogs = jest
+        .fn()
+        .mockRejectedValue(new Error('Blob Storage connection failed'));
 
       // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
       // 【処理内容】: エラーハンドリング → エラーのスロー
@@ -900,9 +1012,39 @@ describe('StatisticsService', () => {
       // 【境界値選択の根拠】: 2 / 3 = 0.6666... の丸め処理を確認
       // 【実際の使用場面】: 少数試合での勝率計算
       const mockBattleLogs: BattleLog[] = [
-        { id: 'log_20250101_001', date: '2025/01/01', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_001' },
-        { id: 'log_20250102_001', date: '2025/01/02', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '後攻', result: '勝ち', opponentDeckId: 'deck_master_002' },
-        { id: 'log_20250103_001', date: '2025/01/03', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '負け', opponentDeckId: 'deck_master_003' },
+        {
+          id: 'log_20250101_001',
+          date: '2025/01/01',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_001',
+        },
+        {
+          id: 'log_20250102_001',
+          date: '2025/01/02',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '後攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_002',
+        },
+        {
+          id: 'log_20250103_001',
+          date: '2025/01/03',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '負け',
+          opponentDeckId: 'deck_master_003',
+        },
       ];
 
       mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
@@ -1065,11 +1207,61 @@ describe('StatisticsService', () => {
       // 【境界値選択の根拠】: 特定の1日の成績を確認するケース
       // 【実際の使用場面】: 特定日の成績を詳細に分析
       const mockBattleLogs: BattleLog[] = [
-        { id: 'log_20250115_001', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_001' },
-        { id: 'log_20250115_002', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '後攻', result: '勝ち', opponentDeckId: 'deck_master_002' },
-        { id: 'log_20250115_003', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_003' },
-        { id: 'log_20250115_004', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '後攻', result: '負け', opponentDeckId: 'deck_master_004' },
-        { id: 'log_20250115_005', date: '2025/01/15', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '負け', opponentDeckId: 'deck_master_005' },
+        {
+          id: 'log_20250115_001',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_001',
+        },
+        {
+          id: 'log_20250115_002',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '後攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_002',
+        },
+        {
+          id: 'log_20250115_003',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck_master_003',
+        },
+        {
+          id: 'log_20250115_004',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '後攻',
+          result: '負け',
+          opponentDeckId: 'deck_master_004',
+        },
+        {
+          id: 'log_20250115_005',
+          date: '2025/01/15',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          group: 'AAA',
+          myDeckId: 'deck_001',
+          turn: '先攻',
+          result: '負け',
+          opponentDeckId: 'deck_master_005',
+        },
       ];
 
       mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
@@ -1092,6 +1284,728 @@ describe('StatisticsService', () => {
       expect(result.overall.winRate).toBe(60.0); // 【確認内容】: 勝率が正しく計算される（3/5*100=60.0） 🟡
       expect(result.dateRange.startDate).toBe('2025-01-15'); // 【確認内容】: 開始日が正しく設定される 🟡
       expect(result.dateRange.endDate).toBe('2025-01-15'); // 【確認内容】: 終了日が正しく設定される 🟡
+    });
+  });
+
+  // =============================================================================
+  // TASK-0011: 対戦相手デッキ分布（opponentDeckDistribution）のテストケース
+  // =============================================================================
+
+  describe('TASK-0011: 対戦相手デッキ分布 - 正常系', () => {
+    describe('正常系: TC-011-001 - 対戦相手デッキ分布が正しく計算される', () => {
+      test('対戦相手デッキ分布が正しく計算される（基本パターン）', async () => {
+        // 【テスト目的】: calculateOpponentDeckDistribution()メソッドが対戦相手デッキIDでグループ化し、count・percentage・deckNameを正しく計算すること
+        // 【テスト内容】: opponentDeckIdでグループ化 → deckMastersからdeckName取得 → count降順でソート → percentageを小数点第1位まで計算
+        // 【期待される動作】: count降順でソート、percentageの合計が100%に近い値
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 43-117 より）
+
+        // 【テストデータ準備】: 典型的な環境で多いデッキとの対戦が集中するケース（総対戦数: 25試合）
+        // 【初期条件設定】: 進化ネクロ（12回、48.0%）、ミッドレンジロイヤル（8回、32.0%）、秘術ウィッチ（5回、20.0%）
+        const mockBattleLogs: BattleLog[] = [
+          // deck_master_002（進化ネクロ）: 12回
+          ...Array.from({ length: 12 }, (_, i) => ({
+            id: `log_20250101_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/01',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '先攻' as const,
+            result: '勝ち' as const,
+            opponentDeckId: 'deck_master_002',
+          })),
+          // deck_master_005（ミッドレンジロイヤル）: 8回
+          ...Array.from({ length: 8 }, (_, i) => ({
+            id: `log_20250102_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/02',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '後攻' as const,
+            result: '負け' as const,
+            opponentDeckId: 'deck_master_005',
+          })),
+          // deck_master_010（秘術ウィッチ）: 5回
+          ...Array.from({ length: 5 }, (_, i) => ({
+            id: `log_20250103_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/03',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '先攻' as const,
+            result: '勝ち' as const,
+            opponentDeckId: 'deck_master_010',
+          })),
+        ];
+
+        const mockDeckMasters: DeckMaster[] = [
+          {
+            id: 'deck_master_002',
+            className: 'ネクロマンサー',
+            deckName: '進化ネクロ',
+            sortOrder: 2,
+          },
+          {
+            id: 'deck_master_005',
+            className: 'ロイヤル',
+            deckName: 'ミッドレンジロイヤル',
+            sortOrder: 5,
+          },
+          { id: 'deck_master_010', className: 'ウィッチ', deckName: '秘術ウィッチ', sortOrder: 10 },
+        ];
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: opponentDeckIdでグループ化 → カウント集計 → パーセンテージ計算 → count降順でソート
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: opponentDeckDistribution配列が期待値と一致することを確認
+        // 【期待値確認】: count降順でソート、percentageが小数点第1位まで
+        expect(result.opponentDeckDistribution).toHaveLength(3); // 【確認内容】: 3種類の相手デッキが集計される 🔵
+
+        expect(result.opponentDeckDistribution[0]?.deckId).toBe('deck_master_002'); // 【確認内容】: 対戦頻度が高いデッキが先頭に来る 🔵
+        expect(result.opponentDeckDistribution[0]?.deckName).toBe('進化ネクロ'); // 【確認内容】: デッキマスターから名前が正しく参照される 🔵
+        expect(result.opponentDeckDistribution[0]?.count).toBe(12); // 【確認内容】: 出現回数が正しく集計される 🔵
+        expect(result.opponentDeckDistribution[0]?.percentage).toBe(48.0); // 【確認内容】: パーセンテージが小数点第1位まで計算される（12/25*100=48.0） 🔵
+
+        expect(result.opponentDeckDistribution[1]?.deckId).toBe('deck_master_005'); // 【確認内容】: 対戦頻度が2番目のデッキ 🔵
+        expect(result.opponentDeckDistribution[1]?.deckName).toBe('ミッドレンジロイヤル'); // 【確認内容】: デッキマスターから名前が正しく参照される 🔵
+        expect(result.opponentDeckDistribution[1]?.count).toBe(8); // 【確認内容】: 出現回数が正しく集計される 🔵
+        expect(result.opponentDeckDistribution[1]?.percentage).toBe(32.0); // 【確認内容】: パーセンテージが小数点第1位まで計算される（8/25*100=32.0） 🔵
+
+        expect(result.opponentDeckDistribution[2]?.deckId).toBe('deck_master_010'); // 【確認内容】: 対戦頻度が3番目のデッキ 🔵
+        expect(result.opponentDeckDistribution[2]?.deckName).toBe('秘術ウィッチ'); // 【確認内容】: デッキマスターから名前が正しく参照される 🔵
+        expect(result.opponentDeckDistribution[2]?.count).toBe(5); // 【確認内容】: 出現回数が正しく集計される 🔵
+        expect(result.opponentDeckDistribution[2]?.percentage).toBe(20.0); // 【確認内容】: パーセンテージが小数点第1位まで計算される（5/25*100=20.0） 🔵
+
+        // 【パーセンテージの合計検証】: 丸め誤差を考慮して100%±0.1%の範囲内
+        const totalPercentage = result.opponentDeckDistribution.reduce(
+          (sum, item) => sum + item.percentage,
+          0
+        );
+        expect(totalPercentage).toBeGreaterThanOrEqual(99.9); // 【確認内容】: 合計が99.9%以上 🔵
+        expect(totalPercentage).toBeLessThanOrEqual(100.1); // 【確認内容】: 合計が100.1%以下 🔵
+      });
+    });
+
+    describe('正常系: TC-011-002 - パーセンテージの合計が100%になる（丸め誤差考慮）', () => {
+      test('パーセンテージの合計が100%に近い値になる（丸め誤差考慮）', async () => {
+        // 【テスト目的】: 丸め処理により、パーセンテージの合計が100%±0.1%の範囲内に収まること
+        // 【テスト内容】: 各パーセンテージを個別に丸めても、合計が許容範囲内（99.9% ~ 100.1%）
+        // 【期待される動作】: 各パーセンテージを個別に丸めても、合計が許容範囲内
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 120-158 より）
+
+        // 【テストデータ準備】: 均等に分割される（1/3ずつ）ケースで丸め誤差をテスト
+        // 【初期条件設定】: 3デッキ、各1回ずつ対戦（1/3 = 0.333... の丸め処理を確認）
+        const mockBattleLogs: BattleLog[] = [
+          {
+            id: 'log_20250101_001',
+            date: '2025/01/01',
+            battleType: 'ランクマッチ',
+            rank: 'ダイアモンド',
+            group: 'AAA',
+            myDeckId: 'deck_001',
+            turn: '先攻',
+            result: '勝ち',
+            opponentDeckId: 'deck_master_002',
+          },
+          {
+            id: 'log_20250102_001',
+            date: '2025/01/02',
+            battleType: 'ランクマッチ',
+            rank: 'ダイアモンド',
+            group: 'AAA',
+            myDeckId: 'deck_001',
+            turn: '後攻',
+            result: '負け',
+            opponentDeckId: 'deck_master_003',
+          },
+          {
+            id: 'log_20250103_001',
+            date: '2025/01/03',
+            battleType: 'ランクマッチ',
+            rank: 'ダイアモンド',
+            group: 'AAA',
+            myDeckId: 'deck_001',
+            turn: '先攻',
+            result: '勝ち',
+            opponentDeckId: 'deck_master_004',
+          },
+        ];
+
+        const mockDeckMasters: DeckMaster[] = [
+          {
+            id: 'deck_master_002',
+            className: 'ネクロマンサー',
+            deckName: '進化ネクロ',
+            sortOrder: 2,
+          },
+          {
+            id: 'deck_master_003',
+            className: 'ロイヤル',
+            deckName: 'ミッドレンジロイヤル',
+            sortOrder: 3,
+          },
+          { id: 'deck_master_004', className: 'ウィッチ', deckName: '秘術ウィッチ', sortOrder: 4 },
+        ];
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: opponentDeckIdでグループ化 → カウント集計 → パーセンテージ計算
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: パーセンテージの合計が99.9% ~ 100.1%の範囲内
+        expect(result.opponentDeckDistribution).toHaveLength(3); // 【確認内容】: 3種類の相手デッキが集計される 🔵
+
+        // 各デッキのpercentageを確認
+        expect(result.opponentDeckDistribution[0]?.percentage).toBe(33.3); // 【確認内容】: 1/3 = 33.3% 🔵
+        expect(result.opponentDeckDistribution[1]?.percentage).toBe(33.3); // 【確認内容】: 1/3 = 33.3% 🔵
+        expect(result.opponentDeckDistribution[2]?.percentage).toBe(33.3); // 【確認内容】: 1/3 = 33.3% 🔵
+
+        // 【パーセンテージの合計検証】: 丸め誤差を考慮して100%±0.1%の範囲内
+        const totalPercentage = result.opponentDeckDistribution.reduce(
+          (sum, item) => sum + item.percentage,
+          0
+        );
+        // 浮動小数点演算の精度を考慮して、小数点第1位に丸めて比較
+        const roundedTotal = Math.round(totalPercentage * 10) / 10;
+        expect(roundedTotal).toBeGreaterThanOrEqual(99.9); // 【確認内容】: 合計が99.9%以上 🔵
+        expect(roundedTotal).toBeLessThanOrEqual(100.1); // 【確認内容】: 合計が100.1%以下 🔵
+      });
+    });
+
+    describe('正常系: TC-011-003 - 出現回数降順でソートされる', () => {
+      test('対戦相手デッキ分布がcount降順でソートされる', async () => {
+        // 【テスト目的】: opponentDeckDistribution配列がcountの降順（多い順）でソートされること
+        // 【テスト内容】: Array.prototype.sort((a, b) => b.count - a.count)によるソート
+        // 【期待される動作】: countの降順（多い順）でソート
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 161-199 より）
+
+        // 【テストデータ準備】: ログの順序がバラバラでもソートにより正しい順序になることを確認
+        // 【初期条件設定】: データの入力順序はランダム（010→002→005）
+        const mockBattleLogs: BattleLog[] = [
+          // deck_master_010: 3回（最初に入力）
+          ...Array.from({ length: 3 }, (_, i) => ({
+            id: `log_20250101_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/01',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '先攻' as const,
+            result: '勝ち' as const,
+            opponentDeckId: 'deck_master_010',
+          })),
+          // deck_master_002: 15回（2番目に入力、ソート後は1位）
+          ...Array.from({ length: 15 }, (_, i) => ({
+            id: `log_20250102_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/02',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '後攻' as const,
+            result: '負け' as const,
+            opponentDeckId: 'deck_master_002',
+          })),
+          // deck_master_005: 7回（最後に入力、ソート後は2位）
+          ...Array.from({ length: 7 }, (_, i) => ({
+            id: `log_20250103_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/03',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '先攻' as const,
+            result: '勝ち' as const,
+            opponentDeckId: 'deck_master_005',
+          })),
+        ];
+
+        const mockDeckMasters: DeckMaster[] = [
+          {
+            id: 'deck_master_002',
+            className: 'ネクロマンサー',
+            deckName: '進化ネクロ',
+            sortOrder: 2,
+          },
+          {
+            id: 'deck_master_005',
+            className: 'ロイヤル',
+            deckName: 'ミッドレンジロイヤル',
+            sortOrder: 5,
+          },
+          { id: 'deck_master_010', className: 'ウィッチ', deckName: '秘術ウィッチ', sortOrder: 10 },
+        ];
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: opponentDeckIdでグループ化 → カウント集計 → count降順でソート
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: 配列の順序がcount降順になっている
+        expect(result.opponentDeckDistribution).toHaveLength(3); // 【確認内容】: 3種類の相手デッキが集計される 🔵
+
+        // ソート順の検証
+        expect(result.opponentDeckDistribution[0]?.deckId).toBe('deck_master_002'); // 【確認内容】: count=15が1位 🔵
+        expect(result.opponentDeckDistribution[0]?.count).toBe(15); // 【確認内容】: count=15 🔵
+        expect(result.opponentDeckDistribution[0]?.percentage).toBe(60.0); // 【確認内容】: 15/25*100=60.0 🔵
+
+        expect(result.opponentDeckDistribution[1]?.deckId).toBe('deck_master_005'); // 【確認内容】: count=7が2位 🔵
+        expect(result.opponentDeckDistribution[1]?.count).toBe(7); // 【確認内容】: count=7 🔵
+        expect(result.opponentDeckDistribution[1]?.percentage).toBe(28.0); // 【確認内容】: 7/25*100=28.0 🔵
+
+        expect(result.opponentDeckDistribution[2]?.deckId).toBe('deck_master_010'); // 【確認内容】: count=3が3位 🔵
+        expect(result.opponentDeckDistribution[2]?.count).toBe(3); // 【確認内容】: count=3 🔵
+        expect(result.opponentDeckDistribution[2]?.percentage).toBe(12.0); // 【確認内容】: 3/25*100=12.0 🔵
+      });
+    });
+  });
+
+  describe('TASK-0011: 対戦相手デッキ分布 - 異常系', () => {
+    describe('異常系: TC-011-101 - Blob Storage接続エラー', () => {
+      test('Blob Storage接続エラー時に適切なエラーがスローされる', async () => {
+        // 【テスト目的】: Blob Storage接続エラー時に適切なエラーがスローされること
+        // 【エラーケースの概要】: Azure Blob Storageへの接続に失敗した場合
+        // 【エラー処理の重要性】: インフラ障害時の適切なエラーハンドリングとユーザーへの通知
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 204-233 より）
+
+        // 【不正な理由】: ネットワーク障害、Storageアカウントの設定ミス、認証エラー
+        // 【実際の発生シナリオ】: ネットワーク障害でAzure Storageに接続できない
+        mockBlobClient.getBattleLogs = jest
+          .fn()
+          .mockRejectedValue(new Error('Blob Storage connection failed'));
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: エラーハンドリング → エラーのスロー
+        const promise = service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: エラーがスローされることを確認
+        // 【エラーメッセージの内容】: ユーザーに一時的な障害であることを伝える
+        // 【システムの安全性】: エラー時もサーバーがクラッシュせず、500エラーを返す
+        await expect(promise).rejects.toThrow('Blob Storage connection failed'); // 【確認内容】: エラーメッセージが正しくスローされる 🔵
+      });
+    });
+  });
+
+  describe('TASK-0011: 対戦相手デッキ分布 - 境界値', () => {
+    describe('境界値: TC-011-201 - データ0件の場合、空配列を返す', () => {
+      test('期間内に対戦履歴が0件の場合、空配列を返す', async () => {
+        // 【テスト目的】: データ件数がゼロ（最小値）の状態での安全な動作確認
+        // 【境界値の意味】: データ件数がゼロ（最小値）の状態
+        // 【境界値での動作保証】: ゼロ除算エラーを起こさず、空配列を返す
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 238-263 より）
+
+        // 【境界値選択の根拠】: データが存在しない期間での統計取得（最小値）
+        // 【実際の使用場面】: システム初回利用時、まだ対戦していない期間の指定
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue([]);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue([]);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す（未来の期間を指定）
+        // 【処理内容】: ゼロ除算を避け、空配列を返す
+        const result = await service.calculateStatistics({
+          startDate: '2025-12-01',
+          endDate: '2025-12-31',
+        });
+
+        // 【結果検証】: 空配列が返されることを確認（エラーではない）
+        // 【境界での正確性】: ゼロ除算を避け、空配列を返す
+        // 【一貫した動作】: エラーではなく、空の配列を返す（REQ-405）
+        expect(result.opponentDeckDistribution).toEqual([]); // 【確認内容】: 空配列が返される 🔵
+      });
+    });
+
+    describe('境界値: TC-011-202 - 1種類のデッキのみの場合、100.0%', () => {
+      test('1種類のデッキとしか対戦していない場合、percentage=100.0', async () => {
+        // 【テスト目的】: デッキ種類数が最小（1種類）の場合の正常処理確認
+        // 【境界値の意味】: デッキ種類数が最小（1種類）
+        // 【境界値での動作保証】: 1種類のみでも正常に計算される
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 266-305 より）
+
+        // 【境界値選択の根拠】: 同じデッキとしか対戦していないケース
+        // 【実際の使用場面】: 特定のデッキが環境に圧倒的に多い場合
+        const mockBattleLogs: BattleLog[] = Array.from({ length: 50 }, (_, i) => ({
+          id: `log_20250101_${String(i + 1).padStart(3, '0')}`,
+          date: '2025/01/01',
+          battleType: 'ランクマッチ' as const,
+          rank: 'ダイアモンド' as const,
+          group: 'AAA' as const,
+          myDeckId: 'deck_001',
+          turn: '先攻' as const,
+          result: '勝ち' as const,
+          opponentDeckId: 'deck_master_002',
+        }));
+
+        const mockDeckMasters: DeckMaster[] = [
+          {
+            id: 'deck_master_002',
+            className: 'ネクロマンサー',
+            deckName: '進化ネクロ',
+            sortOrder: 2,
+          },
+        ];
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: opponentDeckIdでグループ化 → カウント集計 → percentage=100.0
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: percentageが正確に100.0になる
+        // 【境界での正確性】: percentageが正確に100.0になる
+        // 【一貫した動作】: 1種類のみでも配列形式で返す
+        expect(result.opponentDeckDistribution).toHaveLength(1); // 【確認内容】: 1種類のデッキが集計される 🔵
+        expect(result.opponentDeckDistribution[0]?.deckId).toBe('deck_master_002'); // 【確認内容】: デッキIDが正しく設定される 🔵
+        expect(result.opponentDeckDistribution[0]?.deckName).toBe('進化ネクロ'); // 【確認内容】: デッキ名が正しく参照される 🔵
+        expect(result.opponentDeckDistribution[0]?.count).toBe(50); // 【確認内容】: count=50 🔵
+        expect(result.opponentDeckDistribution[0]?.percentage).toBe(100.0); // 【確認内容】: percentage=100.0 🔵
+      });
+    });
+
+    describe('境界値: TC-011-203 - 存在しないデッキIDの場合、"不明なデッキ"', () => {
+      test('存在しないデッキIDが含まれる場合、"不明なデッキ"として統計に含まれる', async () => {
+        // 【テスト目的】: マスターデータ不整合時の安全な動作確認
+        // 【境界値の意味】: マスターデータとの不整合
+        // 【境界値での動作保証】: 参照エラーを起こさず、フォールバック値を使用
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 308-354 より）
+
+        // 【境界値選択の根拠】: デッキ削除後も対戦履歴が残るケース
+        // 【実際の使用場面】: deckMasters.jsonからデッキが削除された後
+        const mockBattleLogs: BattleLog[] = [
+          ...Array.from({ length: 10 }, (_, i) => ({
+            id: `log_20250101_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/01',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '先攻' as const,
+            result: '勝ち' as const,
+            opponentDeckId: 'deleted_deck_999',
+          })),
+          ...Array.from({ length: 15 }, (_, i) => ({
+            id: `log_20250102_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/02',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '後攻' as const,
+            result: '負け' as const,
+            opponentDeckId: 'deck_master_002',
+          })),
+        ];
+
+        const mockDeckMasters: DeckMaster[] = [
+          {
+            id: 'deck_master_002',
+            className: 'ネクロマンサー',
+            deckName: '進化ネクロ',
+            sortOrder: 2,
+          },
+          // deleted_deck_999は存在しない
+        ];
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: デッキ名取得時にフォールバック → "不明なデッキ"
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: "不明なデッキ"として統計に含まれることを確認
+        // 【境界での正確性】: 存在しないIDでもエラーにならず、"不明なデッキ"として表示
+        // 【一貫した動作】: デッキ名のみフォールバック、統計は正常に計算
+        expect(result.opponentDeckDistribution).toHaveLength(2); // 【確認内容】: 2種類のデッキが集計される 🔵
+
+        // deck_master_002の検証（count降順で先頭）
+        expect(result.opponentDeckDistribution[0]?.deckId).toBe('deck_master_002'); // 【確認内容】: count=15が1位 🔵
+        expect(result.opponentDeckDistribution[0]?.deckName).toBe('進化ネクロ'); // 【確認内容】: デッキ名が正しく参照される 🔵
+        expect(result.opponentDeckDistribution[0]?.count).toBe(15); // 【確認内容】: count=15 🔵
+        expect(result.opponentDeckDistribution[0]?.percentage).toBe(60.0); // 【確認内容】: 15/25*100=60.0 🔵
+
+        // deleted_deck_999の検証（count降順で2位）
+        expect(result.opponentDeckDistribution[1]?.deckId).toBe('deleted_deck_999'); // 【確認内容】: deleted_deck_999が2位 🔵
+        expect(result.opponentDeckDistribution[1]?.deckName).toBe('不明なデッキ'); // 【確認内容】: フォールバック値が使用される 🔵
+        expect(result.opponentDeckDistribution[1]?.count).toBe(10); // 【確認内容】: count=10 🔵
+        expect(result.opponentDeckDistribution[1]?.percentage).toBe(40.0); // 【確認内容】: 10/25*100=40.0 🔵
+      });
+    });
+
+    describe('境界値: TC-011-204 - パーセンテージ計算の丸め処理が正しい', () => {
+      test('パーセンテージが割り切れない場合、小数点第1位まで四捨五入される', async () => {
+        // 【テスト目的】: パーセンテージ計算の精度（小数点第1位）確認
+        // 【境界値の意味】: パーセンテージ計算の精度（小数点第1位）
+        // 【境界値での動作保証】: 丸め処理が仕様通りに動作する
+        // 🔵 信頼性レベル: 青信号（testcases.md Lines 357-393 より）
+
+        // 【境界値選択の根拠】: 割り切れない割合の丸め処理を確認
+        // 【実際の使用場面】: 少数試合でのパーセンテージ計算
+        const mockBattleLogs: BattleLog[] = [
+          ...Array.from({ length: 7 }, (_, i) => ({
+            id: `log_20250101_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/01',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '先攻' as const,
+            result: '勝ち' as const,
+            opponentDeckId: 'deck_master_002',
+          })), // 7/15 = 46.666... → 46.7%
+          ...Array.from({ length: 5 }, (_, i) => ({
+            id: `log_20250102_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/02',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '後攻' as const,
+            result: '負け' as const,
+            opponentDeckId: 'deck_master_005',
+          })), // 5/15 = 33.333... → 33.3%
+          ...Array.from({ length: 3 }, (_, i) => ({
+            id: `log_20250103_${String(i + 1).padStart(3, '0')}`,
+            date: '2025/01/03',
+            battleType: 'ランクマッチ' as const,
+            rank: 'ダイアモンド' as const,
+            group: 'AAA' as const,
+            myDeckId: 'deck_001',
+            turn: '先攻' as const,
+            result: '勝ち' as const,
+            opponentDeckId: 'deck_master_010',
+          })), // 3/15 = 20.0%
+        ];
+
+        const mockDeckMasters: DeckMaster[] = [
+          {
+            id: 'deck_master_002',
+            className: 'ネクロマンサー',
+            deckName: '進化ネクロ',
+            sortOrder: 2,
+          },
+          {
+            id: 'deck_master_005',
+            className: 'ロイヤル',
+            deckName: 'ミッドレンジロイヤル',
+            sortOrder: 5,
+          },
+          { id: 'deck_master_010', className: 'ウィッチ', deckName: '秘術ウィッチ', sortOrder: 10 },
+        ];
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: パーセンテージ計算 → 小数点第1位まで四捨五入
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: パーセンテージが小数点第1位まで四捨五入されることを確認
+        // 【境界での正確性】: 7/15 = 0.46666... → Math.round(466.666...) / 10 = 46.7
+        // 【一貫した動作】: すべてのパーセンテージで同じ丸め処理が適用される
+        expect(result.opponentDeckDistribution).toHaveLength(3); // 【確認内容】: 3種類のデッキが集計される 🔵
+
+        expect(result.opponentDeckDistribution[0]?.deckId).toBe('deck_master_002'); // 【確認内容】: count=7が1位 🔵
+        expect(result.opponentDeckDistribution[0]?.count).toBe(7); // 【確認内容】: count=7 🔵
+        expect(result.opponentDeckDistribution[0]?.percentage).toBe(46.7); // 【確認内容】: 7/15 = 46.7% 🔵
+
+        expect(result.opponentDeckDistribution[1]?.deckId).toBe('deck_master_005'); // 【確認内容】: count=5が2位 🔵
+        expect(result.opponentDeckDistribution[1]?.count).toBe(5); // 【確認内容】: count=5 🔵
+        expect(result.opponentDeckDistribution[1]?.percentage).toBe(33.3); // 【確認内容】: 5/15 = 33.3% 🔵
+
+        expect(result.opponentDeckDistribution[2]?.deckId).toBe('deck_master_010'); // 【確認内容】: count=3が3位 🔵
+        expect(result.opponentDeckDistribution[2]?.count).toBe(3); // 【確認内容】: count=3 🔵
+        expect(result.opponentDeckDistribution[2]?.percentage).toBe(20.0); // 【確認内容】: 3/15 = 20.0% 🔵
+
+        // 【パーセンテージの合計検証】: 合計が100%になる
+        const totalPercentage = result.opponentDeckDistribution.reduce(
+          (sum, item) => sum + item.percentage,
+          0
+        );
+        expect(totalPercentage).toBe(100.0); // 【確認内容】: 合計が100.0% 🔵
+      });
+    });
+
+    describe('境界値: TC-011-205 - 多数のデッキ種類がある場合の処理', () => {
+      test('10種類以上のデッキがある場合でも正常に処理される', async () => {
+        // 【テスト目的】: デッキ種類数が多い場合の処理確認
+        // 【境界値の意味】: デッキ種類数が多い（最大値）
+        // 【境界値での動作保証】: 多数のデッキでもソートとパーセンテージ計算が正常に動作
+        // 🟡 信頼性レベル: 黄信号（testcases.md Lines 396-434 より）
+
+        // 【境界値選択の根拠】: 環境に多数のデッキが存在するケース
+        // 【実際の使用場面】: メタゲームが多様な環境
+        const mockBattleLogs: BattleLog[] = Array.from({ length: 20 }, (_, i) => ({
+          id: `log_20250101_${String(i + 1).padStart(3, '0')}`,
+          date: '2025/01/01',
+          battleType: 'ランクマッチ' as const,
+          rank: 'ダイアモンド' as const,
+          group: 'AAA' as const,
+          myDeckId: 'deck_001',
+          turn: '先攻' as const,
+          result: '勝ち' as const,
+          opponentDeckId: `deck_master_${String(i + 1).padStart(3, '0')}`,
+        }));
+
+        const mockDeckMasters: DeckMaster[] = Array.from({ length: 20 }, (_, i) => ({
+          id: `deck_master_${String(i + 1).padStart(3, '0')}`,
+          className: 'ネクロマンサー',
+          deckName: `デッキ${i + 1}`,
+          sortOrder: i + 1,
+        }));
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: 多数のデッキでもソート・計算が正常に動作
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: 20種類でも正常にソート・計算される
+        // 【境界での正確性】: 20種類でも正常にソート・計算される
+        // 【一貫した動作】: デッキ種類数に関わらず同じロジックで処理
+        expect(result.opponentDeckDistribution).toHaveLength(20); // 【確認内容】: 20種類のデッキが集計される 🟡
+
+        // 各デッキが5.0%（20種類均等分布）
+        for (const item of result.opponentDeckDistribution) {
+          expect(item.count).toBe(1); // 【確認内容】: 各デッキcount=1 🟡
+          expect(item.percentage).toBe(5.0); // 【確認内容】: 各デッキ5.0% 🟡
+        }
+
+        // 【パーセンテージの合計検証】: 合計が100%になる
+        const totalPercentage = result.opponentDeckDistribution.reduce(
+          (sum, item) => sum + item.percentage,
+          0
+        );
+        expect(totalPercentage).toBe(100.0); // 【確認内容】: 合計が100.0% 🟡
+      });
+    });
+
+    describe('境界値: TC-011-206 - 小数のカウントでのパーセンテージ計算（整数前提）', () => {
+      test('count が整数であることを前提とした実装の確認', async () => {
+        // 【テスト目的】: countが整数であることの型安全性確認
+        // 【境界値の意味】: countフィールドの型（整数）
+        // 【境界値での動作保証】: countが整数であることが保証されている
+        // 🟡 信頼性レベル: 黄信号（testcases.md Lines 437-469 より）
+
+        // 【境界値選択の根拠】: countは対戦回数なので必ず整数
+        // 【実際の使用場面】: すべてのケースでcountは整数
+        const mockBattleLogs: BattleLog[] = [
+          {
+            id: 'log_20250101_001',
+            date: '2025/01/01',
+            battleType: 'ランクマッチ',
+            rank: 'ダイアモンド',
+            group: 'AAA',
+            myDeckId: 'deck_001',
+            turn: '先攻',
+            result: '勝ち',
+            opponentDeckId: 'deck_master_002',
+          },
+          {
+            id: 'log_20250102_001',
+            date: '2025/01/02',
+            battleType: 'ランクマッチ',
+            rank: 'ダイアモンド',
+            group: 'AAA',
+            myDeckId: 'deck_001',
+            turn: '後攻',
+            result: '負け',
+            opponentDeckId: 'deck_master_002',
+          },
+          {
+            id: 'log_20250103_001',
+            date: '2025/01/03',
+            battleType: 'ランクマッチ',
+            rank: 'ダイアモンド',
+            group: 'AAA',
+            myDeckId: 'deck_001',
+            turn: '先攻',
+            result: '勝ち',
+            opponentDeckId: 'deck_master_005',
+          },
+        ];
+
+        const mockDeckMasters: DeckMaster[] = [
+          {
+            id: 'deck_master_002',
+            className: 'ネクロマンサー',
+            deckName: '進化ネクロ',
+            sortOrder: 2,
+          },
+          {
+            id: 'deck_master_005',
+            className: 'ロイヤル',
+            deckName: 'ミッドレンジロイヤル',
+            sortOrder: 5,
+          },
+        ];
+
+        mockBlobClient.getBattleLogs = jest.fn().mockResolvedValue(mockBattleLogs);
+        mockBlobClient.getDeckMasters = jest.fn().mockResolvedValue(mockDeckMasters);
+        mockBlobClient.getMyDecks = jest.fn().mockResolvedValue([]);
+
+        // 【実際の処理実行】: calculateStatistics() メソッドを呼び出す
+        // 【処理内容】: countが整数であることを確認
+        const result = await service.calculateStatistics({
+          startDate: '2025-01-01',
+          endDate: '2025-01-31',
+        });
+
+        // 【結果検証】: countが整数型であることを確認
+        // 【境界での正確性】: countが整数型であることを確認
+        // 【一貫した動作】: 小数のcountが発生しない
+        expect(result.opponentDeckDistribution).toHaveLength(2); // 【確認内容】: 2種類のデッキが集計される 🟡
+
+        expect(result.opponentDeckDistribution[0]?.deckId).toBe('deck_master_002'); // 【確認内容】: count=2が1位 🟡
+        expect(result.opponentDeckDistribution[0]?.count).toBe(2); // 【確認内容】: countは整数（2） 🟡
+        expect(result.opponentDeckDistribution[0]?.percentage).toBe(66.7); // 【確認内容】: 2/3 = 66.7% 🟡
+
+        expect(result.opponentDeckDistribution[1]?.deckId).toBe('deck_master_005'); // 【確認内容】: count=1が2位 🟡
+        expect(result.opponentDeckDistribution[1]?.count).toBe(1); // 【確認内容】: countは整数（1） 🟡
+        expect(result.opponentDeckDistribution[1]?.percentage).toBe(33.3); // 【確認内容】: 1/3 = 33.3% 🟡
+      });
     });
   });
 });
