@@ -1895,7 +1895,7 @@ describe('StatisticsService - performance', () => {
 
 ### TASK-0012: Import API実装
 
-- [ ] **タスク完了**
+- [x] **タスク完了** ✅ (2025-11-04完了)
 - **推定工数**: 8時間
 - **タスクタイプ**: TDD
 - **要件**: REQ-301 (JSON), REQ-302 (CSV), REQ-303 (バリデーション)
