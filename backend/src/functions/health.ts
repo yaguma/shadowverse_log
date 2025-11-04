@@ -7,7 +7,7 @@
  * 🔵 信頼性レベル: 青信号（testcases.md Lines 804-858より）
  */
 
-import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { app, type HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
 
 /**
  * ヘルスチェックレスポンスの型
@@ -39,7 +39,7 @@ interface HealthCheckResponse {
  * @param _context - 実行コンテキスト（使用しない）
  * @returns HTTPレスポンス（status: 200, ヘルスチェック情報）
  */
-export async function health(
+async function health(
   _request: HttpRequest,
   _context: InvocationContext
 ): Promise<HttpResponseInit> {
@@ -73,3 +73,11 @@ export async function health(
     jsonBody: responseData,
   };
 }
+
+// Azure Functionsに登録
+app.http('health', {
+  methods: ['GET'],
+  route: 'health',
+  authLevel: 'anonymous',
+  handler: health,
+});
