@@ -12,6 +12,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:unit": "jest --testPathIgnorePatterns=integration",
+    "test:integration": "jest --testPathPattern=integration",
+    "test:all": "jest --coverage --verbose",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write ."

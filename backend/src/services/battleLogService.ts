@@ -8,6 +8,7 @@ import { z } from 'zod';
 import type { BlobStorageClient } from '../storage/blobStorageClient';
 import type { BattleLog } from '../types';
 import { generateBattleLogId } from '../utils/idGenerator';
+import { sanitizeObject } from '../utils/sanitize';
 import { isFutureDate } from '../utils/validation';
 
 /**
@@ -184,30 +185,36 @@ export class BattleLogService {
     // 1. バリデーション
     const validated = createBattleLogSchema.parse(input);
 
-    // 2. 既存ログを取得
+    // 2. サニタイゼーション
+    // 【XSS対策】: 入力値のHTML特殊文字をエスケープ
+    // 【テスト対応】: TC-EDGE-004（特殊文字を含むデータの処理）
+    // 🟡 信頼性レベル: 黄信号（testcases.md Lines 345-374より）
+    const sanitized = sanitizeObject(validated);
+
+    // 3. 既存ログを取得
     const existingLogs = await this.blobClient.getBattleLogs();
 
-    // 3. ID生成
-    const id = generateBattleLogId(existingLogs, validated.date);
+    // 4. ID生成
+    const id = generateBattleLogId(existingLogs, sanitized.date);
 
-    // 4. 新規ログ作成（日付形式を YYYY-MM-DD → YYYY/MM/DD に変換）
+    // 5. 新規ログ作成（日付形式を YYYY-MM-DD → YYYY/MM/DD に変換）
     const newLog: BattleLog = {
       id,
-      date: convertDateFormat(validated.date),
-      battleType: validated.battleType,
-      rank: validated.rank,
-      group: validated.group,
-      myDeckId: validated.myDeckId,
-      turn: validated.turn,
-      result: validated.result,
-      opponentDeckId: validated.opponentDeckId,
+      date: convertDateFormat(sanitized.date),
+      battleType: sanitized.battleType,
+      rank: sanitized.rank,
+      group: sanitized.group,
+      myDeckId: sanitized.myDeckId,
+      turn: sanitized.turn,
+      result: sanitized.result,
+      opponentDeckId: sanitized.opponentDeckId,
     };
 
-    // 5. Blob Storage に保存
+    // 6. Blob Storage に保存
     const updatedLogs = [...existingLogs, newLog];
     await this.blobClient.saveBattleLogs(updatedLogs);
 
-    // 6. 作成されたログを返却
+    // 7. 作成されたログを返却
     return newLog;
   }
 
