@@ -48,6 +48,31 @@ export interface BattleLog {
 }
 
 /**
+ * 対戦履歴登録リクエスト型
+ * 【型定義】: 新規対戦履歴を登録する際のリクエストボディ型
+ * 【改善内容】: battleLogStore.tsから共有型定義ファイルに移動（DRY原則）
+ * 🔵 信頼性レベル: Backend API仕様に基づいた型定義
+ */
+export interface CreateBattleLogRequest {
+  /** 対戦日 (YYYY-MM-DD形式、省略時は当日) */
+  date?: string;
+  /** 対戦タイプ */
+  battleType: BattleType;
+  /** ランク */
+  rank: Rank;
+  /** グループ */
+  group: Group;
+  /** マイデッキID */
+  myDeckId: string;
+  /** ターン */
+  turn: Turn;
+  /** 対戦結果 */
+  result: BattleResult;
+  /** 相手デッキID */
+  opponentDeckId: string;
+}
+
+/**
  * デッキマスターエンティティ（相手デッキ）
  */
 export interface DeckMaster {
