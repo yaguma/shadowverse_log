@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { useBattleLogStore } from './battleLogStore';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as apiClient from '../api/client';
+import { useBattleLogStore } from './battleLogStore';
 
 // 【テストファイル概要】: Battle Log Storeの単体テスト
 // 【テスト目的】: Zustandを使用した対戦履歴の状態管理機能を検証する
@@ -216,10 +216,7 @@ describe('Battle Log Store', () => {
 
       // 【API呼び出し確認】: API Client の post() メソッドが正しく呼ばれていることを確認 🔵
       expect(apiClient.apiClient.post).toHaveBeenCalledTimes(1); // 【確認内容】: post()が1回だけ呼ばれている 🔵
-      expect(apiClient.apiClient.post).toHaveBeenCalledWith(
-        '/battle-logs',
-        inputData,
-      ); // 【確認内容】: 正しいエンドポイントとデータで呼ばれている 🔵
+      expect(apiClient.apiClient.post).toHaveBeenCalledWith('/battle-logs', inputData); // 【確認内容】: 正しいエンドポイントとデータで呼ばれている 🔵
 
       // 【fetchBattleLogs呼び出し確認】: 登録後に一覧が再取得されることを確認 🔵
       expect(apiClient.apiClient.get).toHaveBeenCalledWith('/battle-logs'); // 【確認内容】: fetchBattleLogs()が呼ばれている 🔵
@@ -251,9 +248,9 @@ describe('Battle Log Store', () => {
 
       // 【実際の処理実行】: createBattleLog() アクションを呼び出し、エラーが投げられることを確認 🔵
       // 【処理内容】: エラーが発生する状況でデータ登録処理を実行
-      await expect(
-        useBattleLogStore.getState().createBattleLog(invalidData),
-      ).rejects.toThrow('未来の日付は入力できません'); // 【確認内容】: エラーが正しく投げられる 🔵
+      await expect(useBattleLogStore.getState().createBattleLog(invalidData)).rejects.toThrow(
+        '未来の日付は入力できません'
+      ); // 【確認内容】: エラーが正しく投げられる 🔵
 
       // 【結果検証】: エラー時のストアの状態が正しく更新されていることを確認 🔵
       // 【期待値確認】: エラーメッセージが設定され、previousInputは更新されないこと
@@ -325,9 +322,7 @@ describe('Battle Log Store', () => {
 
       // 【モック設定】: fetchBattleLogs()用のget()メソッドもモック化 🔵
       // 【理由】: deleteBattleLog()内でfetchBattleLogs()が呼ばれるため
-      const logsAfterDeletion = existingLogs.filter(
-        (log) => log.id !== 'log_20251103_001',
-      );
+      const logsAfterDeletion = existingLogs.filter((log) => log.id !== 'log_20251103_001');
       vi.mocked(apiClient.apiClient.get).mockResolvedValueOnce({
         battleLogs: logsAfterDeletion,
         total: 2,
@@ -345,16 +340,14 @@ describe('Battle Log Store', () => {
 
       expect(state.battleLogs).toHaveLength(2); // 【確認内容】: 対戦履歴が2件に減っている 🔵
       expect(state.battleLogs).not.toContainEqual(
-        expect.objectContaining({ id: 'log_20251103_001' }),
+        expect.objectContaining({ id: 'log_20251103_001' })
       ); // 【確認内容】: 削除したデータが一覧に含まれていない 🔵
       expect(state.isLoading).toBe(false); // 【確認内容】: ローディング状態が false に戻っている 🔵
       expect(state.error).toBeNull(); // 【確認内容】: エラー状態がクリアされている 🔵
 
       // 【API呼び出し確認】: API Client の del() メソッドが正しく呼ばれていることを確認 🔵
       expect(apiClient.apiClient.del).toHaveBeenCalledTimes(1); // 【確認内容】: del()が1回だけ呼ばれている 🔵
-      expect(apiClient.apiClient.del).toHaveBeenCalledWith(
-        '/battle-logs/log_20251103_001',
-      ); // 【確認内容】: 正しいエンドポイント（ID含む）で呼ばれている 🔵
+      expect(apiClient.apiClient.del).toHaveBeenCalledWith('/battle-logs/log_20251103_001'); // 【確認内容】: 正しいエンドポイント（ID含む）で呼ばれている 🔵
 
       // 【fetchBattleLogs呼び出し確認】: 削除後に一覧が再取得されることを確認 🔵
       expect(apiClient.apiClient.get).toHaveBeenCalledWith('/battle-logs'); // 【確認内容】: fetchBattleLogs()が呼ばれている 🔵
@@ -392,9 +385,7 @@ describe('Battle Log Store', () => {
       // 【実際の処理実行】: deleteBattleLog() アクションを呼び出し、エラーが投げられることを確認 🔵
       // 【処理内容】: エラーが発生する状況で削除処理を実行
       await expect(
-        useBattleLogStore
-          .getState()
-          .deleteBattleLog('log_non_existent_999'),
+        useBattleLogStore.getState().deleteBattleLog('log_non_existent_999')
       ).rejects.toThrow('対戦履歴が見つかりません'); // 【確認内容】: エラーが正しく投げられる 🔵
 
       // 【結果検証】: エラー時のストアの状態が正しく更新されていることを確認 🔵

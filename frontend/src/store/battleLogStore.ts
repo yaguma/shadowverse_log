@@ -1,10 +1,6 @@
 import { create } from 'zustand';
-import type {
-  BattleLog,
-  BattleLogsResponse,
-  CreateBattleLogRequest,
-} from '../types';
 import { apiClient, extractErrorMessage } from '../api/client';
+import type { BattleLog, BattleLogsResponse, CreateBattleLogRequest } from '../types';
 
 /**
  * 【機能概要】: 対戦履歴データの状態管理を行うZustandストア
