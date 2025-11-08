@@ -29,7 +29,7 @@
 
 ### TASK-0014: React App基盤とルーティング設定
 
-- [ ] **タスク完了**
+- [x] **タスク完了**
 - **推定工数**: 8時間
 - **タスクタイプ**: DIRECT
 - **要件**: tech-stack.md (React Router v7使用) 🔵
@@ -311,9 +311,12 @@
 
 ---
 
-### TASK-0015: Zustand State Management実装
+### TASK-0015: Zustand State Management実装 ✅ **完了** (TDD開発完了 - Phase 1 MVP 15テストケース全通過)
 
-- [ ] **タスク完了**
+- [x] **タスク完了**
+- **完了日**: 2025-11-06
+- **実装範囲**: Phase 1 MVP (API Client + Battle Log Store)
+- **テスト結果**: 15/15ケース成功 (100%)
 - **推定工数**: 8時間
 - **タスクタイプ**: TDD
 - **要件**: architecture.md (Zustand状態管理) ��
@@ -677,11 +680,13 @@
 
 ---
 
-### TASK-0016: Battle Log登録フォーム実装
+### TASK-0016: Battle Log登録フォーム実装 ✅ **完了** (TDD開発完了 - 28テストケース全通過)
 
-- [ ] **タスク完了**
+- [x] **タスク完了**
 - **推定工数**: 8時間
+- **実績工数**: 8時間
 - **タスクタイプ**: TDD
+- **完了日**: 2025-11-08
 - **要件**: REQ-001 (登録機能), REQ-002 (8項目), REQ-003 (引き継ぎ), REQ-030 (未来日付禁止), REQ-031 (インラインエラー) 🔵
 - **依存タスク**: TASK-0015 (Zustand State), TASK-0007 (Backend API)
 - **要件名**: Shadowverse Battle Log - 対戦履歴管理システム
