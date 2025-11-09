@@ -1,10 +1,18 @@
 /**
  * 🔵 REQ-201, REQ-202, REQ-203: Statistics Dashboard Page
  *
- * 統計ダッシュボードページ - 対戦履歴の集計・分析を表示
- * - 期間選択機能（デフォルト: 過去7日間）
- * - 全体統計、デッキ別統計、ランク帯別統計、先攻後攻別統計の表示
- * - ローディング状態、エラー状態、空データ状態の管理
+ * 【機能概要】: 統計ダッシュボードページ - 対戦履歴の集計・分析を表示
+ * 【主要機能】:
+ *   - 期間選択機能（デフォルト: 過去7日間）
+ *   - 全体統計、デッキ別統計、ランク帯別統計、先攻後攻別統計の表示
+ *   - ローディング状態、エラー状態、空データ状態の管理
+ * 【設計方針】:
+ *   - useState による単純な State 管理（将来的に Zustand への移行を検討）
+ *   - useEffect による自動データ取得（期間変更時に即座に反映）
+ *   - コンポーネント分離による関心の分離とテスト容易性の確保
+ * 【パフォーマンス考慮】:
+ *   - API 呼び出しは useEffect で管理（必要最小限の呼び出し）
+ *   - 条件付きレンダリングによる不要な描画の削減
  */
 
 import { useEffect, useState } from 'react';
@@ -20,6 +28,13 @@ import { RankStatsTable } from '../components/statistics/RankStatsTable';
 import { TurnStats } from '../components/statistics/TurnStats';
 
 /**
+ * 【定数定義】: デフォルト集計期間
+ * 🔵 REQ-202: 統計情報の初期表示期間を定義
+ * 【設定根拠】: 直近1週間が最も参照頻度が高いため
+ */
+const DEFAULT_PERIOD_DAYS = 7;
+
+/**
  * 🔵 REQ-201: Statistics Dashboard Page Component
  *
  * 統計情報を表示するページコンポーネント
@@ -32,56 +47,94 @@ export function StatisticsDashboardPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 🔵 REQ-202: デフォルト期間の設定（過去7日間）
-  // 🟡 初回マウント時に実行（依存配列が空のため1回のみ実行）
+  /**
+   * 【初期化処理】: デフォルト期間の設定（過去7日間）
+   * 🔵 REQ-202: 統計ダッシュボードのデフォルト表示期間を設定
+   * 【実行タイミング】: コンポーネント初回マウント時（依存配列が空のため1回のみ）
+   * 【設計意図】: ユーザーが明示的に期間を選択しなくても、有用なデータを表示
+   * 【実装詳細】:
+   *   - 今日の日付を終了日として設定
+   *   - DEFAULT_PERIOD_DAYS 日前を開始日として設定
+   *   - YYYY-MM-DD 形式で日付文字列を生成（HTML5 date input 対応）
+   */
   useEffect(() => {
-    // 🔵 今日の日付を取得（YYYY-MM-DD形式）
+    // 【今日の日付取得】: ISO 8601 形式から日付部分のみを抽出
     const today = new Date().toISOString().split('T')[0];
 
-    // 🔵 7日前の日付を計算（YYYY-MM-DD形式）
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    // 【過去日付計算】: DEFAULT_PERIOD_DAYS 日前の日付を計算
+    // ミリ秒単位で計算: DEFAULT_PERIOD_DAYS日 × 24時間 × 60分 × 60秒 × 1000ミリ秒
+    const periodStartDate = new Date(
+      Date.now() - DEFAULT_PERIOD_DAYS * 24 * 60 * 60 * 1000,
+    )
       .toISOString()
       .split('T')[0];
 
-    // 🔵 State更新: デフォルト期間を設定
-    setStartDate(sevenDaysAgo);
+    // 【State更新】: デフォルト期間を State に設定
+    // この更新により useEffect (startDate, endDate) が発火し、API 呼び出しが実行される
+    setStartDate(periodStartDate);
     setEndDate(today);
   }, []);
 
   /**
-   * 🔵 統計データ取得関数
-   *
-   * Backend API（GET /api/statistics）から統計情報を取得
-   * - ローディング状態の管理
-   * - エラーハンドリング
-   * - レスポンスのState反映
+   * 【統計データ取得関数】: Backend API から統計情報を取得
+   * 🔵 REQ-203: 統計情報の表示機能
+   * 【機能概要】: GET /api/statistics エンドポイントから統計データを取得し、State に反映
+   * 【エラーハンドリング】:
+   *   - ネットワークエラー: デフォルトメッセージを表示し、再試行を促す
+   *   - サーバーエラー: API レスポンスのエラーメッセージを表示
+   * 【State管理】:
+   *   - ローディング状態の適切な管理（開始→完了/エラー）
+   *   - エラー状態のクリア（再試行時に前回のエラーをリセット）
+   * 【パフォーマンス】:
+   *   - 非同期処理による UI ブロックの回避
+   *   - try-catch-finally による確実なローディング状態のクリア
    */
   const fetchStatistics = async () => {
-    // 🔵 ローディング開始
+    // 【ローディング開始】: API 呼び出し開始を UI に通知
+    // エラー状態をクリアして、前回のエラーメッセージを削除
     setIsLoading(true);
     setError(null);
 
     try {
-      // 🔵 API呼び出し: GET /api/statistics?startDate=...&endDate=...
+      // 【API呼び出し】: Backend 統計 API を呼び出し
+      // クエリパラメータ: startDate, endDate（YYYY-MM-DD 形式）
+      // レスポンス: StatisticsResponse 型（overall, byMyDeck, byOpponentDeck, byRank, byTurn）
       const data = await apiClient.get<StatisticsResponse>(
         `/statistics?startDate=${startDate}&endDate=${endDate}`,
       );
 
-      // 🔵 成功時: 統計データをStateに保存
+      // 【成功時処理】: 取得した統計データを State に保存
+      // これにより、条件付きレンダリングが発火し、統計情報が画面に表示される
       setStatistics(data);
     } catch (err) {
-      // 🔵 エラー時: エラーメッセージを抽出してStateに保存
+      // 【エラー時処理】: エラーメッセージを抽出して State に保存
+      // extractErrorMessage: API エラーまたはネットワークエラーから適切なメッセージを抽出
+      // デフォルトメッセージ: ネットワークエラーの可能性を示唆
       setError(extractErrorMessage(err, 'ネットワークエラーが発生しました'));
     } finally {
-      // 🔵 ローディング終了
+      // 【ローディング終了】: 成功・失敗に関わらずローディング状態を解除
+      // finally ブロックにより、エラー時も確実にローディングを終了
       setIsLoading(false);
     }
   };
 
-  // 🔵 期間が変更されたら統計データを再取得
-  // 🟡 startDateまたはendDateが変更されたら実行
+  /**
+   * 【期間変更時の自動データ取得】: 開始日または終了日が変更されたら統計を再取得
+   * 🔵 REQ-202: 期間選択機能
+   * 【実行タイミング】: startDate または endDate の State が変更された時
+   * 【設計意図】:
+   *   - ユーザーが日付を変更すると即座に統計が更新される
+   *   - 「検索」ボタンを押さなくても、日付変更だけで自動更新
+   * 【実装詳細】:
+   *   - 両方の日付が設定されている場合のみ API 呼び出し（初期化前の空文字チェック）
+   *   - fetchStatistics 関数を依存配列から除外（eslint-disable を使用）
+   * 【パフォーマンス考慮】:
+   *   - 両方の日付を変更すると2回 API 呼び出しが発生する可能性あり
+   *   - 🟡 将来的にデバウンス処理の追加を検討
+   */
   useEffect(() => {
-    // 🔵 両方の日付が設定されている場合のみAPI呼び出し
+    // 【API呼び出し条件】: 両方の日付が設定されている場合のみ実行
+    // 初期化前（空文字）の場合はスキップして、無駄な API 呼び出しを防ぐ
     if (startDate && endDate) {
       fetchStatistics();
     }
@@ -89,20 +142,30 @@ export function StatisticsDashboardPage() {
   }, [startDate, endDate]);
 
   /**
-   * 🔵 検索ボタンクリックハンドラ
-   *
-   * PeriodSelectorコンポーネントからの検索リクエストを処理
-   * （useEffectで自動実行されるため、実際には何もしない）
+   * 【検索ボタンクリックハンドラ】: 期間選択フォームの「検索」ボタン処理
+   * 🟡 現在は useEffect による自動取得のため、実質的に何もしない
+   * 【設計意図】:
+   *   - 将来的なバリデーション処理の追加を想定したプレースホルダー
+   *   - 検索ボタンの存在により、ユーザーに明示的なアクションを提供
+   * 【将来の拡張候補】:
+   *   - 日付バリデーション（startDate <= endDate, 未来日付禁止）
+   *   - 手動検索モード（useEffect を無効化し、ボタンクリック時のみ取得）
    */
   const handleSearch = () => {
-    // 🟡 useEffectで自動的にfetchStatisticsが呼ばれるため、ここでは何もしない
+    // 🟡 useEffect で自動的に fetchStatistics が呼ばれるため、ここでは何もしない
     // 🟡 将来的にバリデーションロジックを追加する可能性あり
   };
 
   /**
-   * 🔵 再試行ハンドラ
-   *
-   * エラー時に「再試行」ボタンから呼ばれる
+   * 【再試行ハンドラ】: エラー時の「再試行」ボタン処理
+   * 🔵 エラーハンドリング: ネットワークエラーやサーバーエラーからの復旧機能
+   * 【機能概要】: エラー表示コンポーネントの「再試行」ボタンから呼び出される
+   * 【実装詳細】:
+   *   - fetchStatistics 関数を再実行
+   *   - ローディング状態とエラー状態は fetchStatistics 内で管理される
+   * 【ユーザビリティ】:
+   *   - 一時的なネットワークエラー後に、ページをリロードせずに復旧可能
+   *   - エラーメッセージがクリアされ、新たなローディング状態が表示される
    */
   const handleRetry = () => {
     fetchStatistics();
