@@ -100,9 +100,30 @@ describe('OpponentDeckPieChart', () => {
 
       // 【テストデータ準備】: デッキタイプごとに異なる色が割り当てられることを確認するため、複数のデッキデータを使用
       const opponentDeckStats = [
-        { deckId: 'deck_001', deckName: '進化ロイヤル', totalGames: 20, wins: 12, losses: 8, winRate: 60.0 },
-        { deckId: 'deck_002', deckName: '守護ビショップ', totalGames: 15, wins: 9, losses: 6, winRate: 60.0 },
-        { deckId: 'deck_003', deckName: 'OTKドラゴン', totalGames: 10, wins: 3, losses: 7, winRate: 30.0 },
+        {
+          deckId: 'deck_001',
+          deckName: '進化ロイヤル',
+          totalGames: 20,
+          wins: 12,
+          losses: 8,
+          winRate: 60.0,
+        },
+        {
+          deckId: 'deck_002',
+          deckName: '守護ビショップ',
+          totalGames: 15,
+          wins: 9,
+          losses: 6,
+          winRate: 60.0,
+        },
+        {
+          deckId: 'deck_003',
+          deckName: 'OTKドラゴン',
+          totalGames: 10,
+          wins: 3,
+          losses: 7,
+          winRate: 30.0,
+        },
       ];
 
       render(<OpponentDeckPieChart data={opponentDeckStats} />);
@@ -130,8 +151,22 @@ describe('OpponentDeckPieChart', () => {
 
       // 【テストデータ準備】: 凡例表示の正確性を検証するため、複数のデッキデータを使用
       const opponentDeckStats = [
-        { deckId: 'deck_001', deckName: '進化ロイヤル', totalGames: 20, wins: 12, losses: 8, winRate: 60.0 },
-        { deckId: 'deck_002', deckName: '守護ビショップ', totalGames: 15, wins: 9, losses: 6, winRate: 60.0 },
+        {
+          deckId: 'deck_001',
+          deckName: '進化ロイヤル',
+          totalGames: 20,
+          wins: 12,
+          losses: 8,
+          winRate: 60.0,
+        },
+        {
+          deckId: 'deck_002',
+          deckName: '守護ビショップ',
+          totalGames: 15,
+          wins: 9,
+          losses: 6,
+          winRate: 60.0,
+        },
       ];
 
       render(<OpponentDeckPieChart data={opponentDeckStats} />);
@@ -143,7 +178,9 @@ describe('OpponentDeckPieChart', () => {
 
       // 【検証項目】: 凡例のフォントサイズが12px以上
       // 🟡 信頼性レベル: NFR-GRAPH-102から妥当な推測
-      const legendElement = screen.getByText('進化ロイヤル: 20回').closest('.recharts-legend-wrapper');
+      const legendElement = screen
+        .getByText('進化ロイヤル: 20回')
+        .closest('.recharts-legend-wrapper');
       if (legendElement) {
         const fontSize = window.getComputedStyle(legendElement).fontSize;
         const fontSizeValue = Number.parseFloat(fontSize);
@@ -239,7 +276,14 @@ describe('OpponentDeckPieChart', () => {
 
       // 【テストデータ準備】: アニメーション無効化の動作を検証するため、標準的なデータセットを使用
       const opponentDeckStats = [
-        { deckId: 'deck_001', deckName: '進化ロイヤル', totalGames: 20, wins: 12, losses: 8, winRate: 60.0 },
+        {
+          deckId: 'deck_001',
+          deckName: '進化ロイヤル',
+          totalGames: 20,
+          wins: 12,
+          losses: 8,
+          winRate: 60.0,
+        },
       ];
 
       // 【実際の処理実行】: レンダリング開始時刻を記録
@@ -326,7 +370,14 @@ describe('OpponentDeckPieChart', () => {
       // 【テストデータ準備】: 不正なデータ形式（null、undefined、型不一致）を含む配列
       // 【初期条件設定】: APIのバグやネットワークエラーによるデータ破損を想定
       const invalidData: any = [
-        { deckId: null, deckName: undefined, totalGames: 'invalid', wins: 10, losses: 5, winRate: 66.7 },
+        {
+          deckId: null,
+          deckName: undefined,
+          totalGames: 'invalid',
+          wins: 10,
+          losses: 5,
+          winRate: 66.7,
+        },
         null,
         undefined,
       ];
@@ -335,7 +386,9 @@ describe('OpponentDeckPieChart', () => {
 
       // 【検証項目】: エラーメッセージまたは「データなし」メッセージが表示される
       // 🟡 信頼性レベル: EDGE-GRAPH-002から妥当な推測
-      const errorMessage = screen.queryByText(/データ形式が不正です|この期間にはデータがありません/);
+      const errorMessage = screen.queryByText(
+        /データ形式が不正です|この期間にはデータがありません/
+      );
       expect(errorMessage).toBeInTheDocument(); // 【確認内容】: エラーハンドリングが正しく動作することを確認
 
       // 【検証項目】: アプリケーションがクラッシュしない
@@ -356,7 +409,14 @@ describe('OpponentDeckPieChart', () => {
       // 【テストデータ準備】: 最小のデータセット（1件）で円グラフが正常に動作することを確認
       // 【初期条件設定】: フレンド戦で同じ相手と複数回対戦した場合を想定
       const opponentDeckStats = [
-        { deckId: 'deck_001', deckName: '進化ロイヤル', totalGames: 10, wins: 6, losses: 4, winRate: 60.0 },
+        {
+          deckId: 'deck_001',
+          deckName: '進化ロイヤル',
+          totalGames: 10,
+          wins: 6,
+          losses: 4,
+          winRate: 60.0,
+        },
       ];
 
       render(<OpponentDeckPieChart data={opponentDeckStats} />);
@@ -421,8 +481,22 @@ describe('OpponentDeckPieChart', () => {
       // 【テストデータ準備】: 対戦回数の最小値（1回）で正常に動作することを確認
       // 【初期条件設定】: 新しいデッキが環境に登場し、1回だけ対戦した場合を想定
       const opponentDeckStats = [
-        { deckId: 'deck_001', deckName: '進化ロイヤル', totalGames: 50, wins: 30, losses: 20, winRate: 60.0 },
-        { deckId: 'deck_002', deckName: '守護ビショップ', totalGames: 1, wins: 0, losses: 1, winRate: 0.0 },
+        {
+          deckId: 'deck_001',
+          deckName: '進化ロイヤル',
+          totalGames: 50,
+          wins: 30,
+          losses: 20,
+          winRate: 60.0,
+        },
+        {
+          deckId: 'deck_002',
+          deckName: '守護ビショップ',
+          totalGames: 1,
+          wins: 0,
+          losses: 1,
+          winRate: 0.0,
+        },
       ];
 
       render(<OpponentDeckPieChart data={opponentDeckStats} />);

@@ -49,12 +49,8 @@ export function DeckStatsTable({ title, deckStats }: DeckStatsTableProps) {
               <tr key={deck.deckId} className="hover:bg-gray-50">
                 <td className="border px-4 py-2">{deck.deckName}</td>
                 <td className="border px-4 py-2 text-right">{deck.totalGames}</td>
-                <td className="border px-4 py-2 text-right text-green-600">
-                  {deck.wins}
-                </td>
-                <td className="border px-4 py-2 text-right text-red-600">
-                  {deck.losses}
-                </td>
+                <td className="border px-4 py-2 text-right text-green-600">{deck.wins}</td>
+                <td className="border px-4 py-2 text-right text-red-600">{deck.losses}</td>
                 <td className="border px-4 py-2 text-right text-blue-600 font-bold">
                   {deck.winRate.toFixed(1)}%
                 </td>

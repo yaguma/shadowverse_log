@@ -30,30 +30,22 @@ export function OverallStats({ stats }: OverallStatsProps) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* 🔵 総試合数 */}
         <div className="border rounded p-3">
-          <p>
-            総試合数: {stats.totalGames}試合
-          </p>
+          <p>総試合数: {stats.totalGames}試合</p>
         </div>
 
         {/* 🔵 勝数 */}
         <div className="border rounded p-3">
-          <p>
-            勝数: {stats.wins}勝
-          </p>
+          <p>勝数: {stats.wins}勝</p>
         </div>
 
         {/* 🔵 敗数 */}
         <div className="border rounded p-3">
-          <p>
-            敗数: {stats.losses}敗
-          </p>
+          <p>敗数: {stats.losses}敗</p>
         </div>
 
         {/* 🔵 勝率 */}
         <div className="border rounded p-3">
-          <p>
-            勝率: {stats.winRate.toFixed(1)}%
-          </p>
+          <p>勝率: {stats.winRate.toFixed(1)}%</p>
         </div>
       </div>
     </div>

@@ -17,7 +17,6 @@
 
 import { useEffect, useState } from 'react';
 import { apiClient, extractErrorMessage } from '../api/client';
-import type { StatisticsResponse } from '../types';
 import { DeckStatsTable } from '../components/statistics/DeckStatsTable';
 import { EmptyState } from '../components/statistics/EmptyState';
 import { Error } from '../components/statistics/Error';
@@ -26,6 +25,7 @@ import { OverallStats } from '../components/statistics/OverallStats';
 import { PeriodSelector } from '../components/statistics/PeriodSelector';
 import { RankStatsTable } from '../components/statistics/RankStatsTable';
 import { TurnStats } from '../components/statistics/TurnStats';
+import type { StatisticsResponse } from '../types';
 
 /**
  * 【定数定義】: デフォルト集計期間
@@ -63,9 +63,7 @@ export function StatisticsDashboardPage() {
 
     // 【過去日付計算】: DEFAULT_PERIOD_DAYS 日前の日付を計算
     // ミリ秒単位で計算: DEFAULT_PERIOD_DAYS日 × 24時間 × 60分 × 60秒 × 1000ミリ秒
-    const periodStartDate = new Date(
-      Date.now() - DEFAULT_PERIOD_DAYS * 24 * 60 * 60 * 1000,
-    )
+    const periodStartDate = new Date(Date.now() - DEFAULT_PERIOD_DAYS * 24 * 60 * 60 * 1000)
       .toISOString()
       .split('T')[0];
 
@@ -100,7 +98,7 @@ export function StatisticsDashboardPage() {
       // クエリパラメータ: startDate, endDate（YYYY-MM-DD 形式）
       // レスポンス: StatisticsResponse 型（overall, byMyDeck, byOpponentDeck, byRank, byTurn）
       const data = await apiClient.get<StatisticsResponse>(
-        `/statistics?startDate=${startDate}&endDate=${endDate}`,
+        `/statistics?startDate=${startDate}&endDate=${endDate}`
       );
 
       // 【成功時処理】: 取得した統計データを State に保存
@@ -193,9 +191,7 @@ export function StatisticsDashboardPage() {
       {!isLoading && error && <Error message={error} onRetry={handleRetry} />}
 
       {/* 🔵 REQ-405: データなし状態 */}
-      {!isLoading && !error && statistics && statistics.overall.totalGames === 0 && (
-        <EmptyState />
-      )}
+      {!isLoading && !error && statistics && statistics.overall.totalGames === 0 && <EmptyState />}
 
       {/* 🔵 REQ-203: 統計情報表示 */}
       {!isLoading && !error && statistics && statistics.overall.totalGames > 0 && (
@@ -207,10 +203,7 @@ export function StatisticsDashboardPage() {
           <DeckStatsTable title="マイデッキ別統計" deckStats={statistics.byMyDeck} />
 
           {/* 🔵 デッキ別統計（相手デッキ） */}
-          <DeckStatsTable
-            title="相手デッキ別統計"
-            deckStats={statistics.byOpponentDeck}
-          />
+          <DeckStatsTable title="相手デッキ別統計" deckStats={statistics.byOpponentDeck} />
 
           {/* 🔵 ランク帯別統計 */}
           <RankStatsTable rankStats={statistics.byRank} />

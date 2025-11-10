@@ -106,7 +106,7 @@ describe('StatisticsDashboardPage', () => {
           .toISOString()
           .split('T')[0];
         expect(apiClient.get).toHaveBeenCalledWith(
-          `/statistics?startDate=${sevenDaysAgo}&endDate=${today}`,
+          `/statistics?startDate=${sevenDaysAgo}&endDate=${today}`
         );
       });
 
@@ -318,16 +318,20 @@ describe('StatisticsDashboardPage', () => {
       // 【検証項目】: 先攻の統計が表示される（試合数: 78、勝率: 66.7%） 🔵
       // 【修正】: 複数の要素に分かれたテキストを個別に検証 🟡
       await waitFor(() => {
-        expect(screen.getByText((_content, element) => {
-          return element?.textContent === '78試合 52勝 26敗 勝率66.7%';
-        })).toBeInTheDocument();
+        expect(
+          screen.getByText((_content, element) => {
+            return element?.textContent === '78試合 52勝 26敗 勝率66.7%';
+          })
+        ).toBeInTheDocument();
       });
 
       // 【検証項目】: 後攻の統計が表示される（試合数: 72、勝率: 63.9%） 🔵
       // 【修正】: 複数の要素に分かれたテキストを個別に検証 🟡
-      expect(screen.getByText((_content, element) => {
-        return element?.textContent === '72試合 46勝 26敗 勝率63.9%';
-      })).toBeInTheDocument();
+      expect(
+        screen.getByText((_content, element) => {
+          return element?.textContent === '72試合 46勝 26敗 勝率63.9%';
+        })
+      ).toBeInTheDocument();
     });
 
     it('TC-STATS-006: 期間選択で統計情報が更新される', async () => {
@@ -365,8 +369,8 @@ describe('StatisticsDashboardPage', () => {
 
       // 【修正】: 日付変更が2回（startDate, endDate）行われるため、最大3回のAPI呼び出しに対応 🟡
       vi.mocked(apiClient.get)
-        .mockResolvedValueOnce(mockStatistics)  // 初回表示
-        .mockResolvedValueOnce(mockStatistics)  // startDate変更時（中間状態）
+        .mockResolvedValueOnce(mockStatistics) // 初回表示
+        .mockResolvedValueOnce(mockStatistics) // startDate変更時（中間状態）
         .mockResolvedValueOnce(updatedStatistics); // endDate変更時（最終状態）
 
       render(<StatisticsDashboardPage />);
@@ -387,9 +391,14 @@ describe('StatisticsDashboardPage', () => {
 
       // 【検証項目】: API呼び出しが再実行される（2025年1月） 🔵
       // 【注意】: useEffectによる自動呼び出しのため、最後の呼び出しを確認
-      await waitFor(() => {
-        expect(apiClient.get).toHaveBeenCalledWith('/statistics?startDate=2025-01-01&endDate=2025-01-31');
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          expect(apiClient.get).toHaveBeenCalledWith(
+            '/statistics?startDate=2025-01-01&endDate=2025-01-31'
+          );
+        },
+        { timeout: 3000 }
+      );
 
       // 【検証項目】: 新しい統計情報が表示される 🔵
       // 【修正】: 複数の要素に分かれたテキストを正規表現で検証 🟡
@@ -533,7 +542,9 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-02-01', endDate: '2025-02-28' },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics).mockResolvedValueOnce(mockStatistics);
+      vi.mocked(apiClient.get)
+        .mockResolvedValueOnce(mockStatistics)
+        .mockResolvedValueOnce(mockStatistics);
 
       render(<StatisticsDashboardPage />);
 
@@ -554,7 +565,9 @@ describe('StatisticsDashboardPage', () => {
 
       // 【検証項目】: API呼び出しが正しいクエリパラメータで実行される 🔵
       await waitFor(() => {
-        expect(apiClient.get).toHaveBeenCalledWith('/statistics?startDate=2025-02-01&endDate=2025-02-28');
+        expect(apiClient.get).toHaveBeenCalledWith(
+          '/statistics?startDate=2025-02-01&endDate=2025-02-28'
+        );
       });
     });
   });

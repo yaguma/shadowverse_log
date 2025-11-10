@@ -13,9 +13,7 @@ export function EmptyState() {
   return (
     <div className="text-center py-8">
       <p className="text-gray-600">指定期間にデータがありません</p>
-      <p className="text-sm text-gray-500 mt-2">
-        別の期間を選択してください
-      </p>
+      <p className="text-sm text-gray-500 mt-2">別の期間を選択してください</p>
     </div>
   );
 }

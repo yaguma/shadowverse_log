@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { apiClient } from '../api/client';
 import type {
-  BattleType,
-  Rank,
-  Group,
-  Turn,
-  BattleResult,
-  BATTLE_TYPES,
-  RANKS,
-  GROUPS,
-  TURNS,
   BATTLE_RESULTS,
+  BATTLE_TYPES,
+  BattleResult,
+  BattleType,
+  GROUPS,
+  Group,
+  RANKS,
+  Rank,
+  TURNS,
+  Turn,
 } from '../types';
 
 /**

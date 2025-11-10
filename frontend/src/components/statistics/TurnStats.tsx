@@ -46,8 +46,8 @@ export function TurnStats({ turnStats }: TurnStatsProps) {
         <div className="border rounded p-4">
           <h4 className="font-bold mb-2">先攻</h4>
           <p className="text-sm">
-            {turnStats.先攻.totalGames}試合 {turnStats.先攻.wins}勝{' '}
-            {turnStats.先攻.losses}敗 勝率{turnStats.先攻.winRate.toFixed(1)}%
+            {turnStats.先攻.totalGames}試合 {turnStats.先攻.wins}勝 {turnStats.先攻.losses}敗 勝率
+            {turnStats.先攻.winRate.toFixed(1)}%
           </p>
         </div>
 
@@ -55,8 +55,8 @@ export function TurnStats({ turnStats }: TurnStatsProps) {
         <div className="border rounded p-4">
           <h4 className="font-bold mb-2">後攻</h4>
           <p className="text-sm">
-            {turnStats.後攻.totalGames}試合 {turnStats.後攻.wins}勝{' '}
-            {turnStats.後攻.losses}敗 勝率{turnStats.後攻.winRate.toFixed(1)}%
+            {turnStats.後攻.totalGames}試合 {turnStats.後攻.wins}勝 {turnStats.後攻.losses}敗 勝率
+            {turnStats.後攻.winRate.toFixed(1)}%
           </p>
         </div>
       </div>

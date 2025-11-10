@@ -51,12 +51,8 @@ export function RankStatsTable({ rankStats }: RankStatsTableProps) {
                 <td className="border px-4 py-2">{rank.rank}</td>
                 <td className="border px-4 py-2">{rank.group}</td>
                 <td className="border px-4 py-2 text-right">{rank.totalGames}</td>
-                <td className="border px-4 py-2 text-right text-green-600">
-                  {rank.wins}
-                </td>
-                <td className="border px-4 py-2 text-right text-red-600">
-                  {rank.losses}
-                </td>
+                <td className="border px-4 py-2 text-right text-green-600">{rank.wins}</td>
+                <td className="border px-4 py-2 text-right text-red-600">{rank.losses}</td>
                 <td className="border px-4 py-2 text-right text-blue-600 font-bold">
                   {rank.winRate.toFixed(1)}%
                 </td>
