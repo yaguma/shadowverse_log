@@ -11,8 +11,7 @@ import type { ApiResponse } from '../types';
 // 【環境変数設定】: APIのベースURLを環境変数から取得（デフォルト値あり） 🔵
 // 【設定理由】: 開発環境と本番環境で異なるAPIエンドポイントを使用するため
 // 【セキュリティ】: 本番環境ではHTTPS URLを環境変数で設定すること
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:7071/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:7071/api';
 
 /**
  * 【ヘルパー関数】: エラーオブジェクトから適切なエラーメッセージを抽出
@@ -25,10 +24,7 @@ const API_BASE_URL =
  * @param defaultMessage - エラーが不明な場合のデフォルトメッセージ
  * @returns エラーメッセージ文字列
  */
-export function extractErrorMessage(
-  error: unknown,
-  defaultMessage = 'Unknown error',
-): string {
+export function extractErrorMessage(error: unknown, defaultMessage = 'Unknown error'): string {
   // 【型ガード】: Error型かどうかを判定し、安全にメッセージを取得
   if (error instanceof Error) {
     return error.message;
@@ -58,10 +54,7 @@ class ApiClient {
    * @returns Promise<T> - レスポンスデータ（ApiResponse<T>のdataフィールド）
    * @throws Error - ネットワークエラー、APIエラー、サーバーエラー時
    */
-  private async request<T>(
-    endpoint: string,
-    options?: RequestInit,
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     try {
       // 【リクエスト送信】: API_BASE_URL + endpointにリクエストを送信 🔵
       // 【ヘッダー設定】: Content-Typeをapplication/jsonに設定

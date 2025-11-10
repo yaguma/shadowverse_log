@@ -11,16 +11,11 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useBattleLogStore } from '../../store/battleLogStore';
 import type {
-  BATTLE_RESULTS,
-  BATTLE_TYPES,
   BattleResult,
   BattleType,
   CreateBattleLogRequest,
-  GROUPS,
   Group,
-  RANKS,
   Rank,
-  TURNS,
   Turn,
 } from '../../types';
 
@@ -57,8 +52,18 @@ interface ValidationErrors {
  * 🔵 信頼性レベル: types/index.ts の定数定義に基づく
  * 🟡 改善: readonly化によるパフォーマンス最適化
  */
-const BATTLE_TYPES_OPTIONS: readonly BattleType[] = ['ランクマッチ', '対戦台', 'ロビー大会'] as const;
-const RANKS_OPTIONS: readonly Rank[] = ['サファイア', 'ダイアモンド', 'ルビー', 'トパーズ', '-'] as const;
+const BATTLE_TYPES_OPTIONS: readonly BattleType[] = [
+  'ランクマッチ',
+  '対戦台',
+  'ロビー大会',
+] as const;
+const RANKS_OPTIONS: readonly Rank[] = [
+  'サファイア',
+  'ダイアモンド',
+  'ルビー',
+  'トパーズ',
+  '-',
+] as const;
 const GROUPS_OPTIONS: readonly Group[] = ['A', 'AA', 'AAA', 'Master', '-'] as const;
 const TURNS_OPTIONS: readonly Turn[] = ['先攻', '後攻'] as const;
 const BATTLE_RESULTS_OPTIONS: readonly BattleResult[] = ['勝ち', '負け'] as const;
@@ -344,7 +349,6 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
    */
   return (
     <form
-      role="form"
       className="p-6 bg-white rounded-lg shadow-md w-full max-w-2xl mx-auto"
       onSubmit={handleSubmit}
       onKeyDown={handleKeyDown}

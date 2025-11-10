@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BattleLogForm } from './BattleLogForm';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useBattleLogStore } from '../../store/battleLogStore';
+import { BattleLogForm } from './BattleLogForm';
 
 // 【テストファイル概要】: Battle Log登録フォームコンポーネントの単体テスト
 // 【テスト目的】: BattleLogFormコンポーネントの全機能（正常系・異常系・境界値・UI/UX・統合・アクセシビリティ・エッジケース）を検証する
@@ -292,7 +292,9 @@ describe('BattleLogForm', () => {
       // 🔵 信頼性レベル: EDGE-001 (ネットワークエラー) に基づく
 
       // 【テストデータ準備】: createBattleLogがエラーを投げるように設定
-      const createBattleLog = vi.fn().mockRejectedValue(new Error('ネットワークエラーが発生しました'));
+      const createBattleLog = vi
+        .fn()
+        .mockRejectedValue(new Error('ネットワークエラーが発生しました'));
 
       vi.mocked(useBattleLogStore).mockReturnValue({
         battleLogs: [],

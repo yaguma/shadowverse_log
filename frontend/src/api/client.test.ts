@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from './client';
 
 // 【テストファイル概要】: API Clientの単体テスト
@@ -79,7 +79,7 @@ describe('API Client', () => {
           headers: expect.objectContaining({
             'Content-Type': 'application/json', // 【確認内容】: Content-Type ヘッダーが設定されている 🔵
           }),
-        }),
+        })
       );
     });
   });
@@ -144,7 +144,7 @@ describe('API Client', () => {
           headers: expect.objectContaining({
             'Content-Type': 'application/json', // 【確認内容】: Content-Type ヘッダーが設定されている 🔵
           }),
-        }),
+        })
       );
     });
   });
@@ -192,7 +192,7 @@ describe('API Client', () => {
         expect.stringContaining('/battle-logs/log_20251104_001'), // 【確認内容】: 正しいエンドポイント（ID含む）が呼ばれている 🔵
         expect.objectContaining({
           method: 'DELETE', // 【確認内容】: DELETE メソッドが使用されている 🔵
-        }),
+        })
       );
     });
   });
@@ -233,9 +233,9 @@ describe('API Client', () => {
 
       // 【実際の処理実行】: API Clientの post() メソッドを呼び出し、エラーが投げられることを確認 🔵
       // 【処理内容】: POST /battle-logs エンドポイントに不正なデータを送信
-      await expect(
-        apiClient.post('/battle-logs', { date: '2099-12-31' }),
-      ).rejects.toThrow('未来の日付は入力できません'); // 【確認内容】: Backend APIから返されたエラーメッセージが投げられる 🔵
+      await expect(apiClient.post('/battle-logs', { date: '2099-12-31' })).rejects.toThrow(
+        '未来の日付は入力できません'
+      ); // 【確認内容】: Backend APIから返されたエラーメッセージが投げられる 🔵
     });
 
     it('TC-API-005: ネットワークエラー時に適切なエラーが投げられる', async () => {
@@ -246,9 +246,7 @@ describe('API Client', () => {
 
       // 【モック設定】: fetch関数がネットワークエラーを投げるように設定
       // 【エラーシミュレーション】: インターネット接続が利用できない状況を再現
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error('Network Error'),
-      );
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network Error'));
 
       // 【実際の処理実行】: API Clientの get() メソッドを呼び出し、ネットワークエラーが投げられることを確認 🔵
       // 【処理内容】: GET /battle-logs エンドポイントにリクエストを送信（ネットワークエラー発生）
@@ -284,9 +282,7 @@ describe('API Client', () => {
 
       // 【実際の処理実行】: API Clientの get() メソッドを呼び出し、サーバーエラーが投げられることを確認 🔵
       // 【処理内容】: GET /battle-logs エンドポイントにリクエストを送信（サーバーエラー発生）
-      await expect(apiClient.get('/battle-logs')).rejects.toThrow(
-        'サーバーエラーが発生しました',
-      ); // 【確認内容】: Backend APIから返されたエラーメッセージが投げられる 🔵
+      await expect(apiClient.get('/battle-logs')).rejects.toThrow('サーバーエラーが発生しました'); // 【確認内容】: Backend APIから返されたエラーメッセージが投げられる 🔵
     });
   });
 });
