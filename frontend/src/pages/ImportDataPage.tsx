@@ -9,8 +9,8 @@
 
 import type React from 'react';
 import { useRef } from 'react';
-import { useImport } from '../hooks/useImport';
 import { Loading } from '../components/statistics/Loading';
+import { useImport } from '../hooks/useImport';
 
 /**
  * 【機能概要】: データインポートページコンポーネント
@@ -102,9 +102,7 @@ export function ImportDataPage() {
             <li>JSON形式 (.json)</li>
             <li>CSV形式 (.csv)</li>
           </ul>
-          <p className="mt-2 text-xs text-gray-500">
-            ※ファイルサイズ: 最大10MBまで
-          </p>
+          <p className="mt-2 text-xs text-gray-500">※ファイルサイズ: 最大10MBまで</p>
         </div>
       </div>
 
@@ -137,9 +135,7 @@ export function ImportDataPage() {
               </svg>
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-lg font-medium text-red-800 mb-2">
-                インポートエラー
-              </h3>
+              <h3 className="text-lg font-medium text-red-800 mb-2">インポートエラー</h3>
               <p className="text-red-700 whitespace-pre-wrap">{error}</p>
             </div>
           </div>
@@ -168,33 +164,25 @@ export function ImportDataPage() {
               </svg>
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-lg font-medium text-green-800 mb-4">
-                インポート完了
-              </h3>
+              <h3 className="text-lg font-medium text-green-800 mb-4">インポート完了</h3>
 
               {/* 【インポート結果統計】: 成功件数、スキップ件数、総件数を表示 🔵 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg p-4 shadow-sm">
                   <p className="text-sm text-gray-600 mb-1">インポート成功</p>
-                  <p className="text-3xl font-bold text-green-600">
-                    {importResult.imported}
-                  </p>
+                  <p className="text-3xl font-bold text-green-600">{importResult.imported}</p>
                   <p className="text-xs text-gray-500 mt-1">件</p>
                 </div>
 
                 <div className="bg-white rounded-lg p-4 shadow-sm">
                   <p className="text-sm text-gray-600 mb-1">スキップ</p>
-                  <p className="text-3xl font-bold text-yellow-600">
-                    {importResult.skipped}
-                  </p>
+                  <p className="text-3xl font-bold text-yellow-600">{importResult.skipped}</p>
                   <p className="text-xs text-gray-500 mt-1">件</p>
                 </div>
 
                 <div className="bg-white rounded-lg p-4 shadow-sm">
                   <p className="text-sm text-gray-600 mb-1">総件数</p>
-                  <p className="text-3xl font-bold text-blue-600">
-                    {importResult.total}
-                  </p>
+                  <p className="text-3xl font-bold text-blue-600">{importResult.total}</p>
                   <p className="text-xs text-gray-500 mt-1">件</p>
                 </div>
               </div>
@@ -212,7 +200,7 @@ export function ImportDataPage() {
           <h3 className="text-lg font-medium mb-2">JSON形式</h3>
           <div className="bg-white rounded p-4 overflow-x-auto">
             <pre className="text-sm text-gray-800">
-{`[
+              {`[
   {
     "id": "log_001",
     "date": "2025/10/23",
@@ -234,7 +222,7 @@ export function ImportDataPage() {
           <h3 className="text-lg font-medium mb-2">CSV形式</h3>
           <div className="bg-white rounded p-4 overflow-x-auto">
             <pre className="text-sm text-gray-800">
-{`id,date,battleType,rank,group,myDeckId,turn,result,opponentDeckId
+              {`id,date,battleType,rank,group,myDeckId,turn,result,opponentDeckId
 log_001,2025/10/23,ランクマッチ,ダイアモンド,A,my_deck_001,先攻,勝ち,deck_001`}
             </pre>
           </div>
@@ -244,15 +232,36 @@ log_001,2025/10/23,ランクマッチ,ダイアモンド,A,my_deck_001,先攻,�
         <div className="mt-6">
           <h3 className="text-lg font-medium mb-2">必須フィールド</h3>
           <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-            <li><code className="bg-gray-100 px-2 py-1 rounded">id</code>: 対戦ログID</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">date</code>: 日付（YYYY/MM/DD形式）</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">battleType</code>: 対戦タイプ（ランクマッチ / 対戦台 / ロビー大会）</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">rank</code>: ランク（サファイア / ダイアモンド / ルビー / トパーズ / -）</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">group</code>: グループ（A / AA / AAA / Master / -）</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">myDeckId</code>: 自分のデッキID</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">turn</code>: ターン（先攻 / 後攻）</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">result</code>: 結果（勝ち / 負け）</li>
-            <li><code className="bg-gray-100 px-2 py-1 rounded">opponentDeckId</code>: 相手のデッキID</li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">id</code>: 対戦ログID
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">date</code>: 日付（YYYY/MM/DD形式）
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">battleType</code>:
+              対戦タイプ（ランクマッチ / 対戦台 / ロビー大会）
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">rank</code>: ランク（サファイア /
+              ダイアモンド / ルビー / トパーズ / -）
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">group</code>: グループ（A / AA / AAA /
+              Master / -）
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">myDeckId</code>: 自分のデッキID
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">turn</code>: ターン（先攻 / 後攻）
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">result</code>: 結果（勝ち / 負け）
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">opponentDeckId</code>: 相手のデッキID
+            </li>
           </ul>
         </div>
       </div>

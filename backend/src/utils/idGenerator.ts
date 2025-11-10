@@ -107,7 +107,8 @@ export function generateBattleLogId(existingLogs: BattleLog[], date: string): st
   //   - Math.random() でランダム文字列を生成（6文字、36進数）
   // 🟡 信頼性レベル: 黄信号（testcases.md Lines 897-922、並列処理の詳細は推測）
   const timestamp = Date.now();
-  const microseconds = typeof performance !== 'undefined' ? Math.floor(performance.now() * 1000) : 0;
+  const microseconds =
+    typeof performance !== 'undefined' ? Math.floor(performance.now() * 1000) : 0;
   const randomStr = Math.random().toString(36).substring(2, 8);
 
   // 【ID生成】: log_YYYYMMDD_NNN_timestamp_microseconds_random

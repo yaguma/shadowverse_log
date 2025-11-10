@@ -1,17 +1,6 @@
 import { useState } from 'react';
 import { apiClient } from '../api/client';
-import type {
-  BATTLE_RESULTS,
-  BATTLE_TYPES,
-  BattleResult,
-  BattleType,
-  GROUPS,
-  Group,
-  RANKS,
-  Rank,
-  TURNS,
-  Turn,
-} from '../types';
+import type { BattleResult, BattleType, Group, Rank, Turn } from '../types';
 
 /**
  * 【型定義】: インポート結果
@@ -337,7 +326,7 @@ export function useImport(): UseImportReturn {
         // 【テスト対応】: TC-IMPORT-001, TC-IMPORT-010（JSON形式エラー）
         try {
           parsedData = JSON.parse(fileContent);
-        } catch (jsonError) {
+        } catch (_jsonError) {
           throw new Error('JSON形式が不正です');
         }
 

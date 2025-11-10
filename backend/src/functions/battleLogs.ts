@@ -62,7 +62,9 @@ export async function getBattleLogs(
     } = {
       limit: limit ? Number.parseInt(limit, 10) : undefined,
       offset: offset ? Number.parseInt(offset, 10) : undefined,
-      sortBy: sortBy ? (sortBy as 'date' | 'battleType' | 'rank' | 'group' | 'turn' | 'result') : undefined,
+      sortBy: sortBy
+        ? (sortBy as 'date' | 'battleType' | 'rank' | 'group' | 'turn' | 'result')
+        : undefined,
       sortOrder: sortOrder ? (sortOrder as 'asc' | 'desc') : undefined,
     };
 
@@ -77,12 +79,7 @@ export async function getBattleLogs(
 
     if (error instanceof Error && error.message.includes('validation')) {
       // バリデーションエラー
-      return createErrorResponse(
-        400,
-        API_ERROR_CODES.INVALID_REQUEST,
-        error.message,
-        context
-      );
+      return createErrorResponse(400, API_ERROR_CODES.INVALID_REQUEST, error.message, context);
     }
 
     // その他のエラー
@@ -128,12 +125,7 @@ export async function createBattleLog(
 
     if (error instanceof Error && error.message.includes('validation')) {
       // バリデーションエラー
-      return createErrorResponse(
-        400,
-        API_ERROR_CODES.INVALID_REQUEST,
-        error.message,
-        context
-      );
+      return createErrorResponse(400, API_ERROR_CODES.INVALID_REQUEST, error.message, context);
     }
 
     // その他のエラー
@@ -179,12 +171,7 @@ export async function deleteBattleLog(
 
     if (error instanceof Error && error.message.includes('見つかりません')) {
       // 404エラー
-      return createErrorResponse(
-        404,
-        API_ERROR_CODES.NOT_FOUND,
-        error.message,
-        context
-      );
+      return createErrorResponse(404, API_ERROR_CODES.NOT_FOUND, error.message, context);
     }
 
     // その他のエラー

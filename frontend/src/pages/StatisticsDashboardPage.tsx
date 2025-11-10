@@ -137,7 +137,7 @@ export function StatisticsDashboardPage() {
       fetchStatistics();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate]);
+  }, [startDate, endDate, fetchStatistics]);
 
   /**
    * 【検索ボタンクリックハンドラ】: 期間選択フォームの「検索」ボタン処理

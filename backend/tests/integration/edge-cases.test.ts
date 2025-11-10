@@ -229,9 +229,9 @@ describe('エッジケース統合テスト', () => {
       // 【追加検証】: IDの形式が正しいことを確認
       // 【ID形式】: log_YYYYMMDD_NNN_timestamp_microseconds_random（並列実行対応）
       // 🟡 信頼性レベル: 黄信号（ID形式は並列実行対応のため拡張）
-      ids.forEach((id) => {
+      for (const id of ids) {
         expect(id).toMatch(/^log_\d{8}_\d{3}_\d+_\d+_[a-z0-9]{6}$/); // 【確認内容】: IDが並列実行対応形式 🟡
-      });
+      }
     });
   });
 

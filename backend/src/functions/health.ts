@@ -7,7 +7,12 @@
  * 🔵 信頼性レベル: 青信号（testcases.md Lines 804-858より）
  */
 
-import { app, type HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import {
+  type HttpRequest,
+  type HttpResponseInit,
+  type InvocationContext,
+  app,
+} from '@azure/functions';
 
 /**
  * ヘルスチェックレスポンスの型

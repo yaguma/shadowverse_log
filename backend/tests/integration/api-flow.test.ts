@@ -9,10 +9,10 @@
  */
 
 import { BattleLogService } from '../../src/services/battleLogService';
-import { StatisticsService } from '../../src/services/statisticsService';
 import { ImportService } from '../../src/services/importService';
+import { StatisticsService } from '../../src/services/statisticsService';
 import { BlobStorageClient } from '../../src/storage/blobStorageClient';
-import type { BattleLog, BattleType, Rank, Group, Turn, BattleResult } from '../../src/types';
+import type { BattleLog, BattleResult, BattleType, Group, Rank, Turn } from '../../src/types';
 
 // BlobStorageClient のモック
 jest.mock('../../src/storage/blobStorageClient');
@@ -189,7 +189,7 @@ describe('API統合フローテスト', () => {
       expect(result.battleLogs).toBeDefined(); // 【確認内容】: 一覧データが返却される 🔵
       expect(result.battleLogs.length).toBe(2); // 【確認内容】: 期間内の2件のみが返される 🔵
       // 日付の昇順/降順に関わらず、2件のデータが含まれることを確認
-      const dates = result.battleLogs.map(log => log.date);
+      const dates = result.battleLogs.map((log) => log.date);
       expect(dates).toContain('2025/11/02'); // 【確認内容】: 11/02のデータが含まれる 🔵
       expect(dates).toContain('2025/11/04'); // 【確認内容】: 11/04のデータが含まれる 🔵
       expect(result.total).toBe(2); // 【確認内容】: 総数が2件 🔵
@@ -242,12 +242,12 @@ describe('API統合フローテスト', () => {
       // 【初期条件設定】: 型定義に準拠していない、必須フィールドの欠落
       const invalidInput = {
         date: 'invalid-date', // 不正な日付形式
-        battleType: '無効なタイプ' as any, // 存在しないタイプ
+        battleType: '無効なタイプ' as unknown, // 存在しないタイプ
         rank: 'ダイアモンド' as const,
         group: 'AA' as const,
         myDeckId: 'deck-001',
         turn: '先攻' as const,
-        result: null as any, // 必須フィールドがnull
+        result: null as unknown, // 必須フィールドがnull
         opponentDeckId: 'deck-101',
       };
 
@@ -449,8 +449,7 @@ describe('API統合フローテスト', () => {
       // 【処理内容】: StatisticsService.calculateStatistics() を呼び出し
       // 【前提条件】: モックが対戦履歴データを返すように設定
       mockBlobClient.getBattleLogs.mockResolvedValue(battleLogs);
-      const stats = await statisticsService.calculateStatistics({
-      });
+      const stats = await statisticsService.calculateStatistics({});
 
       // 【結果検証】: 統計が正しく計算されることを確認
       // 【期待値確認】: 全体統計、デッキ別統計、相手別統計が正確
@@ -528,8 +527,7 @@ describe('API統合フローテスト', () => {
 
       // 【実際の処理実行 - 1】: 初回統計計算
       mockBlobClient.getBattleLogs.mockResolvedValue(initialLogs);
-      const initialStats = await statisticsService.calculateStatistics({
-      });
+      const initialStats = await statisticsService.calculateStatistics({});
 
       // 【結果検証 - 1】: 初回統計が正しいことを確認
       expect(initialStats.overall.totalGames).toBe(5); // 【確認内容】: 初回は5試合 🔵
@@ -565,8 +563,7 @@ describe('API統合フローテスト', () => {
 
       // 【実際の処理実行 - 2】: データ追加後の統計再計算
       mockBlobClient.getBattleLogs.mockResolvedValue([...initialLogs, ...additionalLogs]);
-      const updatedStats = await statisticsService.calculateStatistics({
-      });
+      const updatedStats = await statisticsService.calculateStatistics({});
 
       // 【結果検証 - 2】: データ追加後の統計が更新されることを確認
       expect(updatedStats.overall.totalGames).toBe(7); // 【確認内容】: 追加後は7試合 🔵
@@ -593,8 +590,7 @@ describe('API統合フローテスト', () => {
 
       // 【実際の処理実行】: データが存在しない期間で統計計算
       mockBlobClient.getBattleLogs.mockResolvedValue([]);
-      const stats = await statisticsService.calculateStatistics({
-      });
+      const stats = await statisticsService.calculateStatistics({});
 
       // 【結果検証】: ゼロ除算エラーが発生せず、0件のデータとして返されることを確認
       expect(stats).toBeDefined(); // 【確認内容】: 統計結果が返される（エラーではない） 🔵
@@ -756,8 +752,7 @@ describe('API統合フローテスト', () => {
       ];
       mockBlobClient.getBattleLogs.mockResolvedValue(importedLogs);
 
-      const stats = await statisticsService.calculateStatistics({
-      });
+      const stats = await statisticsService.calculateStatistics({});
 
       // 【結果検証 - 2】: 統計が正しく計算されることを確認
       expect(stats).toBeDefined(); // 【確認内容】: 統計結果が返される 🔵
