@@ -76,7 +76,7 @@ const BATTLE_RESULTS_OPTIONS: readonly BattleResult[] = ['勝ち', '負け'] as 
  */
 export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCancel }) => {
   // 【Zustand Store取得】: useBattleLogStoreからストアの状態とアクションを取得 🔵
-  const { previousInput, isLoading, error, createBattleLog, clearError } = useBattleLogStore();
+  const { previousInput, isLoading, error, createBattleLog } = useBattleLogStore();
 
   // 【ローカル状態管理】: フォームデータとバリデーションエラーを管理 🔵
   const [formData, setFormData] = useState<CreateBattleLogRequest>({
@@ -162,7 +162,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
     }
 
     // 【日付比較】: YYYY-MM-DD形式の文字列で比較 🔵
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0]||"";
 
     if (date > today) {
       return '未来の日付は入力できません'; // 🔵 REQ-030

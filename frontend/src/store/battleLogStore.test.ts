@@ -184,7 +184,6 @@ describe('Battle Log Store', () => {
 
       const mockCreatedLog = {
         id: 'log_20251104_001',
-        date: '2025/11/04',
         ...inputData,
       };
 

@@ -69,8 +69,8 @@ export function StatisticsDashboardPage() {
 
     // 【State更新】: デフォルト期間を State に設定
     // この更新により useEffect (startDate, endDate) が発火し、API 呼び出しが実行される
-    setStartDate(periodStartDate);
-    setEndDate(today);
+    setStartDate(periodStartDate||"");
+    setEndDate(today||"");
   }, []);
 
   /**

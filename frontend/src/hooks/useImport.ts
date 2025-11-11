@@ -1,15 +1,10 @@
 import { useState } from 'react';
 import { apiClient } from '../api/client';
 import type {
-  BATTLE_RESULTS,
-  BATTLE_TYPES,
   BattleResult,
   BattleType,
-  GROUPS,
   Group,
-  RANKS,
   Rank,
-  TURNS,
   Turn,
 } from '../types';
 
@@ -156,7 +151,7 @@ export function useImport(): UseImportReturn {
     }
 
     // 【ヘッダー行取得】: 1行目をヘッダーとして取得 🔵
-    const headerLine = lines[0];
+    const headerLine = lines[0] || "";
     const headers = headerLine.split(',').map((h) => h.trim());
 
     // 【ヘッダーバリデーション】: 必須ヘッダーがすべて含まれているかチェック 🔵
@@ -175,15 +170,14 @@ export function useImport(): UseImportReturn {
     // 【データ行解析】: 2行目以降のデータ行をJSONオブジェクトに変換 🔵
     const data: unknown[] = [];
     for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
+      const line = (lines[i] || "").trim();
       if (line === '') continue; // 空行はスキップ
 
       const values = line.split(',').map((v) => v.trim());
       const row: Record<string, string> = {};
-
-      for (let j = 0; j < headers.length; j++) {
-        row[headers[j]] = values[j] || '';
-      }
+      headers.forEach((header, index) => {
+        row[header] = values[index] || '';
+      });
 
       data.push(row);
     }
