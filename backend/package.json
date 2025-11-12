@@ -4,7 +4,8 @@
   "description": "Shadowverse Battle Log - Azure Functions Backend",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run copy",
+    "copy": "cp host.json dist/ ",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
