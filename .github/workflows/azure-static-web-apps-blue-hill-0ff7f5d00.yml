@@ -30,6 +30,12 @@ jobs:
           submodules: true
           lfs: false
 
+      - name: Build API
+        working-directory: backend
+        run: |
+          npm ci
+          npm run build  # 出力: backend/dist
+
       - name: Display deployment information
         if: github.event_name == 'workflow_dispatch'
         run: |
@@ -64,6 +70,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLUE_HILL_0FF7F5D00 }}
           action: "close"
+
 
 
 
