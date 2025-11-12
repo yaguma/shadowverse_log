@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run copy",
+    "copy": "cp staticwebapp.config.json dist/",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
