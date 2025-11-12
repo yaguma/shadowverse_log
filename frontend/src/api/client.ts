@@ -11,7 +11,7 @@ import type { ApiResponse } from '../types';
 // 【環境変数設定】: APIのベースURLを環境変数から取得（デフォルト値あり） 🔵
 // 【設定理由】: 開発環境と本番環境で異なるAPIエンドポイントを使用するため
 // 【セキュリティ】: 本番環境ではHTTPS URLを環境変数で設定すること
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:7071/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * 【ヘルパー関数】: エラーオブジェクトから適切なエラーメッセージを抽出
