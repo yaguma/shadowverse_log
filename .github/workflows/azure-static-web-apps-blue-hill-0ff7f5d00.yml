@@ -52,9 +52,6 @@ jobs:
           api_location: "./backend" # Api source code path - optional
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
-        env:
-          VITE_FUNCTIONS_API_KEY: ${{ secrets.FUNCTIONS_API_KEY }}
-          VITE_FUNCTIONS_API_URL: ${{ secrets.FUNCTIONS_API_URL }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -67,4 +64,5 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLUE_HILL_0FF7F5D00 }}
           action: "close"
+
 
