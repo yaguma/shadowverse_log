@@ -5,7 +5,7 @@
  * JSON/CSV形式のデータをインポートする
  */
 
-import { Context, HttpRequest } from '@azure/functions';
+import { InvocationContext, HttpResponseInit, HttpRequest } from '@azure/functions';
 import { ImportService } from '../../services/importService';
 import { BlobStorageClient } from '../../storage/blobStorageClient';
 
@@ -44,7 +44,7 @@ interface ImportRequestBody {
 /**
  * POST /api/import - データインポートAPI
  */
-export async function httpTrigger(context: Context, req: HttpRequest): Promise<void> {
+export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     // Blob Storage クライアント初期化
     const importService = initializeImportService();
@@ -55,13 +55,12 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
     // リクエストバリデーション
     const validationError = validateRequestBody(body);
     if (validationError) {
-      context.res = createErrorResponse(
+      return createErrorResponse(
         validationError.status,
         validationError.code,
         validationError.message,
         context
       );
-      return;
     }
 
     // インポート実行
@@ -73,20 +72,19 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
         context
       );
       // 成功レスポンス
-      context.res = createSuccessResponse(result, context);
+      return createSuccessResponse(result, context);
     } catch (error) {
       // executeImportからのエラーレスポンス
       if (isHttpResponse(error)) {
-        context.res = error;
-        return;
+        return error;
       }
       throw error;
     }
   } catch (error) {
     // 予期しないエラー（サーバーエラー）
-    context.log.error('Error in importData:', error);
+    context.error('Error in importData:', error);
 
-    context.res = createErrorResponse(
+    return createErrorResponse(
       500,
       API_ERROR_CODES.INTERNAL_SERVER_ERROR,
       error instanceof Error ? error.message : API_ERROR_MESSAGES.SERVER_ERROR,
@@ -152,7 +150,7 @@ function validateRequestBody(
  * @param importService - ImportServiceインスタンス
  * @param format - データフォーマット
  * @param data - インポートデータ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns インポート結果
  * @throws エラーレスポンスオブジェクト
  */
@@ -160,7 +158,7 @@ async function executeImport(
   importService: ImportService,
   format: ValidFormat,
   data: string,
-  context: Context
+  context: InvocationContext
 ) {
   try {
     if (format === 'json') {
@@ -172,7 +170,7 @@ async function executeImport(
 
     // Blob Storageエラーの場合は500を返す
     if (isBlobStorageError(errorMessage)) {
-      context.log.error('Blob Storage error in importData:', error);
+      context.error('Blob Storage error in importData:', error);
       throw createErrorResponse(500, API_ERROR_CODES.INTERNAL_SERVER_ERROR, errorMessage, context);
     }
 
@@ -205,10 +203,10 @@ function isHttpResponse(value: unknown): value is { status: number; body: string
  * 成功レスポンスを作成
  *
  * @param data - レスポンスデータ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns レスポンスオブジェクト
  */
-function createSuccessResponse(data: unknown, context: Context) {
+function createSuccessResponse(data: unknown, context: InvocationContext) {
   return {
     status: 200,
     headers: {
@@ -231,20 +229,17 @@ function createSuccessResponse(data: unknown, context: Context) {
  * @param status - HTTPステータスコード
  * @param code - エラーコード
  * @param message - エラーメッセージ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns レスポンスオブジェクト
  */
 function createErrorResponse(
   status: number,
   code: string,
   message: string,
-  context: Context
-) {
+  context: InvocationContext
+): HttpResponseInit {
   return {
     status,
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       success: false,
       error: {
