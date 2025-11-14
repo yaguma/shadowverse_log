@@ -7,7 +7,7 @@
  * 🔵 信頼性レベル: 青信号（testcases.md Lines 804-858より）
  */
 
-import { app, type HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { Context, HttpRequest } from '@azure/functions';
 
 /**
  * ヘルスチェックレスポンスの型
@@ -35,14 +35,10 @@ interface HealthCheckResponse {
  *   - TC-HEALTH-003: HTTP 200を返す、タイムスタンプが現在時刻に近い
  * 🔵 信頼性レベル: 青信号（testcases.md Lines 804-858より）
  *
- * @param _request - HTTPリクエスト（使用しない）
- * @param _context - 実行コンテキスト（使用しない）
- * @returns HTTPレスポンス（status: 200, ヘルスチェック情報）
+ * @param _context - 実行コンテキスト
+ * @param _req - HTTPリクエスト（使用しない）
  */
-async function health(
-  _request: HttpRequest,
-  _context: InvocationContext
-): Promise<HttpResponseInit> {
+export async function httpTrigger(_context: Context, _req: HttpRequest): Promise<void> {
   // 【タイムスタンプ生成】: 現在時刻をISO 8601形式で取得
   // 【実装内容】: new Date().toISOString() でミリ秒精度のタイムスタンプを生成
   // 🔵 信頼性レベル: 青信号（testcases.md Lines 171-194より）
@@ -68,16 +64,12 @@ async function health(
   //   - status: 200 (正常時のHTTPステータスコード)
   //   - jsonBody: ヘルスチェックレスポンス
   // 🔵 信頼性レベル: 青信号（testcases.md Lines 154-169より）
-  return {
+  _context.res = {
     status: 200,
-    jsonBody: responseData,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(responseData),
   };
 }
 
-// Azure Functionsに登録
-app.http('health', {
-  methods: ['GET'],
-  route: 'health',
-  authLevel: 'anonymous',
-  handler: health,
-});

@@ -9,15 +9,10 @@
  * 🔵 信頼性レベル: 青信号（requirements.md Lines 76-336 より）
  */
 
-import {
-  type HttpRequest,
-  type HttpResponseInit,
-  type InvocationContext,
-  app,
-} from '@azure/functions';
-import { StatisticsService } from '../services/statisticsService';
-import { BlobStorageClient } from '../storage/blobStorageClient';
-import type { ApiResponse, StatisticsResponse } from '../types';
+import { Context, HttpRequest } from '@azure/functions';
+import { StatisticsService } from '../../services/statisticsService';
+import { BlobStorageClient } from '../../storage/blobStorageClient';
+import type { ApiResponse, StatisticsResponse } from '../../types';
 
 /**
  * 【Azure Functions ハンドラ】: GET /api/statistics
@@ -33,20 +28,16 @@ import type { ApiResponse, StatisticsResponse } from '../types';
  *
  * 🔵 信頼性レベル: 青信号（requirements.md Lines 82-336 より）
  *
- * @param request - HTTPリクエスト
  * @param context - Azure Functions 実行コンテキスト
- * @returns HTTPレスポンス
+ * @param req - HTTPリクエスト
  */
-export async function getStatistics(
-  request: HttpRequest,
-  context: InvocationContext
-): Promise<HttpResponseInit> {
+export async function httpTrigger(context: Context, req: HttpRequest): Promise<void> {
   try {
     // 【クエリパラメータ取得】: startDate, endDate, battleType を取得
     // 🔵 信頼性レベル: 青信号（requirements.md Lines 89-116 より）
-    const startDate = request.query.get('startDate') ?? undefined;
-    const endDate = request.query.get('endDate') ?? undefined;
-    const battleType = request.query.get('battleType') ?? undefined;
+    const startDate = req.query.startDate ?? undefined;
+    const endDate = req.query.endDate ?? undefined;
+    const battleType = req.query.battleType ?? undefined;
 
     // 【環境変数取得】: Azure Storage 接続文字列とコンテナ名
     // 🔵 信頼性レベル: 青信号（requirements.md Lines 362-365 より）
@@ -79,7 +70,7 @@ export async function getStatistics(
 
     // 【正常レスポンス】: 200 OK
     // 🔵 信頼性レベル: 青信号
-    return {
+    context.res = {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -90,7 +81,7 @@ export async function getStatistics(
     // 【エラーハンドリング】: 500 Internal Server Error
     // 【エラーメッセージ】: ユーザーフレンドリーなメッセージを返却
     // 🔵 信頼性レベル: 青信号（requirements.md Lines 243-257 より）
-    context.error('Error in getStatistics:', error);
+    context.log.error('Error in getStatistics:', error);
 
     const errorResponse: ApiResponse<never> = {
       success: false,
@@ -104,7 +95,7 @@ export async function getStatistics(
       },
     };
 
-    return {
+    context.res = {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
@@ -114,19 +105,3 @@ export async function getStatistics(
   }
 }
 
-/**
- * 【Azure Functions 登録】: GET /api/statistics エンドポイントを登録
- *
- * 【設定】:
- * - methods: GET
- * - authLevel: anonymous (Phase 1では認証なし)
- * - route: statistics
- *
- * 🔵 信頼性レベル: 青信号（requirements.md Lines 82-87 より）
- */
-app.http('getStatistics', {
-  methods: ['GET'],
-  authLevel: 'anonymous',
-  route: 'statistics',
-  handler: getStatistics,
-});

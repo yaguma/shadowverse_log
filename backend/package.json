@@ -2,10 +2,9 @@
   "name": "shadowverse-battle-log-backend",
   "version": "1.0.0",
   "description": "Shadowverse Battle Log - Azure Functions Backend",
-  "main": "dist/index.js",
   "scripts": {
     "build": "tsc && npm run copy",
-    "copy": "cp host.json dist/ && cp package.json dist/ ",
+    "copy": "cp host.json dist/ && cp package.json dist/ && mkdir -p dist/functions/getBattleLogs dist/functions/createBattleLog dist/functions/deleteBattleLog dist/functions/health dist/functions/importData dist/functions/getStatistics && cp src/functions/getBattleLogs/function.json dist/functions/getBattleLogs/ && cp src/functions/createBattleLog/function.json dist/functions/createBattleLog/ && cp src/functions/deleteBattleLog/function.json dist/functions/deleteBattleLog/ && cp src/functions/health/function.json dist/functions/health/ && cp src/functions/importData/function.json dist/functions/importData/ && cp src/functions/getStatistics/function.json dist/functions/getStatistics/",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
@@ -21,12 +20,13 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@azure/functions": "^4.0.0",
+    "@azure/functions": "^3.2.0",
     "@azure/storage-blob": "^12.24.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@types/azure-functions": "^3.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.0.0",
     "azurite": "^3.35.0",
