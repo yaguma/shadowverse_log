@@ -7,13 +7,8 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-009, REQ-010, REQ-011, REQ-032, REQ-033）に基づく
  */
 
-import { useEffect, useState } from 'react';
-import { BattleLogDetailModal } from '../components/battle-log/BattleLogDetailModal';
-import { BattleLogForm } from '../components/battle-log/BattleLogForm';
-import { BattleLogList } from '../components/battle-log/BattleLogList';
-import { DeleteConfirmDialog } from '../components/battle-log/DeleteConfirmDialog';
+import { useEffect } from 'react';
 import { useBattleLogStore } from '../store/battleLogStore';
-import type { BattleLog } from '../types';
 
 /**
  * 【機能概要】: Battle Log一覧ページコンポーネント
@@ -23,14 +18,9 @@ import type { BattleLog } from '../types';
  */
 export function BattleLogListPage() {
   // 【Zustand Store取得】: useBattleLogStoreからストアの状態とアクションを取得 🔵
-  const { battleLogs, isLoading, error, fetchBattleLogs, deleteBattleLog, clearError } =
+  const { isLoading, error, fetchBattleLogs } =
     useBattleLogStore();
 
-  // 【ローカル状態管理】: フォーム表示、削除ダイアログ表示、詳細モーダル表示を管理 🔵
-  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
-  const [targetLog, setTargetLog] = useState<BattleLog | null>(null);
-  const [detailLog, setDetailLog] = useState<BattleLog | null>(null);
 
   /**
    * 【初期化処理】: 初回ロード時にfetchBattleLogs()を自動実行
@@ -44,129 +34,6 @@ export function BattleLogListPage() {
     fetchBattleLogs();
   }, [fetchBattleLogs]);
 
-  /**
-   * 【新規登録ボタンハンドラー】: 新規登録フォームを表示
-   * 【実装方針】: isFormOpenをtrueに設定してモーダルを表示
-   * 【テスト対応】: TC-LIST-PAGE-003を通すための実装
-   * 🔵 信頼性レベル: データフロー図に基づく
-   */
-  const handleNewButtonClick = () => {
-    // 【フォーム表示】: isFormOpenをtrueに設定 🔵
-    // 【TC-LIST-PAGE-003対応】: 新規登録ボタンクリックでBattleLogFormが表示される
-    setIsFormOpen(true);
-  };
-
-  /**
-   * 【フォーム送信成功ハンドラー】: フォーム送信成功後にフォームを閉じる
-   * 【実装方針】: isFormOpenをfalseに設定してモーダルを閉じる
-   * 【テスト対応】: TC-LIST-PAGE-004、TC-INT-003を通すための実装
-   * 🔵 信頼性レベル: データフロー図に基づく
-   */
-  const handleFormSuccess = () => {
-    // 【フォームクローズ】: isFormOpenをfalseに設定 🔵
-    // 【TC-LIST-PAGE-004対応】: フォーム送信成功後にフォームが閉じる
-    // 【TC-INT-003対応】: fetchBattleLogs()はZustand Store経由で自動実行される
-    setIsFormOpen(false);
-  };
-
-  /**
-   * 【フォームキャンセルハンドラー】: フォームをキャンセルして閉じる
-   * 【実装方針】: isFormOpenをfalseに設定してモーダルを閉じる
-   * 🔵 信頼性レベル: 一般的なフォームUXパターンから
-   */
-  const handleFormCancel = () => {
-    // 【フォームクローズ】: isFormOpenをfalseに設定 🔵
-    setIsFormOpen(false);
-  };
-
-  /**
-   * 【削除ボタンハンドラー】: 削除確認ダイアログを表示
-   * 【実装方針】: 削除対象のlogを設定し、isDeleteDialogOpenをtrueに設定
-   * 【テスト対応】: TC-ERR-003、TC-INT-002を通すための実装
-   * 🔵 信頼性レベル: データフロー図に基づく
-   */
-  const handleDelete = (id: string) => {
-    // 【削除対象設定】: battleLogsから削除対象を検索 🔵
-    const log = battleLogs.find((log) => log.id === id);
-    if (log) {
-      setTargetLog(log);
-      setIsDeleteDialogOpen(true);
-    }
-  };
-
-  /**
-   * 【削除確認ハンドラー】: 削除を実行
-   * 【実装方針】: deleteBattleLog()を呼び出し、成功/失敗後にダイアログを閉じる
-   * 【テスト対応】: TC-ERR-003、TC-INT-002を通すための実装
-   * 🔵 信頼性レベル: データフロー図に基づく
-   */
-  const handleDeleteConfirm = async () => {
-    if (!targetLog) return;
-
-    try {
-      // 【削除実行】: deleteBattleLog()を呼び出す 🔵
-      // 【TC-INT-002対応】: deleteBattleLog()実行時に一覧が自動更新される
-      await deleteBattleLog(targetLog.id);
-
-      // 【ダイアログクローズ】: 削除成功後にダイアログを閉じる 🔵
-      setIsDeleteDialogOpen(false);
-      setTargetLog(null);
-    } catch (_error) {
-      // 【エラーハンドリング】: エラー発生時もダイアログを閉じる 🔵
-      // 【TC-ERR-003対応】: 削除中にエラー発生時、ダイアログが閉じてエラーメッセージが表示される
-      setIsDeleteDialogOpen(false);
-      setTargetLog(null);
-      // エラーメッセージはZustand Storeのerror状態に設定される
-    }
-  };
-
-  /**
-   * 【削除キャンセルハンドラー】: 削除をキャンセルしてダイアログを閉じる
-   * 【実装方針】: isDeleteDialogOpenをfalseに設定してダイアログを閉じる
-   * 🔵 信頼性レベル: 一般的なダイアログUXパターンから
-   */
-  const handleDeleteCancel = () => {
-    // 【ダイアログクローズ】: isDeleteDialogOpenをfalseに設定 🔵
-    setIsDeleteDialogOpen(false);
-    setTargetLog(null);
-  };
-
-  /**
-   * 【詳細ボタンハンドラー】: 詳細モーダルを表示
-   * 【実装方針】: 詳細表示対象のlogを設定し、モーダルを表示
-   * 【リファクタリング実装】: REQ-011対応で詳細モーダルUIを実装
-   * 🔵 信頼性レベル: 要件定義書REQ-011に基づく
-   */
-  const handleDetail = (log: BattleLog) => {
-    // 【詳細モーダル表示】: 詳細表示対象のlogを設定 🔵
-    setDetailLog(log);
-  };
-
-  /**
-   * 【詳細モーダルクローズハンドラー】: 詳細モーダルを閉じる
-   * 【実装方針】: detailLogをnullに設定してモーダルを閉じる
-   * 🔵 信頼性レベル: 一般的なモーダルUXパターンから
-   */
-  const handleDetailClose = () => {
-    // 【モーダルクローズ】: detailLogをnullに設定 🔵
-    setDetailLog(null);
-  };
-
-  /**
-   * 【再試行ボタンハンドラー】: エラー時に再試行
-   * 【実装方針】: clearError()を呼び出してエラーをクリアし、fetchBattleLogs()を再実行
-   * 【テスト対応】: TC-ERR-002を通すための実装
-   * 🔵 信頼性レベル: EDGE-001（ネットワークエラー）に基づく
-   */
-  const handleRetry = () => {
-    // 【エラークリア】: clearError()を呼び出す 🔵
-    // 【TC-ERR-002対応】: clearError()が呼ばれる
-    clearError();
-
-    // 【再試行】: fetchBattleLogs()を再実行 🔵
-    // 【TC-ERR-002対応】: fetchBattleLogs()が再実行される
-    fetchBattleLogs();
-  };
 
   return (
     <div className="container mx-auto p-4">
@@ -174,13 +41,6 @@ export function BattleLogListPage() {
       {/* 【TC-LIST-PAGE-001対応】: ページタイトル、新規登録ボタンの表示 */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">対戦履歴一覧</h1>
-        <button
-          type="button"
-          onClick={handleNewButtonClick}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          新規登録
-        </button>
       </div>
 
       {/* 【エラーメッセージ表示】: エラーが発生した場合に表示 🔵 */}
@@ -188,13 +48,6 @@ export function BattleLogListPage() {
       {error && (
         <div className="mb-4 p-4 bg-red-100 border border-red-400 rounded">
           <p className="text-red-700">{error}</p>
-          <button
-            type="button"
-            onClick={handleRetry}
-            className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            再試行
-          </button>
         </div>
       )}
 
@@ -206,42 +59,12 @@ export function BattleLogListPage() {
         </div>
       )}
 
-      {/* 【一覧表示】: BattleLogListコンポーネントを表示 🔵 */}
-      {/* 【TC-LIST-PAGE-001対応】: 一覧表示エリアの表示 */}
-      {!isLoading && (
-        <BattleLogList battleLogs={battleLogs} onDelete={handleDelete} onDetail={handleDetail} />
-      )}
-
-      {/* 【新規登録フォームモーダル】: BattleLogFormコンポーネントを表示 🔵 */}
-      {/* 【TC-LIST-PAGE-003、TC-LIST-PAGE-004対応】: フォーム表示・クローズ */}
-      {isFormOpen && (
-        <div
-          role="dialog"
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-        >
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <BattleLogForm onSuccess={handleFormSuccess} onCancel={handleFormCancel} />
-          </div>
+      {!isLoading && !error && (
+        <div className="text-center py-8">
+          <p>読み込み完了</p>
         </div>
       )}
 
-      {/* 【削除確認ダイアログ】: DeleteConfirmDialogコンポーネントを表示 🔵 */}
-      {/* 【TC-ERR-003、TC-INT-002対応】: 削除確認ダイアログの表示・削除実行 */}
-      <DeleteConfirmDialog
-        isOpen={isDeleteDialogOpen}
-        targetLog={targetLog}
-        isLoading={isLoading}
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-      />
-
-      {/* 【詳細モーダル】: BattleLogDetailModalコンポーネントを表示 🔵 */}
-      {/* 【リファクタリング実装】: REQ-011対応で詳細モーダルUIを追加 */}
-      <BattleLogDetailModal
-        isOpen={detailLog !== null}
-        log={detailLog}
-        onClose={handleDetailClose}
-      />
     </div>
   );
 }
