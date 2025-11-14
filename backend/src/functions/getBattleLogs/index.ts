@@ -4,7 +4,7 @@
  * GET /api/battle-logs - 対戦履歴一覧を取得
  */
 
-import { Context, HttpRequest } from '@azure/functions';
+import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
 import { BattleLogService } from '../../services/battleLogService';
 import { BlobStorageClient } from '../../storage/blobStorageClient';
 import type { ApiResponse } from '../../types';
@@ -33,15 +33,15 @@ function initializeBattleLogService(): BattleLogService {
 /**
  * GET /api/battle-logs - 対戦履歴一覧を取得
  */
-export async function httpTrigger(context: Context, req: HttpRequest): Promise<void> {
+export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     const battleLogService = initializeBattleLogService();
 
     // クエリパラメータを取得
-    const limit = req.query.limit;
-    const offset = req.query.offset;
-    const sortBy = req.query.sortBy;
-    const sortOrder = req.query.sortOrder;
+    const limit = req.query.get("limit");
+    const offset = req.query.get("offset");
+    const sortBy = req.query.get("sortBy");
+    const sortOrder = req.query.get("sortOrder");
 
     // パラメータを数値に変換（型安全に処理）
     const params: {
@@ -60,24 +60,23 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
     const result = await battleLogService.getBattleLogsWithDeckNames(params);
 
     // 成功レスポンス
-    context.res = createSuccessResponse(result, context);
+    return createSuccessResponse(result, context);
   } catch (error) {
     // エラーハンドリング
-    context.log.error('Error in getBattleLogs:', error);
+    context.error('Error in getBattleLogs:', error);
 
     if (error instanceof Error && error.message.includes('validation')) {
       // バリデーションエラー
-      context.res = createErrorResponse(
+      return createErrorResponse(
         400,
         API_ERROR_CODES.INVALID_REQUEST,
         error.message,
         context
       );
-      return;
     }
 
     // その他のエラー
-    context.res = createErrorResponse(
+    return createErrorResponse(
       500,
       API_ERROR_CODES.INTERNAL_SERVER_ERROR,
       error instanceof Error ? error.message : 'サーバーエラーが発生しました',
@@ -90,10 +89,10 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
  * 成功レスポンスを作成
  *
  * @param data - レスポンスデータ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns レスポンスオブジェクト
  */
-function createSuccessResponse(data: unknown, context: Context) {
+function createSuccessResponse(data: unknown, context: InvocationContext) {
   const response: ApiResponse<unknown> = {
     success: true,
     data,
@@ -118,15 +117,15 @@ function createSuccessResponse(data: unknown, context: Context) {
  * @param status - HTTPステータスコード
  * @param code - エラーコード
  * @param message - エラーメッセージ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns レスポンスオブジェクト
  */
 function createErrorResponse(
   status: number,
   code: string,
   message: string,
-  context: Context
-) {
+  context: InvocationContext
+): HttpResponseInit {
   const response: ApiResponse<never> = {
     success: false,
     error: {
@@ -141,9 +140,6 @@ function createErrorResponse(
 
   return {
     status,
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(response),
   };
 }

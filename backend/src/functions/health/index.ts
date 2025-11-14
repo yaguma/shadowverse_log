@@ -7,7 +7,7 @@
  * 🔵 信頼性レベル: 青信号（testcases.md Lines 804-858より）
  */
 
-import { Context, HttpRequest } from '@azure/functions';
+import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
 
 /**
  * ヘルスチェックレスポンスの型
@@ -38,7 +38,7 @@ interface HealthCheckResponse {
  * @param _context - 実行コンテキスト
  * @param _req - HTTPリクエスト（使用しない）
  */
-export async function httpTrigger(_context: Context, _req: HttpRequest): Promise<void> {
+export async function httpTrigger(_context: InvocationContext, _req: HttpRequest): Promise<HttpResponseInit> {
   // 【タイムスタンプ生成】: 現在時刻をISO 8601形式で取得
   // 【実装内容】: new Date().toISOString() でミリ秒精度のタイムスタンプを生成
   // 🔵 信頼性レベル: 青信号（testcases.md Lines 171-194より）
@@ -64,11 +64,8 @@ export async function httpTrigger(_context: Context, _req: HttpRequest): Promise
   //   - status: 200 (正常時のHTTPステータスコード)
   //   - jsonBody: ヘルスチェックレスポンス
   // 🔵 信頼性レベル: 青信号（testcases.md Lines 154-169より）
-  _context.res = {
+  return {
     status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(responseData),
   };
 }

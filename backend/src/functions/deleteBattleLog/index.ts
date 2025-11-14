@@ -4,7 +4,7 @@
  * DELETE /api/battle-logs/:id - 対戦履歴を削除
  */
 
-import { Context, HttpRequest } from '@azure/functions';
+import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
 import { BattleLogService } from '../../services/battleLogService';
 import { BlobStorageClient } from '../../storage/blobStorageClient';
 import type { ApiResponse } from '../../types';
@@ -33,7 +33,7 @@ function initializeBattleLogService(): BattleLogService {
 /**
  * DELETE /api/battle-logs/:id - 対戦履歴を削除
  */
-export async function httpTrigger(context: Context, req: HttpRequest): Promise<void> {
+export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     const battleLogService = initializeBattleLogService();
 
@@ -41,37 +41,35 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
     const id = req.params.id;
 
     if (!id) {
-      context.res = createErrorResponse(
+      return createErrorResponse(
         400,
         API_ERROR_CODES.INVALID_REQUEST,
         '対戦履歴IDが指定されていません',
         context
       );
-      return;
     }
 
     // 対戦履歴を削除
     const result = await battleLogService.deleteBattleLog(id);
 
     // 成功レスポンス
-    context.res = createSuccessResponse(result, context);
+    return createSuccessResponse(result, context);
   } catch (error) {
     // エラーハンドリング
-    context.log.error('Error in deleteBattleLog:', error);
+    context.error('Error in deleteBattleLog:', error);
 
     if (error instanceof Error && error.message.includes('見つかりません')) {
       // 404エラー
-      context.res = createErrorResponse(
+      return createErrorResponse(
         404,
         API_ERROR_CODES.NOT_FOUND,
         error.message,
         context
       );
-      return;
     }
 
     // その他のエラー
-    context.res = createErrorResponse(
+    return createErrorResponse(
       500,
       API_ERROR_CODES.INTERNAL_SERVER_ERROR,
       error instanceof Error ? error.message : 'サーバーエラーが発生しました',
@@ -87,7 +85,7 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
  * @param context - Context
  * @returns レスポンスオブジェクト
  */
-function createSuccessResponse(data: unknown, context: Context) {
+function createSuccessResponse(data: unknown, context: InvocationContext) {
   const response: ApiResponse<unknown> = {
     success: true,
     data,
@@ -112,14 +110,14 @@ function createSuccessResponse(data: unknown, context: Context) {
  * @param status - HTTPステータスコード
  * @param code - エラーコード
  * @param message - エラーメッセージ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns レスポンスオブジェクト
  */
 function createErrorResponse(
   status: number,
   code: string,
   message: string,
-  context: Context
+  context: InvocationContext
 ) {
   const response: ApiResponse<never> = {
     success: false,
@@ -135,9 +133,6 @@ function createErrorResponse(
 
   return {
     status,
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(response),
   };
 }

@@ -9,7 +9,7 @@
  * 🔵 信頼性レベル: 青信号（requirements.md Lines 76-336 より）
  */
 
-import { Context, HttpRequest } from '@azure/functions';
+import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
 import { StatisticsService } from '../../services/statisticsService';
 import { BlobStorageClient } from '../../storage/blobStorageClient';
 import type { ApiResponse, StatisticsResponse } from '../../types';
@@ -31,13 +31,13 @@ import type { ApiResponse, StatisticsResponse } from '../../types';
  * @param context - Azure Functions 実行コンテキスト
  * @param req - HTTPリクエスト
  */
-export async function httpTrigger(context: Context, req: HttpRequest): Promise<void> {
+export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     // 【クエリパラメータ取得】: startDate, endDate, battleType を取得
     // 🔵 信頼性レベル: 青信号（requirements.md Lines 89-116 より）
-    const startDate = req.query.startDate ?? undefined;
-    const endDate = req.query.endDate ?? undefined;
-    const battleType = req.query.battleType ?? undefined;
+    const startDate = req.query.get("startDate") ?? undefined;
+    const endDate = req.query.get("endDate") ?? undefined;
+    const battleType = req.query.get("battleType") ?? undefined;
 
     // 【環境変数取得】: Azure Storage 接続文字列とコンテナ名
     // 🔵 信頼性レベル: 青信号（requirements.md Lines 362-365 より）
@@ -70,7 +70,7 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
 
     // 【正常レスポンス】: 200 OK
     // 🔵 信頼性レベル: 青信号
-    context.res = {
+    return {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
     // 【エラーハンドリング】: 500 Internal Server Error
     // 【エラーメッセージ】: ユーザーフレンドリーなメッセージを返却
     // 🔵 信頼性レベル: 青信号（requirements.md Lines 243-257 より）
-    context.log.error('Error in getStatistics:', error);
+    context.error('Error in getStatistics:', error);
 
     const errorResponse: ApiResponse<never> = {
       success: false,
@@ -95,7 +95,7 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
       },
     };
 
-    context.res = {
+    return {
       status: 500,
       headers: {
         'Content-Type': 'application/json',

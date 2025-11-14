@@ -4,7 +4,7 @@
  * POST /api/battle-logs - 新規対戦履歴を作成
  */
 
-import { Context, HttpRequest } from '@azure/functions';
+import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
 import { BattleLogService } from '../../services/battleLogService';
 import { BlobStorageClient } from '../../storage/blobStorageClient';
 import type { ApiResponse } from '../../types';
@@ -33,12 +33,12 @@ function initializeBattleLogService(): BattleLogService {
 /**
  * POST /api/battle-logs - 新規対戦履歴を作成
  */
-export async function httpTrigger(context: Context, req: HttpRequest): Promise<void> {
+export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     const battleLogService = initializeBattleLogService();
 
     // リクエストボディを取得
-    const body = req.body as {
+    const body = (await req.json()) as {
       battleType: 'ランクマッチ' | '対戦台' | 'ロビー大会';
       rank: 'サファイア' | 'ダイアモンド' | 'ルビー' | 'トパーズ' | '-';
       group: '-' | 'A' | 'AA' | 'AAA' | 'Master';
@@ -53,24 +53,23 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
     const result = await battleLogService.createBattleLog(body);
 
     // 成功レスポンス
-    context.res = createSuccessResponse(result, context);
+    return createSuccessResponse(result, context);
   } catch (error) {
     // エラーハンドリング
-    context.log.error('Error in createBattleLog:', error);
+    context.error('Error in createBattleLog:', error);
 
     if (error instanceof Error && error.message.includes('validation')) {
       // バリデーションエラー
-      context.res = createErrorResponse(
+      return createErrorResponse(
         400,
         API_ERROR_CODES.INVALID_REQUEST,
         error.message,
         context
       );
-      return;
     }
 
     // その他のエラー
-    context.res = createErrorResponse(
+    return createErrorResponse(
       500,
       API_ERROR_CODES.INTERNAL_SERVER_ERROR,
       error instanceof Error ? error.message : 'サーバーエラーが発生しました',
@@ -86,7 +85,7 @@ export async function httpTrigger(context: Context, req: HttpRequest): Promise<v
  * @param context - Context
  * @returns レスポンスオブジェクト
  */
-function createSuccessResponse(data: unknown, context: Context) {
+function createSuccessResponse(data: unknown, context: InvocationContext) {
   const response: ApiResponse<unknown> = {
     success: true,
     data,
@@ -98,9 +97,6 @@ function createSuccessResponse(data: unknown, context: Context) {
 
   return {
     status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(response),
   };
 }
@@ -111,14 +107,14 @@ function createSuccessResponse(data: unknown, context: Context) {
  * @param status - HTTPステータスコード
  * @param code - エラーコード
  * @param message - エラーメッセージ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns レスポンスオブジェクト
  */
 function createErrorResponse(
   status: number,
   code: string,
   message: string,
-  context: Context
+  context: InvocationContext
 ) {
   const response: ApiResponse<never> = {
     success: false,
@@ -134,9 +130,6 @@ function createErrorResponse(
 
   return {
     status,
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(response),
   };
 }
