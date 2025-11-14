@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/azure-functions": "^3.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.0.0",
     "azurite": "^3.35.0",
