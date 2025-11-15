@@ -38,7 +38,7 @@ interface HealthCheckResponse {
  * @param _context - 実行コンテキスト
  * @param _req - HTTPリクエスト（使用しない）
  */
-export async function httpTrigger(_context: InvocationContext, _req: HttpRequest): Promise<HttpResponseInit> {
+export default async function httpTrigger(_context: InvocationContext, _req: HttpRequest): Promise<HttpResponseInit> {
   // 【タイムスタンプ生成】: 現在時刻をISO 8601形式で取得
   // 【実装内容】: new Date().toISOString() でミリ秒精度のタイムスタンプを生成
   // 🔵 信頼性レベル: 青信号（testcases.md Lines 171-194より）
