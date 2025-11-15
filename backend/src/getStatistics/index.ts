@@ -10,9 +10,9 @@
  */
 
 import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
-import { StatisticsService } from '../../services/statisticsService';
-import { BlobStorageClient } from '../../storage/blobStorageClient';
-import type { ApiResponse, StatisticsResponse } from '../../types';
+import { StatisticsService } from '../libs/services/statisticsService';
+import { BlobStorageClient } from '../libs/storage/blobStorageClient';
+import type { ApiResponse, StatisticsResponse } from '../libs/types';
 
 /**
  * 【Azure Functions ハンドラ】: GET /api/statistics

@@ -1,13 +1,13 @@
 /**
  * Battle Logs API - 対戦履歴エンドポイント
  *
- * GET /api/battle-logs - 対戦履歴一覧を取得
+ * DELETE /api/battle-logs/:id - 対戦履歴を削除
  */
 
 import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
-import { BattleLogService } from '../../services/battleLogService';
-import { BlobStorageClient } from '../../storage/blobStorageClient';
-import type { ApiResponse } from '../../types';
+import { BattleLogService } from '../libs/services/battleLogService';
+import { BlobStorageClient } from '../libs/storage/blobStorageClient';
+import type { ApiResponse } from '../libs/types';
 
 /**
  * APIエラーコード定数
@@ -31,45 +31,38 @@ function initializeBattleLogService(): BattleLogService {
 }
 
 /**
- * GET /api/battle-logs - 対戦履歴一覧を取得
+ * DELETE /api/battle-logs/:id - 対戦履歴を削除
  */
 export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     const battleLogService = initializeBattleLogService();
 
-    // クエリパラメータを取得
-    const limit = req.query.get("limit");
-    const offset = req.query.get("offset");
-    const sortBy = req.query.get("sortBy");
-    const sortOrder = req.query.get("sortOrder");
+    // パスパラメータからIDを取得
+    const id = req.params.id;
 
-    // パラメータを数値に変換（型安全に処理）
-    const params: {
-      limit?: number;
-      offset?: number;
-      sortBy?: 'date' | 'battleType' | 'rank' | 'group' | 'turn' | 'result';
-      sortOrder?: 'asc' | 'desc';
-    } = {
-      limit: limit ? Number.parseInt(limit, 10) : undefined,
-      offset: offset ? Number.parseInt(offset, 10) : undefined,
-      sortBy: sortBy ? (sortBy as 'date' | 'battleType' | 'rank' | 'group' | 'turn' | 'result') : undefined,
-      sortOrder: sortOrder ? (sortOrder as 'asc' | 'desc') : undefined,
-    };
+    if (!id) {
+      return createErrorResponse(
+        400,
+        API_ERROR_CODES.INVALID_REQUEST,
+        '対戦履歴IDが指定されていません',
+        context
+      );
+    }
 
-    // 対戦履歴を取得
-    const result = await battleLogService.getBattleLogsWithDeckNames(params);
+    // 対戦履歴を削除
+    const result = await battleLogService.deleteBattleLog(id);
 
     // 成功レスポンス
     return createSuccessResponse(result, context);
   } catch (error) {
     // エラーハンドリング
-    context.error('Error in getBattleLogs:', error);
+    context.error('Error in deleteBattleLog:', error);
 
-    if (error instanceof Error && error.message.includes('validation')) {
-      // バリデーションエラー
+    if (error instanceof Error && error.message.includes('見つかりません')) {
+      // 404エラー
       return createErrorResponse(
-        400,
-        API_ERROR_CODES.INVALID_REQUEST,
+        404,
+        API_ERROR_CODES.NOT_FOUND,
         error.message,
         context
       );
@@ -89,7 +82,7 @@ export async function httpTrigger(context: InvocationContext, req: HttpRequest):
  * 成功レスポンスを作成
  *
  * @param data - レスポンスデータ
- * @param context - InvocationContext
+ * @param context - Context
  * @returns レスポンスオブジェクト
  */
 function createSuccessResponse(data: unknown, context: InvocationContext) {
@@ -125,7 +118,7 @@ function createErrorResponse(
   code: string,
   message: string,
   context: InvocationContext
-): HttpResponseInit {
+) {
   const response: ApiResponse<never> = {
     success: false,
     error: {

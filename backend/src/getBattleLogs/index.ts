@@ -1,13 +1,13 @@
 /**
  * Battle Logs API - 対戦履歴エンドポイント
  *
- * POST /api/battle-logs - 新規対戦履歴を作成
+ * GET /api/battle-logs - 対戦履歴一覧を取得
  */
 
 import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
-import { BattleLogService } from '../../services/battleLogService';
-import { BlobStorageClient } from '../../storage/blobStorageClient';
-import type { ApiResponse } from '../../types';
+import { BattleLogService } from '../libs/services/battleLogService';
+import { BlobStorageClient } from '../libs/storage/blobStorageClient';
+import type { ApiResponse } from '../libs/types';
 
 /**
  * APIエラーコード定数
@@ -31,32 +31,39 @@ function initializeBattleLogService(): BattleLogService {
 }
 
 /**
- * POST /api/battle-logs - 新規対戦履歴を作成
+ * GET /api/battle-logs - 対戦履歴一覧を取得
  */
 export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     const battleLogService = initializeBattleLogService();
 
-    // リクエストボディを取得
-    const body = (await req.json()) as {
-      battleType: 'ランクマッチ' | '対戦台' | 'ロビー大会';
-      rank: 'サファイア' | 'ダイアモンド' | 'ルビー' | 'トパーズ' | '-';
-      group: '-' | 'A' | 'AA' | 'AAA' | 'Master';
-      myDeckId: string;
-      turn: '先攻' | '後攻';
-      result: '勝ち' | '負け';
-      opponentDeckId: string;
-      date?: string;
+    // クエリパラメータを取得
+    const limit = req.query.get("limit");
+    const offset = req.query.get("offset");
+    const sortBy = req.query.get("sortBy");
+    const sortOrder = req.query.get("sortOrder");
+
+    // パラメータを数値に変換（型安全に処理）
+    const params: {
+      limit?: number;
+      offset?: number;
+      sortBy?: 'date' | 'battleType' | 'rank' | 'group' | 'turn' | 'result';
+      sortOrder?: 'asc' | 'desc';
+    } = {
+      limit: limit ? Number.parseInt(limit, 10) : undefined,
+      offset: offset ? Number.parseInt(offset, 10) : undefined,
+      sortBy: sortBy ? (sortBy as 'date' | 'battleType' | 'rank' | 'group' | 'turn' | 'result') : undefined,
+      sortOrder: sortOrder ? (sortOrder as 'asc' | 'desc') : undefined,
     };
 
-    // 対戦履歴を作成
-    const result = await battleLogService.createBattleLog(body);
+    // 対戦履歴を取得
+    const result = await battleLogService.getBattleLogsWithDeckNames(params);
 
     // 成功レスポンス
     return createSuccessResponse(result, context);
   } catch (error) {
     // エラーハンドリング
-    context.error('Error in createBattleLog:', error);
+    context.error('Error in getBattleLogs:', error);
 
     if (error instanceof Error && error.message.includes('validation')) {
       // バリデーションエラー
@@ -82,7 +89,7 @@ export async function httpTrigger(context: InvocationContext, req: HttpRequest):
  * 成功レスポンスを作成
  *
  * @param data - レスポンスデータ
- * @param context - Context
+ * @param context - InvocationContext
  * @returns レスポンスオブジェクト
  */
 function createSuccessResponse(data: unknown, context: InvocationContext) {
@@ -97,6 +104,9 @@ function createSuccessResponse(data: unknown, context: InvocationContext) {
 
   return {
     status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(response),
   };
 }
@@ -115,7 +125,7 @@ function createErrorResponse(
   code: string,
   message: string,
   context: InvocationContext
-) {
+): HttpResponseInit {
   const response: ApiResponse<never> = {
     success: false,
     error: {

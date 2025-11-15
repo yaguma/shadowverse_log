@@ -6,8 +6,8 @@
  */
 
 import { InvocationContext, HttpResponseInit, HttpRequest } from '@azure/functions';
-import { ImportService } from '../../services/importService';
-import { BlobStorageClient } from '../../storage/blobStorageClient';
+import { ImportService } from '../libs/services/importService';
+import { BlobStorageClient } from '../libs/storage/blobStorageClient';
 
 /**
  * APIエラーコード定数

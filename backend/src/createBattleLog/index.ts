@@ -1,13 +1,13 @@
 /**
  * Battle Logs API - 対戦履歴エンドポイント
  *
- * DELETE /api/battle-logs/:id - 対戦履歴を削除
+ * POST /api/battle-logs - 新規対戦履歴を作成
  */
 
 import { InvocationContext, HttpRequest, HttpResponseInit } from '@azure/functions';
-import { BattleLogService } from '../../services/battleLogService';
-import { BlobStorageClient } from '../../storage/blobStorageClient';
-import type { ApiResponse } from '../../types';
+import { BattleLogService } from '../libs/services/battleLogService';
+import { BlobStorageClient } from '../libs/storage/blobStorageClient';
+import type { ApiResponse } from '../libs/types';
 
 /**
  * APIエラーコード定数
@@ -31,38 +31,38 @@ function initializeBattleLogService(): BattleLogService {
 }
 
 /**
- * DELETE /api/battle-logs/:id - 対戦履歴を削除
+ * POST /api/battle-logs - 新規対戦履歴を作成
  */
 export async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
   try {
     const battleLogService = initializeBattleLogService();
 
-    // パスパラメータからIDを取得
-    const id = req.params.id;
+    // リクエストボディを取得
+    const body = (await req.json()) as {
+      battleType: 'ランクマッチ' | '対戦台' | 'ロビー大会';
+      rank: 'サファイア' | 'ダイアモンド' | 'ルビー' | 'トパーズ' | '-';
+      group: '-' | 'A' | 'AA' | 'AAA' | 'Master';
+      myDeckId: string;
+      turn: '先攻' | '後攻';
+      result: '勝ち' | '負け';
+      opponentDeckId: string;
+      date?: string;
+    };
 
-    if (!id) {
-      return createErrorResponse(
-        400,
-        API_ERROR_CODES.INVALID_REQUEST,
-        '対戦履歴IDが指定されていません',
-        context
-      );
-    }
-
-    // 対戦履歴を削除
-    const result = await battleLogService.deleteBattleLog(id);
+    // 対戦履歴を作成
+    const result = await battleLogService.createBattleLog(body);
 
     // 成功レスポンス
     return createSuccessResponse(result, context);
   } catch (error) {
     // エラーハンドリング
-    context.error('Error in deleteBattleLog:', error);
+    context.error('Error in createBattleLog:', error);
 
-    if (error instanceof Error && error.message.includes('見つかりません')) {
-      // 404エラー
+    if (error instanceof Error && error.message.includes('validation')) {
+      // バリデーションエラー
       return createErrorResponse(
-        404,
-        API_ERROR_CODES.NOT_FOUND,
+        400,
+        API_ERROR_CODES.INVALID_REQUEST,
         error.message,
         context
       );
@@ -97,9 +97,6 @@ function createSuccessResponse(data: unknown, context: InvocationContext) {
 
   return {
     status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(response),
   };
 }
