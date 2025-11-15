@@ -4,7 +4,7 @@
   "description": "Shadowverse Battle Log - Azure Functions Backend",
   "scripts": {
     "build": "tsc && npm run copy",
-    "copy": "cp host.json dist/ && cp package.json dist/ && mkdir -p dist/getBattleLogs dist/createBattleLog dist/deleteBattleLog dist/health dist/importData dist/getStatistics && cp src/getBattleLogs/function.json dist/getBattleLogs/ && cp src/createBattleLog/function.json dist/createBattleLog/ && cp src/deleteBattleLog/function.json dist/deleteBattleLog/ && cp src/health/function.json dist/health/ && cp src/importData/function.json dist/importData/ && cp src/getStatistics/function.json dist/getStatistics/",
+    "copy": "cp -r node_modules dist/ && cp host.json dist/ && cp package.json dist/ && mkdir -p dist/getBattleLogs dist/createBattleLog dist/deleteBattleLog dist/health dist/importData dist/getStatistics && cp src/getBattleLogs/function.json dist/getBattleLogs/ && cp src/createBattleLog/function.json dist/createBattleLog/ && cp src/deleteBattleLog/function.json dist/deleteBattleLog/ && cp src/health/function.json dist/health/ && cp src/importData/function.json dist/importData/ && cp src/getStatistics/function.json dist/getStatistics/",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
