@@ -34,7 +34,6 @@ function initializeBattleLogService(): BattleLogService {
  * GET /api/battle-logs - 対戦履歴一覧を取得
  */
 export default async function httpTrigger(context: InvocationContext, req: HttpRequest): Promise<HttpResponseInit> {
-    context.error('start getBattleLogs.');
   try {
     const battleLogService = initializeBattleLogService();
 
