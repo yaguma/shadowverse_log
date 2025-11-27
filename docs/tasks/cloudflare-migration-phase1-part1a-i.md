@@ -11,7 +11,7 @@
 
 ### TASK-0021-1: Cloudflareアカウント作成・確認
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -32,26 +32,28 @@
 # Cloudflare Dashboard にログイン
 # Settings > Account ID をメモ
 
-# 例: Account ID = 1234567890abcdef1234567890abcdef
+# 確認済み Account ID = 8b5ebd81fd19a8753e1259771d6cc2e9
 ```
 
 ##### 3. アカウント設定確認
 
-- **Workers & Pages** が利用可能であることを確認
-- **D1** (Databases) が利用可能であることを確認
-- **R2** (Storage) が利用可能であることを確認
+- **Workers & Pages** が利用可能であることを確認 ✅
+- **D1** (Databases) が利用可能であることを確認 ✅
+- ~~**R2** (Storage) が利用可能であることを確認~~ → **使用しない方針に変更**
+
+> **注記**: R2は使用せず、D1のみで運用する方針に変更しました。
 
 #### 完了条件
 
-- [ ] Cloudflareアカウントが作成されている
-- [ ] Account ID をメモしている
-- [ ] Workers & Pages、D1、R2 が利用可能であることを確認
+- [x] Cloudflareアカウントが作成されている
+- [x] Account ID をメモしている
+- [x] Workers & Pages、D1 が利用可能であることを確認
 
 #### 検証手順
 
-1. Cloudflare Dashboard にログインできる
-2. Account ID が確認できる
-3. Workers & Pages、D1、R2 のセクションが表示される
+1. Cloudflare Dashboard にログインできる ✅
+2. Account ID が確認できる ✅
+3. Workers & Pages、D1 のセクションが表示される ✅
 
 ---
 
@@ -257,7 +259,7 @@ pnpm init
 
 Phase 1 Part 1a-i の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0021-1: Cloudflareアカウント作成・確認
+- [x] TASK-0021-1: Cloudflareアカウント作成・確認 ✅ (2025-11-27完了)
 - [ ] TASK-0021-2: Node.js環境確認とpnpm設定
 - [ ] TASK-0021-3: Wrangler CLI インストール
 - [ ] TASK-0021-4: backendディレクトリ作成とプロジェクト構造確認

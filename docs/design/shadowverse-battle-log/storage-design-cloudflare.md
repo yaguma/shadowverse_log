@@ -1,6 +1,8 @@
-# Cloudflare D1 + R2 ストレージ設計
+# Cloudflare D1 ストレージ設計
 
-このドキュメントでは、シャドウバース対戦履歴管理アプリケーションにおけるCloudflare D1 (SQLiteデータベース) とCloudflare R2 (オブジェクトストレージ) のデータ構造、アクセスパターン、運用方針を定義します。
+このドキュメントでは、シャドウバース対戦履歴管理アプリケーションにおけるCloudflare D1 (SQLiteデータベース) のデータ構造、アクセスパターン、運用方針を定義します。
+
+> **注記**: 当初はCloudflare R2 (オブジェクトストレージ) も使用予定でしたが、D1のみでの運用に変更しました。バックアップはD1の自動バックアップ機能（30日間保持）を利用します。
 
 **【信頼性レベル凡例】**:
 - 🔵 **青信号**: EARS要件定義書・設計文書を参考にしてほぼ推測していない場合
@@ -11,8 +13,9 @@
 
 ## 概要
 
-**データストレージ**: Cloudflare D1 (SQLite) + Cloudflare R2 (Object Storage) 🟡 *Cloudflare推奨より*
-**データ形式**: SQLite (D1) + JSON (R2バックアップ) 🟡 *スケーラビリティ要件から妥当な推測*
+**データストレージ**: Cloudflare D1 (SQLite) 🟡 *Cloudflare推奨より*
+**データ形式**: SQLite (D1) 🟡 *スケーラビリティ要件から妥当な推測*
+**バックアップ**: D1自動バックアップ機能（30日間保持） 🔵 *Cloudflare D1標準機能*
 **互換性**: 既存データ (battle-logs.json, deck-master.json, my-decks.json) からの移行パス完備 🔵 *REQ-601より*
 
 ---
@@ -258,13 +261,13 @@ const stats = await c.env.DB.prepare(`
 
 ```typescript
 // JSONからD1へのマイグレーションWorker
+// 既存のJSONファイルはAPIリクエスト経由でインポート
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const db = drizzle(env.DB)
 
-    // R2から既存のJSONファイルを取得
-    const battleLogsJson = await env.R2_BUCKET.get('legacy/battle-logs.json')
-    const battleLogsData = await battleLogsJson?.json() as any[]
+    // リクエストボディからJSONデータを取得
+    const battleLogsData = await request.json() as any[]
 
     // D1へ一括INSERT (バッチ処理)
     const batchSize = 100
@@ -299,92 +302,15 @@ export default {
 
 ---
 
-## Cloudflare R2 (Object Storage)
+## エクスポート/インポート処理
 
-### 概要
+> **注記**: R2は使用せず、D1から直接レスポンスを返す方式で実装します。
 
-**プラットフォーム**: Cloudflare R2 (S3互換オブジェクトストレージ)
-**料金**: 無料枠: 10GB/月、1000万リクエスト/月、Egress無料
-**特徴**:
-- S3互換API
-- Egress料金なし（大きなコスト削減）
-- Cloudflare Workersと統合
-- 自動バックアップ
-
----
-
-### バケット構成
-
-```
-shadowverse-data/  (Bucket)
-├── backups/
-│   ├── daily/
-│   │   ├── 2025-11-25/
-│   │   │   ├── battle-logs.json       # D1のバックアップ
-│   │   │   ├── deck-master.json
-│   │   │   └── my-decks.json
-│   │   └── ...
-│   └── weekly/
-│       └── 2025-W47/
-│           └── full-backup.json        # 週次フルバックアップ
-├── exports/
-│   ├── {userId}/
-│   │   ├── export-2025-11-25.json     # ユーザーエクスポート
-│   │   └── export-2025-11-25.csv
-│   └── ...
-├── imports/
-│   └── temp/
-│       └── import-{requestId}.json     # 一時インポートファイル
-└── legacy/
-    ├── battle-logs.json                # 既存データ（移行元）
-    ├── deck-master.json
-    └── my-decks.json
-```
-
----
-
-### R2 アクセスパターン
-
-#### バックアップの作成
+### エクスポートの作成
 
 ```typescript
-import { drizzle } from 'drizzle-orm/d1'
-import { battleLogs } from './schema'
-
-// 日次バックアップ (Cron Trigger)
-export default {
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    const db = drizzle(env.DB)
-
-    // D1からすべてのデータを取得
-    const logs = await db.select().from(battleLogs)
-
-    // JSON形式に変換
-    const json = JSON.stringify(logs, null, 2)
-
-    // R2に保存
-    const today = new Date().toISOString().split('T')[0]
-    await env.R2_BUCKET.put(
-      `backups/daily/${today}/battle-logs.json`,
-      json,
-      {
-        httpMetadata: {
-          contentType: 'application/json',
-        },
-      }
-    )
-
-    console.log(`Backup completed: ${today}`)
-  }
-}
-```
-
-#### エクスポートの作成
-
-```typescript
-app.post('/api/export', async (c) => {
-  const userId = c.get('userId')
-  const { format, startDate, endDate } = await c.req.json()
+app.get('/api/export', async (c) => {
+  const { format, startDate, endDate } = c.req.query()
 
   const db = drizzle(c.env.DB)
 
@@ -392,67 +318,31 @@ app.post('/api/export', async (c) => {
   const logs = await db.select()
     .from(battleLogs)
     .where(
-      and(
-        eq(battleLogs.userId, userId),
-        between(battleLogs.date, startDate, endDate)
-      )
+      between(battleLogs.date, startDate, endDate)
     )
 
-  let content: string
-  let contentType: string
-
   if (format === 'json') {
-    content = JSON.stringify(logs, null, 2)
-    contentType = 'application/json'
+    return c.json({
+      success: true,
+      data: logs
+    })
   } else if (format === 'csv') {
-    content = convertToCSV(logs)
-    contentType = 'text/csv'
-  }
-
-  // R2に一時保存（24時間後に自動削除）
-  const filename = `export-${new Date().toISOString()}.${format}`
-  await c.env.R2_BUCKET.put(
-    `exports/${userId}/${filename}`,
-    content,
-    {
-      httpMetadata: { contentType },
-      customMetadata: {
-        expiresAt: (Date.now() + 24 * 60 * 60 * 1000).toString()  // 24時間後
+    const csv = convertToCSV(logs)
+    return new Response(csv, {
+      headers: {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="export-${new Date().toISOString()}.csv"`
       }
-    }
-  )
-
-  // 署名付きURLを生成（1時間有効）
-  const signedUrl = await generateSignedUrl(c.env.R2_BUCKET, `exports/${userId}/${filename}`, 3600)
-
-  return c.json({
-    success: true,
-    data: {
-      downloadUrl: signedUrl,
-      filename,
-      expiresIn: 3600
-    }
-  })
+    })
+  }
 })
 ```
 
-#### インポートの処理
+### インポートの処理
 
 ```typescript
 app.post('/api/import', async (c) => {
   const { format, data } = await c.req.json()
-
-  // R2に一時保存
-  const requestId = crypto.randomUUID()
-  await c.env.R2_BUCKET.put(
-    `imports/temp/import-${requestId}.${format}`,
-    data,
-    {
-      customMetadata: {
-        expiresAt: (Date.now() + 60 * 60 * 1000).toString()  // 1時間後に削除
-      }
-    }
-  )
 
   // データをパース
   let logs: BattleLog[]
@@ -467,8 +357,8 @@ app.post('/api/import', async (c) => {
   const statements = logs.map(log =>
     c.env.DB.prepare(`
       INSERT OR IGNORE INTO battle_logs
-      (id, date, battle_type, rank, group_name, my_deck_id, turn, result, opponent_deck_id, user_id)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, date, battle_type, rank, group_name, my_deck_id, turn, result, opponent_deck_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       log.id || crypto.randomUUID(),
       log.date,
@@ -478,8 +368,7 @@ app.post('/api/import', async (c) => {
       log.myDeckId,
       log.turn,
       log.result,
-      log.opponentDeckId,
-      c.get('userId')
+      log.opponentDeckId
     )
   )
 
@@ -497,35 +386,10 @@ app.post('/api/import', async (c) => {
 
 ---
 
-### R2 署名付きURL生成
+## バックアップ戦略
 
-```typescript
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-
-async function generateSignedUrl(
-  bucket: R2Bucket,
-  key: string,
-  expiresIn: number
-): Promise<string> {
-  // Cloudflare R2はS3互換API
-  const s3 = new S3Client({
-    region: 'auto',
-    endpoint: `https://${ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: {
-      accessKeyId: R2_ACCESS_KEY_ID,
-      secretAccessKey: R2_SECRET_ACCESS_KEY,
-    },
-  })
-
-  const command = new GetObjectCommand({
-    Bucket: 'shadowverse-data',
-    Key: key,
-  })
-
-  return await getSignedUrl(s3, command, { expiresIn })
-}
-```
+> **注記**: Cloudflare D1には自動バックアップ機能（30日間保持）があるため、R2への手動バックアップは不要です。
+> 必要に応じてD1のPoint-in-Time Recovery (PITR) 機能を利用できます。
 
 ---
 
@@ -624,72 +488,6 @@ app.get('/api/deck-master', async (c) => {
 
 ---
 
-## バックアップ戦略
-
-### Cron Triggerによる自動バックアップ
-
-```typescript
-// wrangler.toml
-// [triggers]
-// crons = ["0 0 * * *"]  // 毎日0時に実行
-
-export default {
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    const db = drizzle(env.DB)
-
-    // すべてのテーブルをバックアップ
-    const [logs, decks, myDecks] = await Promise.all([
-      db.select().from(battleLogs),
-      db.select().from(deckMaster),
-      db.select().from(myDecks),
-    ])
-
-    const today = new Date().toISOString().split('T')[0]
-
-    // R2に並列保存
-    await Promise.all([
-      env.R2_BUCKET.put(
-        `backups/daily/${today}/battle-logs.json`,
-        JSON.stringify(logs, null, 2)
-      ),
-      env.R2_BUCKET.put(
-        `backups/daily/${today}/deck-master.json`,
-        JSON.stringify(decks, null, 2)
-      ),
-      env.R2_BUCKET.put(
-        `backups/daily/${today}/my-decks.json`,
-        JSON.stringify(myDecks, null, 2)
-      ),
-    ])
-
-    console.log(`Daily backup completed: ${today}`)
-  }
-}
-```
-
-### 古いバックアップの自動削除
-
-```typescript
-// 30日より古いバックアップを削除
-export async function cleanupOldBackups(env: Env): Promise<void> {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0]
-
-  const { objects } = await env.R2_BUCKET.list({ prefix: 'backups/daily/' })
-
-  for (const object of objects) {
-    const dateMatch = object.key.match(/backups\/daily\/(\d{4}-\d{2}-\d{2})/)
-    if (dateMatch && dateMatch[1] < thirtyDaysAgo) {
-      await env.R2_BUCKET.delete(object.key)
-      console.log(`Deleted old backup: ${object.key}`)
-    }
-  }
-}
-```
-
----
-
 ## セキュリティ
 
 ### D1アクセス制御
@@ -709,20 +507,6 @@ app.use('/api/*', async (c, next) => {
 const logs = await db.select()
   .from(battleLogs)
   .where(eq(battleLogs.userId, c.get('userId')))
-```
-
-### R2アクセス制御
-
-```typescript
-// R2バケットはプライベートに設定
-// Cloudflare Workers経由でのみアクセス可能
-
-// エクスポートファイルは署名付きURLで一時的にアクセス許可
-const signedUrl = await generateSignedUrl(
-  c.env.R2_BUCKET,
-  `exports/${userId}/${filename}`,
-  3600  // 1時間有効
-)
 ```
 
 ---
@@ -760,7 +544,6 @@ app.use('*', async (c, next) => {
 ### アラート設定
 
 - D1クエリエラー率が10%を超える
-- R2バックアップが24時間以上失敗
 - データベースサイズが4GBを超える（無料枠の80%）
 
 ---
@@ -847,9 +630,12 @@ pnpm test:watch              # Watch モード
 
 ## 更新履歴
 
-- **2025-11-25**: 初版作成（Cloudflare D1 + R2版）
-  - Azure Blob StorageからCloudflare D1 + R2への移行設計
+- **2025-11-27**: R2削除、D1のみの運用に変更
+  - R2 (Object Storage) の使用を廃止
+  - バックアップはD1の自動バックアップ機能（30日間保持）を利用
+  - エクスポート/インポートはD1から直接レスポンスを返す方式に変更
+- **2025-11-25**: 初版作成（Cloudflare D1版）
+  - Azure Blob StorageからCloudflare D1への移行設計
   - JSONからSQLiteへのデータモデル変更
   - Drizzle ORMによる型安全なデータアクセス
-  - R2を使用した自動バックアップ戦略
   - pnpm 9.x、Biome使用を明記

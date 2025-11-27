@@ -44,14 +44,7 @@ binding = "DB"
 database_name = "shadowverse-db"
 database_id = ""  # TASK-0022-1 で設定
 
-# R2 Storage バインディング（後で設定）
-[[r2_buckets]]
-binding = "R2_BUCKET"
-bucket_name = "shadowverse-data"
-
-# Cron Trigger（日次バックアップ用）
-[triggers]
-crons = ["0 0 * * *"]  # 毎日0時に実行
+# 注記: R2は使用しない方針に変更しました
 
 # 本番環境設定
 [env.production]
@@ -75,7 +68,7 @@ cat wrangler.toml
 #### 完了条件
 
 - [ ] `backend/wrangler.toml` が作成されている
-- [ ] D1 と R2 のバインディング設定が記載されている
+- [ ] D1 のバインディング設定が記載されている
 - [ ] 本番環境設定が含まれている
 
 #### 検証手順

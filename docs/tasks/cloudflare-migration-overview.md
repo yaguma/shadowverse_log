@@ -17,7 +17,7 @@
 | Phase 1-1a-ii | Day 1 | Wrangler・backend環境 | 4h | [part1a-ii](./cloudflare-migration-phase1-part1a-ii.md) |
 | Phase 1-1b | Day 1 | D1データベース・スキーマ | 4h | [part1b](./cloudflare-migration-phase1-part1b.md) |
 | Phase 1-2-i | Day 2 | Drizzle ORM統合 | 4h | [part2-i](./cloudflare-migration-phase1-part2-i.md) |
-| Phase 1-2-ii | Day 2 | R2バケット・ヘルパー | 4h | [part2-ii](./cloudflare-migration-phase1-part2-ii.md) |
+| Phase 1-2-ii | Day 2 | ~~R2バケット~~ エクスポート/インポート | 4h | [part2-ii](./cloudflare-migration-phase1-part2-ii.md) |
 | Phase 1-3a-i | Day 3 | リポジトリ基盤・Battles | 4h | [part3a-i](./cloudflare-migration-phase1-part3a-i.md) |
 | Phase 1-3a-ii | Day 3 | DecksMaster・Statistics | 4h | [part3a-ii](./cloudflare-migration-phase1-part3a-ii.md) |
 | Phase 1-3b-i | Day 4 | JSONデータ分析・マイグレ | 4h | [part3b-i](./cloudflare-migration-phase1-part3b-i.md) |
@@ -51,9 +51,9 @@
 - [ ] **M1: Cloudflare基盤構築完了** (Phase 1終了時)
   - Cloudflare Pages/Workers環境セットアップ完了
   - D1データベース設計・マイグレーション実装完了
-  - R2ストレージクライアント実装完了
   - Drizzle ORM統合完了
   - ローカル開発環境での動作確認完了
+  - ※R2は使用しない方針に変更
 
 - [ ] **M2: バックエンドAPI完成** (Phase 2終了時)
   - Hono APIフレームワーク実装完了
@@ -126,10 +126,11 @@
 | ホスティング | Cloudflare Pages | フロントエンド配信 |
 | API | Cloudflare Workers | サーバーレスバックエンド |
 | データベース | Cloudflare D1 | SQLiteベースDB |
-| ストレージ | Cloudflare R2 | S3互換オブジェクトストレージ |
 | 認証 | Cloudflare Access | 認証・アクセス制御 |
 | CI/CD | GitHub Actions | 自動テスト・デプロイ |
 | 監視 | Cloudflare Analytics | ログ・メトリクス |
+
+> **注記**: R2 (オブジェクトストレージ) は使用しない方針に変更しました。バックアップはD1の自動バックアップ機能を利用します。
 
 ### 開発環境
 
@@ -190,19 +191,9 @@ CREATE TABLE my_decks (
 );
 ```
 
-### Cloudflare R2バケット構造
+### ~~Cloudflare R2バケット構造~~ (使用しない)
 
-```
-shadowverse-data/
-├── {userId}/
-│   ├── exports/
-│   │   ├── battle-logs-{timestamp}.json
-│   │   └── battle-logs-{timestamp}.csv
-│   └── imports/
-│       └── {importId}.json
-└── shared/
-    └── deck-master-cache.json
-```
+> **注記**: R2は使用しない方針に変更しました。エクスポート/インポートはD1から直接レスポンスを返す方式で実装します。
 
 ### データモデル
 
@@ -325,10 +316,9 @@ DIRECT (Direct Implementation) を適用するタスクでは、以下の手順�
 **目標**: Cloudflare環境を構築し、データレイヤーを実装する
 
 **主要タスク**:
-- Cloudflare環境セットアップ (Pages, Workers, D1, R2)
+- Cloudflare環境セットアップ (Pages, Workers, D1)
 - Drizzle ORM統合・スキーマ定義
 - D1マイグレーションスクリプト作成
-- R2ストレージクライアント実装
 - Azureからのデータ移行スクリプト作成
 - 共通型定義・バリデーションスキーマ (Zod)
 - ローカル開発環境構築 (Wrangler)
@@ -336,7 +326,6 @@ DIRECT (Direct Implementation) を適用するタスクでは、以下の手順�
 **成果物**:
 - 動作するCloudflare開発環境
 - D1データベース (マイグレーション済み)
-- R2ストレージクライアント
 - データ移行完了
 - ローカル開発サーバーの起動確認
 
@@ -539,7 +528,6 @@ DIRECT (Direct Implementation) を適用するタスクでは、以下の手順�
 | リスク | 影響度 | 確率 | 対策 |
 |---|---|---|---|
 | Cloudflare D1制限 (クエリサイズ等) | 中 | 中 | クエリ最適化、ページネーション |
-| R2 API制限 | 中 | 低 | リトライ機構、エラーハンドリング |
 | Workers実行時間制限 | 中 | 低 | 処理の分割、バックグラウンドジョブ |
 | Drizzle ORM互換性問題 | 中 | 低 | 詳細ドキュメント、段階的実装 |
 | Cloudflare Access 設定ミス | 高 | 中 | 詳細ドキュメント、段階的実装 |
@@ -577,7 +565,7 @@ DIRECT (Direct Implementation) を適用するタスクでは、以下の手順�
 
 ### 外部依存
 
-- **Cloudflare サービス**: Pages, Workers, D1, R2, Access
+- **Cloudflare サービス**: Pages, Workers, D1, Access
 - **GitHub**: ソースコード管理、CI/CD
 - **npm レジストリ**: パッケージ依存関係
 
@@ -640,3 +628,4 @@ DIRECT (Direct Implementation) を適用するタスクでは、以下の手順�
 |---|---|---|---|
 | 2025-11-26 | 1.0.0 | 初版作成 | Claude Code |
 | 2025-11-26 | 1.1.0 | 500行制限に基づく14パートへの分割 | Claude Code |
+| 2025-11-27 | 1.2.0 | R2削除、D1のみの運用に変更 | Claude Code |
