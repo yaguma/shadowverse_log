@@ -42,16 +42,18 @@ export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
 
   /**
    * マイデッキを作成
+   * @param data - 作成するデータ（idが含まれている場合はそれを使用）
    */
   async create(data: NewMyDeck): Promise<MyDeck> {
-    const id = crypto.randomUUID();
+    // データにIDが含まれている場合はそれを使用、なければ生成
+    const id = data.id || crypto.randomUUID();
 
-    const newMyDeck: MyDeck = {
+    const newMyDeck = {
       id,
-      ...data,
+      userId: data.userId,
+      deckCode: data.deckCode,
+      deckName: data.deckName,
       isActive: data.isActive ?? true,
-      createdAt: null, // DB側でデフォルト値が設定される
-      updatedAt: null, // DB側でデフォルト値が設定される
     };
 
     await this.db.insert(myDecks).values(newMyDeck);

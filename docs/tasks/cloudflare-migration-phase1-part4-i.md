@@ -13,7 +13,7 @@
 
 ### TASK-0025-7: マイグレーション本番実行
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -68,9 +68,9 @@ cat migration-result.json
 
 #### 完了条件
 
-- [ ] マイグレーションが成功している
-- [ ] D1にデータが正しくインポートされている
-- [ ] マイグレーションログが保存されている
+- [x] マイグレーションが成功している
+- [x] D1にデータが正しくインポートされている
+- [x] マイグレーションログが保存されている
 
 #### 検証手順
 
@@ -81,7 +81,7 @@ cat migration-result.json
 
 ### TASK-0025-8: マイグレーションのロールバック機能実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -198,9 +198,9 @@ export default migration;
 
 #### 完了条件
 
-- [ ] `backend/src/migration/rollback.ts` が作成されている
-- [ ] ロールバックAPIエンドポイントが実装されている
-- [ ] TypeScriptコンパイルエラーがない
+- [x] `backend/src/migration/rollback.ts` が作成されている
+- [x] ロールバックAPIエンドポイントが実装されている
+- [x] TypeScriptコンパイルエラーがない
 
 #### 検証手順
 

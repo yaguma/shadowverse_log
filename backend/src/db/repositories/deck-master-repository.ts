@@ -48,15 +48,17 @@ export class DeckMasterRepository
 
   /**
    * デッキマスターを作成
+   * @param data - 作成するデータ（idが含まれている場合はそれを使用）
    */
   async create(data: NewDeckMaster): Promise<DeckMaster> {
-    const id = crypto.randomUUID();
+    // データにIDが含まれている場合はそれを使用、なければ生成
+    const id = data.id || crypto.randomUUID();
 
-    const newDeckMaster: DeckMaster = {
+    const newDeckMaster = {
       id,
-      ...data,
-      createdAt: null, // DB側でデフォルト値が設定される
-      updatedAt: null, // DB側でデフォルト値が設定される
+      className: data.className,
+      deckName: data.deckName,
+      sortOrder: data.sortOrder,
     };
 
     await this.db.insert(deckMaster).values(newDeckMaster);

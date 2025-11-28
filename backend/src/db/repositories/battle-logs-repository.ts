@@ -49,15 +49,23 @@ export class BattleLogsRepository
 
   /**
    * 対戦履歴を作成
+   * @param data - 作成するデータ（idが含まれている場合はそれを使用）
    */
   async create(data: NewBattleLog): Promise<BattleLog> {
-    const id = crypto.randomUUID();
+    // データにIDが含まれている場合はそれを使用、なければ生成
+    const id = data.id || crypto.randomUUID();
 
-    const newBattleLog: BattleLog = {
+    const newBattleLog = {
       id,
-      ...data,
-      createdAt: null, // DB側でデフォルト値が設定される
-      updatedAt: null, // DB側でデフォルト値が設定される
+      userId: data.userId,
+      date: data.date,
+      battleType: data.battleType,
+      rank: data.rank,
+      groupName: data.groupName,
+      myDeckId: data.myDeckId,
+      turn: data.turn,
+      result: data.result,
+      opponentDeckId: data.opponentDeckId,
     };
 
     await this.db.insert(battleLogs).values(newBattleLog);
