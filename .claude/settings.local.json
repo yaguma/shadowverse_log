@@ -9,7 +9,9 @@
       "mcp__context7__get-library-docs",
       "mcp__voicevox__speak",
       "Bash(pnpm add:*)",
-      "Bash(pnpm setup)"
+      "Bash(pnpm setup)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm run lint:*)"
     ],
     "deny": [],
     "ask": []

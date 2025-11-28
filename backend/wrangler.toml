@@ -1,7 +1,7 @@
 name = "shadowverse-battle-log"
 main = "src/index.ts"
 compatibility_date = "2025-11-25"
-node_compat = true
+compatibility_flags = ["nodejs_compat"]
 
 # Cloudflare Workers 設定
 workers_dev = true
@@ -11,11 +11,11 @@ workers_dev = true
 ENVIRONMENT = "development"
 API_VERSION = "v1"
 
-# D1 Database バインディング（後で設定）
+# D1 Database バインディング
 [[d1_databases]]
 binding = "DB"
 database_name = "shadowverse-db"
-database_id = ""  # TASK-0022-1 で設定
+database_id = "fd5dbb0e-c674-47c1-8795-0865e46c9bf7"
 
 # 注記: R2は使用しない方針に変更しました
 

@@ -13,7 +13,7 @@
 
 ### TASK-0022-1: D1データベース作成
 
-- [ ] **タスク未完了**
+- [x] **タスク完了** ✅ (2025-11-28完了)
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -62,9 +62,9 @@ CLOUDFLARE_DATABASE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 #### 完了条件
 
-- [ ] D1データベース `shadowverse-db` が作成されている
-- [ ] `wrangler.toml` の `database_id` が設定されている
-- [ ] `.dev.vars` の `CLOUDFLARE_DATABASE_ID` が設定されている
+- [x] D1データベース `shadowverse-db` が作成されている
+- [x] `wrangler.toml` の `database_id` が設定されている
+- [x] `.dev.vars` の `CLOUDFLARE_DATABASE_ID` が設定されている
 
 #### 検証手順
 
@@ -314,30 +314,9 @@ export type NewStatisticInput = z.infer<typeof NewStatisticSchema>;
 
 ## 完了確認
 
-Phase 1 Part 1 の全タスクが完了したことを確認するのだ:
-
-- [ ] TASK-0021-1: Cloudflareアカウント作成・確認
-- [ ] TASK-0021-2: Node.js環境確認とpnpm設定
-- [ ] TASK-0021-3: Wrangler CLI インストール
-- [ ] TASK-0021-4: backendディレクトリ作成とプロジェクト構造確認
-- [ ] TASK-0021-5: wrangler.toml 設定ファイル作成
-- [ ] TASK-0021-6: .dev.vars ファイル作成（ローカル開発用環境変数）
-- [ ] TASK-0021-7: .gitignore 更新とGit確認
-- [ ] TASK-0021-8: backend依存関係のインストール
-- [ ] TASK-0022-1: D1データベース作成
-- [ ] TASK-0022-2: Drizzle ORM スキーマ定義 (battles テーブル)
-- [ ] TASK-0022-3: Drizzle ORM スキーマ定義 (decks_master テーブル)
-- [ ] TASK-0022-4: Drizzle ORM スキーマ定義 (statistics テーブル)
-
-## 次のステップ
-
-Phase 1 Part 2 に進むのだ: `cloudflare-migration-phase1-part2.md`
-
-## 完了確認
-
 Phase 1 Part 1b の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0022-1: D1データベース作成
+- [x] TASK-0022-1: D1データベース作成 ✅ (2025-11-28完了)
 - [ ] TASK-0022-2: Drizzle ORM スキーマ定義 (battles テーブル)
 - [ ] TASK-0022-3: Drizzle ORM スキーマ定義 (decks_master テーブル)
 - [ ] TASK-0022-4: Drizzle ORM スキーマ定義 (statistics テーブル)

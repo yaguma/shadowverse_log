@@ -68,7 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/bin/windows-notify 'Claude Code' --title 'Notification' --message 'Claude Code has a notification for you.' --audio 'default' --duration 'long'"
+            "command": "New-BurntToastNotification -Text \"Claude Code\", \"確認があります.\" -Sound Default"
           }
         ]
       }
@@ -79,7 +79,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/bin/windows-notify 'Claude Code' --title 'Task Complete' --message 'Claude Code has finished the task.' --audio 'default' --duration 'long'"
+            "command": "New-BurntToastNotification -Text \"Claude Code\", \"完了しました.\" -Sound Reminder"
           }
         ]
       }
