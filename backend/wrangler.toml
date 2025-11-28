@@ -1,0 +1,31 @@
+name = "shadowverse-battle-log"
+main = "src/index.ts"
+compatibility_date = "2025-11-25"
+node_compat = true
+
+# Cloudflare Workers 設定
+workers_dev = true
+
+# 環境変数（ローカル開発用）
+[vars]
+ENVIRONMENT = "development"
+API_VERSION = "v1"
+
+# D1 Database バインディング（後で設定）
+[[d1_databases]]
+binding = "DB"
+database_name = "shadowverse-db"
+database_id = ""  # TASK-0022-1 で設定
+
+# 注記: R2は使用しない方針に変更しました
+
+# 本番環境設定
+[env.production]
+workers_dev = false
+routes = [
+  { pattern = "api.shadowverse-log.example.com/*", zone_name = "example.com" }
+]
+
+[env.production.vars]
+ENVIRONMENT = "production"
+API_VERSION = "v1"

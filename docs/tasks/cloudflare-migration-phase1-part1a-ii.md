@@ -11,7 +11,7 @@
 
 ### TASK-0021-5: wrangler.toml 設定ファイル作成
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -67,9 +67,9 @@ cat wrangler.toml
 
 #### 完了条件
 
-- [ ] `backend/wrangler.toml` が作成されている
-- [ ] D1 のバインディング設定が記載されている
-- [ ] 本番環境設定が含まれている
+- [x] `backend/wrangler.toml` が作成されている
+- [x] D1 のバインディング設定が記載されている
+- [x] 本番環境設定が含まれている
 
 #### 検証手順
 
