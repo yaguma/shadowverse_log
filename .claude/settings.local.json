@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(node:*)",
+      "Bash(pnpm --version:*)",
+      "Bash(git commit:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__voicevox__speak",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm setup)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
