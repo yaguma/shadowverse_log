@@ -80,7 +80,7 @@ cat wrangler.toml
 
 ### TASK-0021-6: .dev.vars ファイル作成（ローカル開発用環境変数）
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -128,9 +128,9 @@ chmod 600 .dev.vars
 
 #### 完了条件
 
-- [ ] `backend/.dev.vars` が作成されている
-- [ ] Account ID が設定されている
-- [ ] パーミッションが 600 に設定されている
+- [x] `backend/.dev.vars` が作成されている
+- [x] Account ID が設定されている
+- [x] パーミッションが設定されている（Windows環境のため.gitignoreによる除外で代替）
 
 #### 検証手順
 
@@ -322,8 +322,8 @@ pnpm add -D @types/node
 
 Phase 1 Part 1a-ii の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0021-5: wrangler.toml 設定ファイル作成
-- [ ] TASK-0021-6: .dev.vars ファイル作成（ローカル開発用環境変数）
+- [x] TASK-0021-5: wrangler.toml 設定ファイル作成 ✅ (2025-11-28完了)
+- [x] TASK-0021-6: .dev.vars ファイル作成（ローカル開発用環境変数） ✅ (2025-11-28完了)
 - [ ] TASK-0021-7: .gitignore 更新とGit確認
 - [ ] TASK-0021-8: backend依存関係のインストール
 

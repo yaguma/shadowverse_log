@@ -17,6 +17,7 @@ npm-debug.log*
 # Environment variables
 .env
 .env.local
+.dev.vars
 
 # Azure Functions
 .funcignore
