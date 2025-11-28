@@ -116,7 +116,7 @@ ls -la node_modules/
 
 ### TASK-0021-3: Wrangler CLI インストール
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -160,9 +160,9 @@ wrangler whoami
 
 #### 完了条件
 
-- [ ] Wrangler CLI がインストールされている
-- [ ] Cloudflareにログインできている
-- [ ] `wrangler whoami` でアカウント情報が表示される
+- [x] Wrangler CLI がインストールされている (✅ v4.51.0)
+- [x] Cloudflareにログインできている
+- [x] `wrangler whoami` でアカウント情報が表示される
 
 #### 検証手順
 
@@ -261,7 +261,7 @@ Phase 1 Part 1a-i の全タスクが完了したことを確認するのだ:
 
 - [x] TASK-0021-1: Cloudflareアカウント作成・確認 ✅ (2025-11-27完了)
 - [x] TASK-0021-2: Node.js環境確認とpnpm設定 ✅ (2025-11-27完了)
-- [ ] TASK-0021-3: Wrangler CLI インストール
+- [x] TASK-0021-3: Wrangler CLI インストール ✅ (2025-11-28完了)
 - [ ] TASK-0021-4: backendディレクトリ作成とプロジェクト構造確認
 
 ## 次のステップ
