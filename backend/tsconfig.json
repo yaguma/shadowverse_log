@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "checkJs": false,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "strict": true,
     "esModuleInterop": true,

@@ -73,9 +73,9 @@ CLOUDFLARE_DATABASE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 ---
 
-### TASK-0022-2: Drizzle ORM スキーマ定義 (battles テーブル)
+### TASK-0022-2: Drizzle ORM スキーマ定義 (battle_logs テーブル)
 
-- [ ] **タスク未完了**
+- [x] **タスク完了** ✅ (2025-11-28完了)
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -149,9 +149,10 @@ export type NewBattleInput = z.infer<typeof NewBattleSchema>;
 
 #### 完了条件
 
-- [ ] `backend/src/db/schema/battles.ts` が作成されている
-- [ ] `backend/src/db/schema/battles.validation.ts` が作成されている
-- [ ] TypeScriptコンパイルエラーがない
+- [x] `backend/src/db/schema/battle-logs.ts` が作成されている（設計文書に従いbattlesからbattle_logsに変更）
+- [x] `backend/src/db/schema/battle-logs.validation.ts` が作成されている
+- [x] TypeScriptコンパイルエラーがない
+- [x] Biome Lintエラーがない
 
 #### 検証手順
 
@@ -160,7 +161,7 @@ export type NewBattleInput = z.infer<typeof NewBattleSchema>;
 
 ---
 
-### TASK-0022-3: Drizzle ORM スキーマ定義 (decks_master テーブル)
+### TASK-0022-3: Drizzle ORM スキーマ定義 (deck_master テーブル)
 
 - [ ] **タスク未完了**
 - **推定工数**: 1時間
@@ -317,9 +318,9 @@ export type NewStatisticInput = z.infer<typeof NewStatisticSchema>;
 Phase 1 Part 1b の全タスクが完了したことを確認するのだ:
 
 - [x] TASK-0022-1: D1データベース作成 ✅ (2025-11-28完了)
-- [ ] TASK-0022-2: Drizzle ORM スキーマ定義 (battles テーブル)
-- [ ] TASK-0022-3: Drizzle ORM スキーマ定義 (decks_master テーブル)
-- [ ] TASK-0022-4: Drizzle ORM スキーマ定義 (statistics テーブル)
+- [x] TASK-0022-2: Drizzle ORM スキーマ定義 (battle_logs テーブル) ✅ (2025-11-28完了)
+- [ ] TASK-0022-3: Drizzle ORM スキーマ定義 (deck_master テーブル)
+- [ ] TASK-0022-4: Drizzle ORM スキーマ定義 (my_decks テーブル)
 
 ## 次のステップ
 
