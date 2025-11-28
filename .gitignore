@@ -37,3 +37,23 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Cloudflare
+.dev.vars
+.wrangler/
+wrangler.toml.backup
+dist/
+
+# Drizzle ORM
+.drizzle/
+drizzle/
+
+# Environment variables
+*.env
+*.env.local
+*.env.development
+*.env.production
+
+# Build outputs
+backend/dist/
+backend/.wrangler/

@@ -141,7 +141,7 @@ chmod 600 .dev.vars
 
 ### TASK-0021-7: .gitignore 更新とGit確認
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -196,9 +196,9 @@ git commit -m "chore: Update .gitignore for Cloudflare secrets"
 
 #### 完了条件
 
-- [ ] `.gitignore` が更新されている
-- [ ] `.dev.vars` が Git で無視されている
-- [ ] `.gitignore` の変更がコミットされている
+- [x] `.gitignore` が更新されている
+- [x] `.dev.vars` が Git で無視されている
+- [x] `.gitignore` の変更がコミットされている
 
 #### 検証手順
 
@@ -324,7 +324,7 @@ Phase 1 Part 1a-ii の全タスクが完了したことを確認するのだ:
 
 - [x] TASK-0021-5: wrangler.toml 設定ファイル作成 ✅ (2025-11-28完了)
 - [x] TASK-0021-6: .dev.vars ファイル作成（ローカル開発用環境変数） ✅ (2025-11-28完了)
-- [ ] TASK-0021-7: .gitignore 更新とGit確認
+- [x] TASK-0021-7: .gitignore 更新とGit確認 ✅ (2025-11-28完了)
 - [ ] TASK-0021-8: backend依存関係のインストール
 
 ## 次のステップ
