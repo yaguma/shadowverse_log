@@ -12,7 +12,7 @@
 
 ### TASK-0024-1: Drizzle ORM リポジトリパターン基盤実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -81,7 +81,7 @@ describe('BaseRepository Interface', () => {
 
 ### TASK-0024-2: Battles リポジトリ実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -209,7 +209,7 @@ export class BattlesRepository implements BaseRepository<Battle, NewBattle> {
 
 ### TASK-0024-3: Battles リポジトリのテスト実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -328,9 +328,9 @@ describe('BattlesRepository', () => {
 
 Phase 1 Part 3a-i の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0024-1: Drizzle ORM リポジトリパターン基盤実装
-- [ ] TASK-0024-2: Battles リポジトリ実装
-- [ ] TASK-0024-3: Battles リポジトリのテスト実装
+- [x] TASK-0024-1: Drizzle ORM リポジトリパターン基盤実装
+- [x] TASK-0024-2: Battles リポジトリ実装
+- [x] TASK-0024-3: Battles リポジトリのテスト実装
 
 ## 次のステップ
 

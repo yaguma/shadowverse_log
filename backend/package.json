@@ -14,7 +14,9 @@
     "test:coverage": "vitest --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 execute shadowverse-db --local --file=./src/db/migrations/0000_init.sql",
-    "db:migrate:prod": "wrangler d1 execute shadowverse-db --remote --file=./src/db/migrations/0000_init.sql"
+    "db:migrate:prod": "wrangler d1 execute shadowverse-db --remote --file=./src/db/migrations/0000_init.sql",
+    "db:studio": "drizzle-kit studio",
+    "db:studio:prod": "drizzle-kit studio --config=drizzle.config.ts"
   },
   "keywords": [
     "shadowverse",

@@ -1,0 +1,169 @@
+/**
+ * MyDecks リポジトリ
+ * TASK-0024-4: MyDecks リポジトリ実装
+ *
+ * @description マイデッキテーブル用のリポジトリ実装
+ * 自分のデッキ情報を管理する
+ */
+import { desc, eq } from 'drizzle-orm';
+import type { Database } from '../index';
+import { type MyDeck, type NewMyDeck, myDecks } from '../schema/my-decks';
+import type { BaseRepository, PaginationOptions } from './base-repository';
+
+/**
+ * マイデッキリポジトリ
+ */
+export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
+  constructor(private db: Database) {}
+
+  /**
+   * IDでマイデッキを検索
+   */
+  async findById(id: string): Promise<MyDeck | null> {
+    const result = await this.db
+      .select()
+      .from(myDecks)
+      .where(eq(myDecks.id, id))
+      .limit(1);
+    return result[0] || null;
+  }
+
+  /**
+   * すべてのマイデッキを取得（作成日時の降順）
+   */
+  async findAll(limit = 50, offset = 0): Promise<MyDeck[]> {
+    return await this.db
+      .select()
+      .from(myDecks)
+      .orderBy(desc(myDecks.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  /**
+   * マイデッキを作成
+   */
+  async create(data: NewMyDeck): Promise<MyDeck> {
+    const id = crypto.randomUUID();
+
+    const newMyDeck: MyDeck = {
+      id,
+      ...data,
+      isActive: data.isActive ?? true,
+      createdAt: null, // DB側でデフォルト値が設定される
+      updatedAt: null, // DB側でデフォルト値が設定される
+    };
+
+    await this.db.insert(myDecks).values(newMyDeck);
+
+    // 作成したレコードを返す
+    const created = await this.findById(id);
+    if (!created) {
+      throw new Error('Failed to create my deck');
+    }
+    return created;
+  }
+
+  /**
+   * マイデッキを更新
+   */
+  async update(id: string, data: Partial<NewMyDeck>): Promise<MyDeck | null> {
+    const existing = await this.findById(id);
+    if (!existing) return null;
+
+    await this.db.update(myDecks).set(data).where(eq(myDecks.id, id));
+
+    return await this.findById(id);
+  }
+
+  /**
+   * マイデッキを削除
+   */
+  async delete(id: string): Promise<boolean> {
+    const existing = await this.findById(id);
+    if (!existing) return false;
+
+    await this.db.delete(myDecks).where(eq(myDecks.id, id));
+    return true;
+  }
+
+  // ===== カスタムメソッド =====
+
+  /**
+   * ユーザーIDでマイデッキを検索
+   */
+  async findByUserId(
+    userId: string,
+    options?: PaginationOptions
+  ): Promise<MyDeck[]> {
+    const limit = options?.limit ?? 50;
+    const offset = options?.offset ?? 0;
+
+    return await this.db
+      .select()
+      .from(myDecks)
+      .where(eq(myDecks.userId, userId))
+      .orderBy(desc(myDecks.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  /**
+   * アクティブなマイデッキのみ取得
+   */
+  async findActive(userId?: string): Promise<MyDeck[]> {
+    if (userId) {
+      const allDecks = await this.db
+        .select()
+        .from(myDecks)
+        .where(eq(myDecks.userId, userId))
+        .orderBy(desc(myDecks.createdAt));
+
+      return allDecks.filter((d) => d.isActive === true);
+    }
+
+    const allDecks = await this.db
+      .select()
+      .from(myDecks)
+      .orderBy(desc(myDecks.createdAt));
+
+    return allDecks.filter((d) => d.isActive === true);
+  }
+
+  /**
+   * デッキコードで検索
+   */
+  async findByDeckCode(deckCode: string): Promise<MyDeck | null> {
+    const result = await this.db
+      .select()
+      .from(myDecks)
+      .where(eq(myDecks.deckCode, deckCode))
+      .limit(1);
+    return result[0] || null;
+  }
+
+  /**
+   * 総件数を取得
+   */
+  async count(userId?: string): Promise<number> {
+    const rows = userId
+      ? await this.db.select().from(myDecks).where(eq(myDecks.userId, userId))
+      : await this.db.select().from(myDecks);
+
+    return rows.length;
+  }
+
+  /**
+   * デッキを非アクティブ化
+   */
+  async deactivate(id: string): Promise<MyDeck | null> {
+    return await this.update(id, { isActive: false });
+  }
+
+  /**
+   * デッキをアクティブ化
+   */
+  async activate(id: string): Promise<MyDeck | null> {
+    return await this.update(id, { isActive: true });
+  }
+}

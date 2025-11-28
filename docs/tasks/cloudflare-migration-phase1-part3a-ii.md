@@ -12,7 +12,8 @@
 
 ### TASK-0024-4: DecksMaster と Statistics リポジトリ実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
+- **実装備考**: 実際のスキーマ（`deckMaster`, `myDecks`）に合わせて `DeckMasterRepository` と `MyDecksRepository` を実装
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -185,7 +186,7 @@ export class StatisticsRepository implements BaseRepository<Statistic, NewStatis
 
 ### TASK-0024-5: リポジトリ統合とエクスポート
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -267,7 +268,8 @@ export function createDatabaseContext(d1Database: D1Database): DatabaseContext {
 
 ### TASK-0024-6: リポジトリ統合テストとDrizzle Studio確認
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
+- **実装備考**: db:studio スクリプト追加完了。リポジトリ関連テスト（25テスト）は全て成功。旧Azure関連のテストはマイグレーション対象外
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -328,9 +330,9 @@ pnpm test --coverage
 
 Phase 1 Part 3a-ii の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0024-4: DecksMaster と Statistics リポジトリ実装
-- [ ] TASK-0024-5: リポジトリ統合とエクスポート
-- [ ] TASK-0024-6: リポジトリ統合テストとDrizzle Studio確認
+- [x] TASK-0024-4: DecksMaster と Statistics リポジトリ実装 (実際は DeckMaster + MyDecks を実装)
+- [x] TASK-0024-5: リポジトリ統合とエクスポート
+- [x] TASK-0024-6: リポジトリ統合テストとDrizzle Studio確認
 
 ## 次のステップ
 
