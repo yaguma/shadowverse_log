@@ -13,7 +13,7 @@
 
 ### TASK-0025-4: 既存JSONデータのR2アップロード
 
-- [ ] **タスク未完了**
+- [x] **タスク完了** (R2は使用しない方針に変更。ローカルファイルからの直接マイグレーションを採用)
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -85,7 +85,7 @@ wrangler r2 object list shadowverse-data --prefix="legacy/"
 
 ### TASK-0025-5: マイグレーションAPIエンドポイント実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -191,7 +191,7 @@ export default {
 
 ### TASK-0025-6: マイグレーションのドライラン実行と検証
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -258,9 +258,9 @@ tail -f .wrangler/state/v3/d1/miniflare-D1DatabaseObject/xxxxxxxx.sqlite
 
 Phase 1 Part 3b-ii の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0025-4: 既存JSONデータのR2アップロード
-- [ ] TASK-0025-5: マイグレーションAPIエンドポイント実装
-- [ ] TASK-0025-6: マイグレーションのドライラン実行と検証
+- [x] TASK-0025-4: 既存JSONデータのR2アップロード (R2不使用に変更)
+- [x] TASK-0025-5: マイグレーションAPIエンドポイント実装
+- [x] TASK-0025-6: マイグレーションのドライラン実行と検証
 
 ## 次のステップ
 

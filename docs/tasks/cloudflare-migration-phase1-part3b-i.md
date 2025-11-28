@@ -13,7 +13,7 @@
 
 ### TASK-0025-1: 既存JSONデータの分析とスキーママッピング
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -118,7 +118,7 @@ function extractClassFromDeckId(deckId: string): string {
 
 ### TASK-0025-2: マイグレーションスクリプトの基本実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -248,7 +248,7 @@ async function loadLegacyBattles(bucket: R2Bucket): Promise<LegacyBattleLog[]> {
 
 ### TASK-0025-3: マイグレーションスクリプトのテスト実装
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -332,9 +332,9 @@ describe('migrateJsonToD1', () => {
 
 Phase 1 Part 3b-i の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0025-1: 既存JSONデータの分析とスキーママッピング
-- [ ] TASK-0025-2: マイグレーションスクリプトの基本実装
-- [ ] TASK-0025-3: マイグレーションスクリプトのテスト実装
+- [x] TASK-0025-1: 既存JSONデータの分析とスキーママッピング
+- [x] TASK-0025-2: マイグレーションスクリプトの基本実装
+- [x] TASK-0025-3: マイグレーションスクリプトのテスト実装
 
 ## 次のステップ
 
