@@ -173,7 +173,7 @@ wrangler whoami
 
 ### TASK-0021-4: backendディレクトリ作成とプロジェクト構造確認
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -244,9 +244,11 @@ pnpm init
 
 #### 完了条件
 
-- [ ] `backend/` ディレクトリが作成されている
-- [ ] `backend/src/`, `backend/tests/` などのサブディレクトリが作成されている
-- [ ] `backend/package.json` が作成されている
+- [x] `backend/` ディレクトリが作成されている
+- [x] `backend/src/`, `backend/tests/` などのサブディレクトリが作成されている
+  - `backend/src/db/`, `backend/src/db/schema/`, `backend/src/db/migrations/` ✅
+  - `backend/src/routes/`, `backend/src/middleware/` ✅
+- [x] `backend/package.json` が作成されている (Cloudflare Workers用に更新済み)
 
 #### 検証手順
 
@@ -262,7 +264,7 @@ Phase 1 Part 1a-i の全タスクが完了したことを確認するのだ:
 - [x] TASK-0021-1: Cloudflareアカウント作成・確認 ✅ (2025-11-27完了)
 - [x] TASK-0021-2: Node.js環境確認とpnpm設定 ✅ (2025-11-27完了)
 - [x] TASK-0021-3: Wrangler CLI インストール ✅ (2025-11-28完了)
-- [ ] TASK-0021-4: backendディレクトリ作成とプロジェクト構造確認
+- [x] TASK-0021-4: backendディレクトリ作成とプロジェクト構造確認 ✅ (2025-11-28完了)
 
 ## 次のステップ
 
