@@ -59,7 +59,7 @@
 
 ### TASK-0021-2: Node.js環境確認とpnpm設定
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -102,9 +102,9 @@ ls -la node_modules/
 
 #### 完了条件
 
-- [ ] Node.js 22.x がインストールされている
-- [ ] pnpm 9.x がインストールされている
-- [ ] プロジェクトルートで pnpm コマンドが動作する
+- [x] Node.js 22.x がインストールされている (✅ v24.11.1)
+- [x] pnpm 9.x がインストールされている (✅ v9.15.9)
+- [x] プロジェクトルートで pnpm コマンドが動作する
 
 #### 検証手順
 
@@ -260,7 +260,7 @@ pnpm init
 Phase 1 Part 1a-i の全タスクが完了したことを確認するのだ:
 
 - [x] TASK-0021-1: Cloudflareアカウント作成・確認 ✅ (2025-11-27完了)
-- [ ] TASK-0021-2: Node.js環境確認とpnpm設定
+- [x] TASK-0021-2: Node.js環境確認とpnpm設定 ✅ (2025-11-27完了)
 - [ ] TASK-0021-3: Wrangler CLI インストール
 - [ ] TASK-0021-4: backendディレクトリ作成とプロジェクト構造確認
 
