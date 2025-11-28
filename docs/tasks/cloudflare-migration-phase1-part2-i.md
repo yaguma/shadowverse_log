@@ -13,7 +13,7 @@
 
 ### TASK-0022-5: Drizzle ORM スキーマ統合とエクスポート
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -81,7 +81,7 @@ export type Database = ReturnType<typeof createDb>;
 
 ### TASK-0022-6: SQLマイグレーションファイル生成
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -179,7 +179,7 @@ CREATE INDEX IF NOT EXISTS "statistics_period_idx" ON "statistics" ("period");
 
 ### TASK-0022-7: ローカルD1データベースへのマイグレーション実行
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -233,7 +233,7 @@ wrangler d1 execute shadowverse-db --local --command="PRAGMA table_info(battles)
 
 ### TASK-0022-8: リモートD1データベースへのマイグレーション実行
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -287,7 +287,7 @@ wrangler d1 execute shadowverse-db --remote --command="PRAGMA table_info(battles
 
 ### TASK-0023-1: R2バケット作成
 
-- [ ] **タスク未完了**
+- [x] **タスクスキップ** (R2は使用しない方針のため)
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -348,11 +348,11 @@ bucket_name = "shadowverse-data"
 
 Phase 1 Part 2-i の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0022-5: Drizzle ORM スキーマ統合とエクスポート
-- [ ] TASK-0022-6: SQLマイグレーションファイル生成
-- [ ] TASK-0022-7: ローカルD1データベースへのマイグレーション実行
-- [ ] TASK-0022-8: リモートD1データベースへのマイグレーション実行
-- [ ] TASK-0023-1: R2バケット作成
+- [x] TASK-0022-5: Drizzle ORM スキーマ統合とエクスポート
+- [x] TASK-0022-6: SQLマイグレーションファイル生成
+- [x] TASK-0022-7: ローカルD1データベースへのマイグレーション実行
+- [x] TASK-0022-8: リモートD1データベースへのマイグレーション実行
+- [x] TASK-0023-1: R2バケット作成 (スキップ - R2は使用しない方針)
 
 ## 次のステップ
 

@@ -13,7 +13,7 @@
 
 ### TASK-0023-2: R2ディレクトリ構造設計
 
-- [ ] **タスク未完了**
+- [x] **タスクスキップ** (R2は使用しない方針のため)
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -90,7 +90,7 @@ export const getImportPath = (timestamp: number): string => {
 
 ### TASK-0023-3: R2アクセス用ヘルパー関数実装
 
-- [ ] **タスク未完了**
+- [x] **タスクスキップ** (R2は使用しない方針のため)
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -210,7 +210,7 @@ describe('R2Helper', () => {
 
 ### TASK-0023-4: R2バックアップ用Workers実装
 
-- [ ] **タスク未完了**
+- [x] **タスクスキップ** (R2は使用しない方針のため)
 - **推定工数**: 1時間
 - **タスクタイプ**: TDD
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -291,7 +291,7 @@ async function createDatabaseBackup(db: D1Database): Promise<ArrayBuffer> {
 
 ### TASK-0023-5: Cron Trigger設定でバックアップ自動化
 
-- [ ] **タスク未完了**
+- [x] **タスクスキップ** (R2は使用しない方針のため)
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -358,7 +358,7 @@ wrangler dev --test-scheduled
 
 ### TASK-0023-6: R2バックアップの動作確認
 
-- [ ] **タスク未完了**
+- [x] **タスクスキップ** (R2は使用しない方針のため)
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/storage-design-cloudflare.md
@@ -417,11 +417,11 @@ ls -lh backup-test.db
 
 Phase 1 Part 2-ii の全タスクが完了したことを確認するのだ:
 
-- [ ] TASK-0023-2: R2ディレクトリ構造設計
-- [ ] TASK-0023-3: R2アクセス用ヘルパー関数実装
-- [ ] TASK-0023-4: R2バックアップ用Workers実装
-- [ ] TASK-0023-5: Cron Trigger設定でバックアップ自動化
-- [ ] TASK-0023-6: R2バックアップの動作確認
+- [x] TASK-0023-2: R2ディレクトリ構造設計 (スキップ - R2は使用しない方針)
+- [x] TASK-0023-3: R2アクセス用ヘルパー関数実装 (スキップ - R2は使用しない方針)
+- [x] TASK-0023-4: R2バックアップ用Workers実装 (スキップ - R2は使用しない方針)
+- [x] TASK-0023-5: Cron Trigger設定でバックアップ自動化 (スキップ - R2は使用しない方針)
+- [x] TASK-0023-6: R2バックアップの動作確認 (スキップ - R2は使用しない方針)
 
 ## 次のステップ
 
