@@ -16,7 +16,27 @@
     "db:migrate": "wrangler d1 execute shadowverse-db --local --file=./src/db/migrations/0000_init.sql",
     "db:migrate:prod": "wrangler d1 execute shadowverse-db --remote --file=./src/db/migrations/0000_init.sql"
   },
-  "keywords": ["shadowverse", "cloudflare", "workers", "d1"],
+  "keywords": [
+    "shadowverse",
+    "cloudflare",
+    "workers",
+    "d1"
+  ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
+    "@cloudflare/workers-types": "^4.20251128.0",
+    "@types/node": "^24.10.1",
+    "drizzle-kit": "^0.31.7",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14",
+    "wrangler": "^4.51.0"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.44.7",
+    "hono": "^4.10.7",
+    "zod": "^4.1.13"
+  }
 }

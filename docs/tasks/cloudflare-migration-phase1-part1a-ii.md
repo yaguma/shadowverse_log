@@ -209,7 +209,7 @@ git commit -m "chore: Update .gitignore for Cloudflare secrets"
 
 ### TASK-0021-8: backend依存関係のインストール
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -305,10 +305,10 @@ pnpm add -D @types/node
 
 #### 完了条件
 
-- [ ] `backend/node_modules/` が作成されている
-- [ ] `backend/pnpm-lock.yaml` が作成されている
-- [ ] `backend/tsconfig.json` が作成されている
-- [ ] `backend/biome.json` が作成されている
+- [x] `backend/node_modules/` が作成されている
+- [x] `backend/pnpm-lock.yaml` が作成されている
+- [x] `backend/tsconfig.json` が作成されている（Cloudflare Workers用に更新）
+- [x] `backend/biome.json` が作成されている（Biome 2.x用に更新）
 
 #### 検証手順
 
@@ -325,7 +325,7 @@ Phase 1 Part 1a-ii の全タスクが完了したことを確認するのだ:
 - [x] TASK-0021-5: wrangler.toml 設定ファイル作成 ✅ (2025-11-28完了)
 - [x] TASK-0021-6: .dev.vars ファイル作成（ローカル開発用環境変数） ✅ (2025-11-28完了)
 - [x] TASK-0021-7: .gitignore 更新とGit確認 ✅ (2025-11-28完了)
-- [ ] TASK-0021-8: backend依存関係のインストール
+- [x] TASK-0021-8: backend依存関係のインストール ✅ (2025-11-28完了)
 
 ## 次のステップ
 
