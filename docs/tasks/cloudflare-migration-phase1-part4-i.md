@@ -211,7 +211,7 @@ export default migration;
 
 ### TASK-0026-1: ローカル開発環境の動作確認
 
-- [ ] **タスク未完了**
+- [x] **タスク完了**
 - **推定工数**: 1時間
 - **タスクタイプ**: DIRECT
 - **要件**: docs/design/shadowverse-battle-log/architecture-cloudflare.md
@@ -276,10 +276,10 @@ wrangler r2 bucket list
 
 #### 完了条件
 
-- [ ] Wrangler Dev サーバーが起動する
-- [ ] ヘルスチェックが成功する
-- [ ] D1接続が確認できる
-- [ ] R2接続が確認できる
+- [x] Wrangler Dev サーバーが起動する
+- [x] ヘルスチェックが成功する（APIが正常に応答）
+- [x] D1接続が確認できる
+- [x] R2接続確認（※R2は使用しない方針に変更済み - wrangler.toml参照）
 
 #### 検証手順
 
