@@ -5,9 +5,9 @@ export const errorHandler = async (c: Context, next: Next) => {
   try {
     await next();
   } catch (error) {
-    console.error("Error:", error);
-
+    // ZodErrorの場合はバリデーションエラーとして処理
     if (error instanceof ZodError) {
+      console.error("Validation Error:", JSON.stringify(error.errors));
       return c.json(
         {
           success: false,
@@ -31,6 +31,8 @@ export const errorHandler = async (c: Context, next: Next) => {
       );
     }
 
+    // その他のエラーはサーバーエラーとして処理
+    console.error("Internal Error:", error instanceof Error ? error.message : String(error));
     return c.json(
       {
         success: false,
