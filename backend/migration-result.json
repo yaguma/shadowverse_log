@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "message": "Direct D1 migration completed",
+  "data": {
+    "deckMaster": {
+      "imported": 19,
+      "total": 19
+    },
+    "battleLogs": {
+      "imported": 84,
+      "total": 84
+    },
+    "myDecks": {
+      "imported": 1,
+      "total": 1
+    },
+    "completedAt": "2025-11-28T16:08:02.877Z"
+  }
+}
