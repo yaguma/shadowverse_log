@@ -316,7 +316,7 @@ describe('BattleLogList', () => {
 
     it('TC-A11Y-001: テーブルにrole="table"が設定されている', () => {
       // 【テスト目的】: アクセシビリティ対応（テーブルロール）を確認 🟡
-      // 【テスト内容】: テーブルコンポーネントに role="table" 属性が設定されていること 🟡
+      // 【テスト内容】: テーブルコンポーネントが table role を持つこと 🟡
       // 【期待される動作】: スクリーンリーダーがテーブル構造を正しく認識できる 🟡
       // 🟡 信頼性レベル: アクセシビリティ要件から推測
 
@@ -341,9 +341,10 @@ describe('BattleLogList', () => {
       // 【実際の処理実行】: BattleLogListコンポーネントをレンダリング 🟡
       render(<BattleLogList battleLogs={mockBattleLogs} onDelete={onDelete} onDetail={onDetail} />);
 
-      // 【結果検証】: role="table"属性が設定されていることを確認 🟡
+      // 【結果検証】: テーブルが存在し、role="table"として認識されることを確認 🟡
+      // 【注記】: HTMLの<table>要素は暗黙的にrole="table"を持つため、getByRoleで取得できれば十分
       const table = screen.getByRole('table');
-      expect(table).toHaveAttribute('role', 'table'); // 【確認内容】: role属性が設定される 🟡
+      expect(table).toBeInTheDocument(); // 【確認内容】: テーブルがrole="table"として認識される 🟡
     });
 
     it('TC-A11Y-002: 削除・詳細ボタンにaria-label属性が設定されている', () => {

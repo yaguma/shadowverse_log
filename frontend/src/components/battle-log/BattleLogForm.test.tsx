@@ -609,7 +609,8 @@ describe('BattleLogForm', () => {
       render(<BattleLogForm />);
 
       // 【結果検証】: Tailwind CSSレスポンシブクラスが適用されることを確認
-      const form = screen.getByRole('form');
+      // 【注記】: HTMLの<form>要素は暗黙的にrole="form"を持たないため、querySelector で取得
+      const form = document.querySelector('form');
       expect(form).toHaveClass('max-w-2xl'); // 【確認内容】: 最大幅が制限される (レスポンシブ対応) 🟡
       expect(form).toHaveClass('mx-auto'); // 【確認内容】: 中央揃え (レスポンシブ対応) 🟡
       expect(form).toHaveClass('w-full'); // 【確認内容】: 全幅使用 (モバイル対応) 🟡
@@ -626,7 +627,8 @@ describe('BattleLogForm', () => {
       render(<BattleLogForm />);
 
       // 【結果検証】: Tailwind CSSレスポンシブクラスが適用されることを確認
-      const form = screen.getByRole('form');
+      // 【注記】: HTMLの<form>要素は暗黙的にrole="form"を持たないため、querySelector で取得
+      const form = document.querySelector('form');
       expect(form).toHaveClass('max-w-2xl'); // 【確認内容】: 最大幅が制限される (レスポンシブ対応) 🟡
       expect(form).toHaveClass('mx-auto'); // 【確認内容】: 中央揃え (レスポンシブ対応) 🟡
       expect(form).toHaveClass('w-full'); // 【確認内容】: 全幅使用 (タブレット対応) 🟡
@@ -778,8 +780,9 @@ describe('BattleLogForm', () => {
       const opponentDeckSelect = screen.getByLabelText('相手デッキ') as HTMLSelectElement;
       fireEvent.change(opponentDeckSelect, { target: { value: 'deck-master-001' } });
 
-      const form = screen.getByRole('form');
-      fireEvent.keyDown(form, { key: 'Enter' });
+      // 【注記】: HTMLの<form>要素は暗黙的にrole="form"を持たないため、querySelector で取得
+      const form = document.querySelector('form');
+      fireEvent.keyDown(form!, { key: 'Enter' });
 
       // 【結果検証】: フォームが送信されることを確認
       await waitFor(() => {
@@ -798,8 +801,9 @@ describe('BattleLogForm', () => {
       // 【実際の処理実行】: Escキーを押下
       render(<BattleLogForm onCancel={onCancel} />);
 
-      const form = screen.getByRole('form');
-      fireEvent.keyDown(form, { key: 'Escape' });
+      // 【注記】: HTMLの<form>要素は暗黙的にrole="form"を持たないため、querySelector で取得
+      const form = document.querySelector('form');
+      fireEvent.keyDown(form!, { key: 'Escape' });
 
       // 【結果検証】: onCancelが呼ばれることを確認
       expect(onCancel).toHaveBeenCalled(); // 【確認内容】: Escキーでフォームが閉じる 🟡
