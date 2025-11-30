@@ -1,0 +1,127 @@
+/**
+ * 統計API ルート
+ * TASK-0030: 統計計算API実装
+ *
+ * @description GET /api/statistics エンドポイントの実装
+ * 🔵 信頼性レベル: 青信号（api-endpoints-cloudflare.md より）
+ */
+import { Hono } from 'hono';
+import type { D1Database } from '@cloudflare/workers-types';
+import { createDb } from '../db';
+import { D1StatisticsService } from '../services/d1-statistics-service';
+
+/** 環境バインディング型 */
+type Bindings = {
+  DB: D1Database;
+};
+
+const statistics = new Hono<{ Bindings: Bindings }>();
+
+/**
+ * 日付形式の検証（YYYY-MM-DD）
+ */
+function isValidDateFormat(dateString: string): boolean {
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(dateString)) {
+    return false;
+  }
+  const date = new Date(dateString);
+  return !Number.isNaN(date.getTime());
+}
+
+/**
+ * メタ情報を生成
+ */
+function createMeta() {
+  return {
+    timestamp: new Date().toISOString(),
+    requestId: crypto.randomUUID(),
+  };
+}
+
+/**
+ * エラーレスポンスを生成
+ */
+function createErrorResponse(code: string, message: string) {
+  return {
+    success: false as const,
+    error: { code, message },
+    meta: createMeta(),
+  };
+}
+
+/**
+ * GET /api/statistics
+ *
+ * 統計データを取得
+ *
+ * @query startDate - 開始日（YYYY-MM-DD）
+ * @query endDate - 終了日（YYYY-MM-DD）
+ * @query battleType - 対戦タイプ
+ */
+statistics.get('/', async (c) => {
+  try {
+    const { startDate, endDate, battleType } = c.req.query();
+
+    // バリデーション: 日付形式チェック
+    if (startDate && !isValidDateFormat(startDate)) {
+      return c.json(
+        createErrorResponse(
+          'INVALID_DATE_FORMAT',
+          '日付形式が不正です。YYYY-MM-DD形式で指定してください。'
+        ),
+        400
+      );
+    }
+
+    if (endDate && !isValidDateFormat(endDate)) {
+      return c.json(
+        createErrorResponse(
+          'INVALID_DATE_FORMAT',
+          '日付形式が不正です。YYYY-MM-DD形式で指定してください。'
+        ),
+        400
+      );
+    }
+
+    // バリデーション: 日付範囲チェック
+    if (startDate && endDate && startDate > endDate) {
+      return c.json(
+        createErrorResponse(
+          'INVALID_DATE_RANGE',
+          '開始日は終了日より前の日付を指定してください。'
+        ),
+        400
+      );
+    }
+
+    // データベース接続とサービス初期化
+    const db = createDb(c.env.DB);
+    const service = new D1StatisticsService(db);
+
+    // 統計データ取得
+    const stats = await service.getStatistics({
+      startDate,
+      endDate,
+      battleType,
+    });
+
+    return c.json({
+      success: true,
+      data: stats,
+      meta: createMeta(),
+    });
+  } catch (error) {
+    console.error('Statistics API error:', error);
+
+    return c.json(
+      createErrorResponse(
+        'DATABASE_ERROR',
+        '統計データの取得中にエラーが発生しました。'
+      ),
+      500
+    );
+  }
+});
+
+export default statistics;

@@ -9,6 +9,8 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import type { D1Database } from '@cloudflare/workers-types';
 import migrationRoutes from './routes/migration';
+import statisticsRoutes from './routes/statistics';
+import importRoutes from './routes/import';
 
 /** 環境バインディング型 */
 export interface Env {
@@ -53,6 +55,12 @@ app.get('/health', (c) => {
 
 // マイグレーションルート
 app.route('/api/migration', migrationRoutes);
+
+// 統計APIルート
+app.route('/api/statistics', statisticsRoutes);
+
+// インポートAPIルート
+app.route('/api/import', importRoutes);
 
 // 404ハンドラー
 app.notFound((c) => {
