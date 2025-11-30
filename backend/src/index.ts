@@ -2,6 +2,7 @@
  * Shadowverse Battle Log API - Cloudflare Workers エントリーポイント
  *
  * Phase 1: 基本的なAPIエンドポイントとマイグレーション機能
+ * Phase 2: レート制限、統合テスト、パフォーマンステスト (TASK-0032)
  */
 
 import { Hono } from 'hono';
@@ -11,6 +12,7 @@ import type { D1Database } from '@cloudflare/workers-types';
 import migrationRoutes from './routes/migration';
 import statisticsRoutes from './routes/statistics';
 import importRoutes from './routes/import';
+import { rateLimit } from './middleware/rate-limit';
 
 /** 環境バインディング型 */
 export interface Env {
@@ -28,6 +30,8 @@ const app: AppType = new Hono();
 // ミドルウェア
 app.use('*', cors());
 app.use('*', logger());
+// レート制限: 100リクエスト/分
+app.use('/api/*', rateLimit({ limit: 100, windowMs: 60000 }));
 
 // ルートエンドポイント
 app.get('/', (c) => {
