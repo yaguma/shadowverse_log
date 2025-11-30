@@ -33,6 +33,8 @@ function createMinimalMockEnv() {
     },
     ENVIRONMENT: 'test',
     API_VERSION: '1.0.0-test',
+    // CORS設定: テスト用オリジンを許可
+    ALLOWED_ORIGINS: 'http://localhost:5173,http://example.com',
   };
 }
 

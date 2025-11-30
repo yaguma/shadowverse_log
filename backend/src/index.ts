@@ -5,20 +5,28 @@
  * Phase 2: レート制限、統合テスト、パフォーマンステスト (TASK-0032)
  */
 
+import type { D1Database } from '@cloudflare/workers-types';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-import type { D1Database } from '@cloudflare/workers-types';
+// biome-ignore lint/correctness/noUnusedImports: authMiddleware will be enabled in Phase 2
+import { authMiddleware } from './middleware/auth';
+import { rateLimit } from './middleware/rate-limit';
+import importRoutes from './routes/import';
 import migrationRoutes from './routes/migration';
 import statisticsRoutes from './routes/statistics';
-import importRoutes from './routes/import';
-import { rateLimit } from './middleware/rate-limit';
 
 /** 環境バインディング型 */
 export interface Env {
   DB: D1Database;
   ENVIRONMENT?: string;
   API_VERSION?: string;
+  /** Cloudflare Access チームドメイン */
+  CF_ACCESS_TEAM_DOMAIN?: string;
+  /** Cloudflare Access アプリケーションAUD */
+  CF_ACCESS_AUD?: string;
+  /** 許可されるオリジン（CORS用） */
+  ALLOWED_ORIGINS?: string;
 }
 
 /** Honoアプリケーションの型 */
@@ -28,10 +36,30 @@ type AppType = Hono<{ Bindings: Env }>;
 const app: AppType = new Hono();
 
 // ミドルウェア
-app.use('*', cors());
+// CORS設定: 環境変数から許可オリジンを取得
+app.use('*', async (c, next) => {
+  const allowedOrigins = c.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) || [
+    'http://localhost:5173',
+  ];
+  const corsMiddleware = cors({
+    origin: allowedOrigins,
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization', 'CF-Access-JWT-Assertion'],
+    exposeHeaders: ['Content-Length', 'X-Request-Id'],
+    maxAge: 86400,
+  });
+  return corsMiddleware(c, next);
+});
 app.use('*', logger());
 // レート制限: 100リクエスト/分
 app.use('/api/*', rateLimit({ limit: 100, windowMs: 60000 }));
+// 認証ミドルウェア: Phase 2で有効化
+// 開発環境ではスキップ、本番環境では有効化
+// app.use('/api/*', authMiddleware({
+//   skipPaths: ['/api/health', '/api/migration', '/api/import', /^\/api\/deck-master/],
+//   debug: true,
+// }));
 
 // ルートエンドポイント
 app.get('/', (c) => {

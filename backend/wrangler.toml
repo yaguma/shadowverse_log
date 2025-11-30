@@ -10,6 +10,11 @@ workers_dev = true
 [vars]
 ENVIRONMENT = "development"
 API_VERSION = "v1"
+# Cloudflare Access 認証設定（開発用）
+# 本番環境では wrangler secret コマンドで設定
+CF_ACCESS_TEAM_DOMAIN = "your-team.cloudflareaccess.com"
+CF_ACCESS_AUD = "your-application-aud-tag"
+ALLOWED_ORIGINS = "http://localhost:5173"
 
 # D1 Database バインディング
 [[d1_databases]]
@@ -29,3 +34,8 @@ routes = [
 [env.production.vars]
 ENVIRONMENT = "production"
 API_VERSION = "v1"
+# Cloudflare Access 認証設定（本番環境）
+# 実際の値は Cloudflare Dashboard または wrangler secret コマンドで設定
+CF_ACCESS_TEAM_DOMAIN = "your-team.cloudflareaccess.com"
+CF_ACCESS_AUD = "your-application-aud-tag"
+ALLOWED_ORIGINS = "https://your-app.pages.dev"
