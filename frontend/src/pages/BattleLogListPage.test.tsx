@@ -220,16 +220,18 @@ describe('BattleLogListPage', () => {
       // 【期待される動作】: 削除確認ダイアログがクローズされる、エラーメッセージエリアに "対戦履歴が見つかりません" が表示される、fetchBattleLogs()が実行され、一覧が最新状態に同期される 🔵
       // 🔵 信頼性レベル: EDGE-003（削除中にエラー発生）に基づく
 
-      // 【テストデータ準備】: エラーを投げるdeleteBattleLogモック関数を設定 🔵
-      let _currentError: string | null = null;
-      const deleteBattleLog = vi.fn().mockImplementation(async () => {
-        _currentError = '対戦履歴が見つかりません';
-        throw new Error('対戦履歴が見つかりません');
-      });
+      // 【テストデータ準備】: 状態を動的に管理するためのオブジェクト 🔵
+      let currentError: string | null = null;
       const fetchBattleLogs = vi.fn();
 
-      // 初期状態のモックを設定
-      vi.mocked(useBattleLogStore).mockReturnValue({
+      // 【エラーを投げるdeleteBattleLogモック関数】: エラー発生時にcurrentErrorを更新 🔵
+      const deleteBattleLog = vi.fn().mockImplementation(async () => {
+        currentError = '対戦履歴が見つかりません';
+        throw new Error('対戦履歴が見つかりません');
+      });
+
+      // 【動的モック設定】: モックが呼ばれるたびに最新のcurrentErrorを返す 🔵
+      vi.mocked(useBattleLogStore).mockImplementation(() => ({
         battleLogs: [
           {
             id: 'log_20251108_001',
@@ -245,13 +247,13 @@ describe('BattleLogListPage', () => {
         ],
         previousInput: null,
         isLoading: false,
-        error: null,
+        error: currentError,
         fetchBattleLogs,
         createBattleLog: vi.fn(),
         deleteBattleLog,
         setPreviousInput: vi.fn(),
         clearError: vi.fn(),
-      });
+      }));
 
       // 【実際の処理実行】: 削除ボタンをクリックし、削除確認ダイアログで「削除する」をクリック 🔵
       render(<BattleLogListPage />);
