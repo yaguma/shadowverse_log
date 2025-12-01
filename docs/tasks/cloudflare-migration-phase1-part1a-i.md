@@ -32,7 +32,7 @@
 # Cloudflare Dashboard にログイン
 # Settings > Account ID をメモ
 
-# 確認済み Account ID = 8b5ebd81fd19a8753e1259771d6cc2e9
+# 確認済み Account ID = 
 ```
 
 ##### 3. アカウント設定確認
