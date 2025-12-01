@@ -59,11 +59,11 @@ export default defineConfig({
     //   use: { ...devices['Desktop Safari'] },
     // },
 
-    /* モバイルテスト（オプション） */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
+    /* モバイルテスト（TASK-0038: レスポンシブ対応） */
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
   ],
 
   /* 開発サーバー自動起動 */

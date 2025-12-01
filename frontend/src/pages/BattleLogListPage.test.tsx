@@ -221,9 +221,14 @@ describe('BattleLogListPage', () => {
       // 🔵 信頼性レベル: EDGE-003（削除中にエラー発生）に基づく
 
       // 【テストデータ準備】: エラーを投げるdeleteBattleLogモック関数を設定 🔵
-      const deleteBattleLog = vi.fn().mockRejectedValue(new Error('対戦履歴が見つかりません'));
+      let _currentError: string | null = null;
+      const deleteBattleLog = vi.fn().mockImplementation(async () => {
+        _currentError = '対戦履歴が見つかりません';
+        throw new Error('対戦履歴が見つかりません');
+      });
       const fetchBattleLogs = vi.fn();
 
+      // 初期状態のモックを設定
       vi.mocked(useBattleLogStore).mockReturnValue({
         battleLogs: [
           {

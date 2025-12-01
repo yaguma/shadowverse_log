@@ -15,11 +15,11 @@
  *   - 条件付きレンダリングによる不要な描画の削減
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { apiClient, extractErrorMessage } from '../api/client';
 import { DeckStatsTable } from '../components/statistics/DeckStatsTable';
 import { EmptyState } from '../components/statistics/EmptyState';
-import { Error } from '../components/statistics/Error';
+import { StatisticsError } from '../components/statistics/Error';
 import { Loading } from '../components/statistics/Loading';
 import { OverallStats } from '../components/statistics/OverallStats';
 import { PeriodSelector } from '../components/statistics/PeriodSelector';
@@ -69,8 +69,8 @@ export function StatisticsDashboardPage() {
 
     // 【State更新】: デフォルト期間を State に設定
     // この更新により useEffect (startDate, endDate) が発火し、API 呼び出しが実行される
-    setStartDate(periodStartDate||"");
-    setEndDate(today||"");
+    setStartDate(periodStartDate || '');
+    setEndDate(today || '');
   }, []);
 
   /**
@@ -86,8 +86,9 @@ export function StatisticsDashboardPage() {
    * 【パフォーマンス】:
    *   - 非同期処理による UI ブロックの回避
    *   - try-catch-finally による確実なローディング状態のクリア
+   *   - useCallback によるメモ化で不要な再レンダリングを防止
    */
-  const fetchStatistics = async () => {
+  const fetchStatistics = useCallback(async () => {
     // 【ローディング開始】: API 呼び出し開始を UI に通知
     // エラー状態をクリアして、前回のエラーメッセージを削除
     setIsLoading(true);
@@ -114,7 +115,7 @@ export function StatisticsDashboardPage() {
       // finally ブロックにより、エラー時も確実にローディングを終了
       setIsLoading(false);
     }
-  };
+  }, [startDate, endDate]);
 
   /**
    * 【期間変更時の自動データ取得】: 開始日または終了日が変更されたら統計を再取得
@@ -125,7 +126,7 @@ export function StatisticsDashboardPage() {
    *   - 「検索」ボタンを押さなくても、日付変更だけで自動更新
    * 【実装詳細】:
    *   - 両方の日付が設定されている場合のみ API 呼び出し（初期化前の空文字チェック）
-   *   - fetchStatistics 関数を依存配列から除外（eslint-disable を使用）
+   *   - fetchStatistics 関数は useCallback でメモ化されているため、依存配列に含めても問題なし
    * 【パフォーマンス考慮】:
    *   - 両方の日付を変更すると2回 API 呼び出しが発生する可能性あり
    *   - 🟡 将来的にデバウンス処理の追加を検討
@@ -136,8 +137,7 @@ export function StatisticsDashboardPage() {
     if (startDate && endDate) {
       fetchStatistics();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate]);
+  }, [startDate, endDate, fetchStatistics]);
 
   /**
    * 【検索ボタンクリックハンドラ】: 期間選択フォームの「検索」ボタン処理
@@ -188,7 +188,7 @@ export function StatisticsDashboardPage() {
       {isLoading && <Loading />}
 
       {/* 🔵 エラー状態 */}
-      {!isLoading && error && <Error message={error} onRetry={handleRetry} />}
+      {!isLoading && error && <StatisticsError message={error} onRetry={handleRetry} />}
 
       {/* 🔵 REQ-405: データなし状態 */}
       {!isLoading && !error && statistics && statistics.overall.totalGames === 0 && <EmptyState />}

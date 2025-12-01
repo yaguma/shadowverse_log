@@ -46,7 +46,7 @@ test.describe('Accessibility - アクセシビリティテスト', () => {
     test.skip();
   });
 
-  test('スクリーンリーダー用のaria-labelが設定されている', async ({ page }) => {
+  test('スクリーンリーダー用のaria-labelが設定されている', async ({ page: _page }) => {
     // TODO: aria-label検証
     test.skip();
   });

@@ -59,8 +59,10 @@ export const BattleLogDetailModal: React.FC<BattleLogDetailModalProps> = ({
         {/* 【モーダルコンテンツ】: 詳細情報を表示 🔵 */}
         {/* 【実装方針】: クリックイベントの伝播を停止して、モーダル内クリックで閉じないようにする */}
         <div
+          role="document"
           className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
         >
           {/* 【モーダルヘッダー】: タイトルと閉じるボタン 🔵 */}
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">

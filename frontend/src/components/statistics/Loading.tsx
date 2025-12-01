@@ -11,11 +11,11 @@
  */
 export function Loading() {
   return (
-    <div role="status" className="flex justify-center items-center py-8">
+    <output className="flex justify-center items-center py-8">
       <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-2"></div>
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-2" />
         <p className="text-gray-600">読み込み中...</p>
       </div>
-    </div>
+    </output>
   );
 }

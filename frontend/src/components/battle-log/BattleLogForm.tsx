@@ -162,7 +162,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
     }
 
     // 【日付比較】: YYYY-MM-DD形式の文字列で比較 🔵
-    const today = new Date().toISOString().split('T')[0]||"";
+    const today = new Date().toISOString().split('T')[0] || '';
 
     if (date > today) {
       return '未来の日付は入力できません'; // 🔵 REQ-030

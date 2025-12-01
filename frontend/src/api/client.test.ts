@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { apiClient } from './client';
+import { apiClient, setAuthTokenGetter } from './client';
 
 // 【テストファイル概要】: API Clientの単体テスト
 // 【テスト目的】: Backend APIとの通信を行うAPI Clientの動作を検証する
@@ -290,6 +290,117 @@ describe('API Client', () => {
       // 【実際の処理実行】: API Clientの get() メソッドを呼び出し、サーバーエラーが投げられることを確認 🔵
       // 【処理内容】: GET /battle-logs エンドポイントにリクエストを送信（サーバーエラー発生）
       await expect(apiClient.get('/battle-logs')).rejects.toThrow('サーバーエラーが発生しました'); // 【確認内容】: Backend APIから返されたエラーメッセージが投げられる 🔵
+    });
+  });
+
+  // ==================== 認証関連テスト ====================
+
+  describe('認証ヘッダー', () => {
+    afterEach(() => {
+      // 認証トークンゲッターをリセット
+      setAuthTokenGetter(null);
+    });
+
+    it('TC-API-AUTH-001: 認証済み時にトークンヘッダーを付加', async () => {
+      // 【テスト目的】: 認証済み時にCF-Access-JWT-Assertionヘッダーが付加されることを確認 🔵
+      // 【TASK-0040】: 認証フロー実装
+
+      // トークンゲッター関数を設定
+      setAuthTokenGetter(() => 'test-token');
+
+      const mockResponse = {
+        success: true,
+        data: { battleLogs: [], total: 0, limit: 100, offset: 0 },
+        meta: { timestamp: new Date().toISOString(), requestId: 'req-auth-001' },
+      };
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      } as Response);
+
+      await apiClient.get('/battle-logs');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'CF-Access-JWT-Assertion': 'test-token',
+          }),
+        })
+      );
+    });
+
+    it('TC-API-AUTH-002: 未認証時はトークンヘッダーを付加しない', async () => {
+      // 【テスト目的】: 未認証時にトークンヘッダーが付加されないことを確認 🔵
+      // 【TASK-0040】: 認証フロー実装
+
+      // トークンゲッターをnullに設定（未認証）
+      setAuthTokenGetter(null);
+
+      const mockResponse = {
+        success: true,
+        data: { battleLogs: [], total: 0, limit: 100, offset: 0 },
+        meta: { timestamp: new Date().toISOString(), requestId: 'req-auth-002' },
+      };
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockResponse,
+      } as Response);
+
+      await apiClient.get('/battle-logs');
+
+      // ヘッダーにCF-Access-JWT-Assertionが含まれないことを確認
+      const callArgs = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+      const headers = callArgs[1]?.headers || {};
+      expect(headers['CF-Access-JWT-Assertion']).toBeUndefined();
+    });
+
+    it('TC-API-AUTH-003: 401レスポンス時にエラーをスロー', async () => {
+      // 【テスト目的】: 401レスポンスを受け取った場合にエラーがスローされることを確認 🔵
+      // 【TASK-0040】: 認証フロー実装
+
+      const mockErrorResponse = {
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: '認証トークンが必要です',
+        },
+        meta: { timestamp: new Date().toISOString(), requestId: 'req-auth-003' },
+      };
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: async () => mockErrorResponse,
+      } as Response);
+
+      await expect(apiClient.get('/battle-logs')).rejects.toThrow('認証トークンが必要です');
+    });
+
+    it('TC-API-AUTH-004: トークン期限切れ時のエラーメッセージ', async () => {
+      // 【テスト目的】: トークン期限切れ時に適切なエラーメッセージが表示されることを確認 🔵
+      // 【TASK-0040】: 認証フロー実装
+
+      const mockErrorResponse = {
+        success: false,
+        error: {
+          code: 'TOKEN_EXPIRED',
+          message: '認証トークンの有効期限が切れています',
+        },
+        meta: { timestamp: new Date().toISOString(), requestId: 'req-auth-004' },
+      };
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        json: async () => mockErrorResponse,
+      } as Response);
+
+      await expect(apiClient.get('/battle-logs')).rejects.toThrow(
+        '認証トークンの有効期限が切れています'
+      );
     });
   });
 });

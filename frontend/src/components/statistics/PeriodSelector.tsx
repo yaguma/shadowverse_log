@@ -70,6 +70,7 @@ export function PeriodSelector({
       {/* 🔵 検索ボタン */}
       <div>
         <button
+          type="button"
           onClick={onSearch}
           disabled={isLoading}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"

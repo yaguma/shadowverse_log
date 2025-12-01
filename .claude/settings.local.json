@@ -17,7 +17,20 @@
       "Bash(pnpm test:*)",
       "Bash(mkdir:*)",
       "Bash(pnpm run tsc:*)",
-      "Bash(pnpm run dev:*)"
+      "Bash(pnpm run dev:*)",
+      "Bash(pnpm test:coverage:*)",
+      "Bash(pnpm run format:*)",
+      "SlashCommand(/tdd-requirements)",
+      "SlashCommand(/tdd-testcases)",
+      "Bash(gh issue list:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm type-check:*)",
+      "Bash(timeout 10 pnpm dev:*)",
+      "Bash(pnpm exec biome:*)",
+      "Bash(pnpm run type-check:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(pnpm run build:*)",
+      "Bash(pnpm exec playwright test:*)"
     ],
     "deny": [],
     "ask": []

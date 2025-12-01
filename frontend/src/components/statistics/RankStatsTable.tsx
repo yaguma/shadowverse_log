@@ -46,8 +46,8 @@ export function RankStatsTable({ rankStats }: RankStatsTableProps) {
             </tr>
           </thead>
           <tbody>
-            {rankStats.map((rank, index) => (
-              <tr key={index} className="hover:bg-gray-50">
+            {rankStats.map((rank) => (
+              <tr key={`${rank.rank}-${rank.group}`} className="hover:bg-gray-50">
                 <td className="border px-4 py-2">{rank.rank}</td>
                 <td className="border px-4 py-2">{rank.group}</td>
                 <td className="border px-4 py-2 text-right">{rank.totalGames}</td>

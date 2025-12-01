@@ -19,22 +19,22 @@ test.describe('Import - データインポート機能', () => {
     await expect(page.getByLabel('ファイル選択')).toBeVisible();
   });
 
-  test('JSON形式のファイルをインポートできる', async ({ page }) => {
+  test('JSON形式のファイルをインポートできる', async ({ page: _page }) => {
     // TODO: テストファイル準備が必要
     test.skip();
   });
 
-  test('CSV形式のファイルをインポートできる', async ({ page }) => {
+  test('CSV形式のファイルをインポートできる', async ({ page: _page }) => {
     // TODO: テストファイル準備が必要
     test.skip();
   });
 
-  test('不正なファイル形式でエラーが表示される', async ({ page }) => {
+  test('不正なファイル形式でエラーが表示される', async ({ page: _page }) => {
     // TODO: テストファイル準備が必要
     test.skip();
   });
 
-  test('インポート進捗が表示される', async ({ page }) => {
+  test('インポート進捗が表示される', async ({ page: _page }) => {
     // TODO: テストファイル準備が必要
     test.skip();
   });

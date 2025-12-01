@@ -9,7 +9,6 @@ import type { D1Database } from '@cloudflare/workers-types';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
-// biome-ignore lint/correctness/noUnusedImports: authMiddleware will be enabled in Phase 2
 import { authMiddleware } from './middleware/auth';
 import { rateLimit } from './middleware/rate-limit';
 import importRoutes from './routes/import';
@@ -54,12 +53,15 @@ app.use('*', async (c, next) => {
 app.use('*', logger());
 // レート制限: 100リクエスト/分
 app.use('/api/*', rateLimit({ limit: 100, windowMs: 60000 }));
-// 認証ミドルウェア: Phase 2で有効化
+// 認証ミドルウェア: TASK-0040で有効化
 // 開発環境ではスキップ、本番環境では有効化
-// app.use('/api/*', authMiddleware({
-//   skipPaths: ['/api/health', '/api/migration', '/api/import', /^\/api\/deck-master/],
-//   debug: true,
-// }));
+app.use(
+  '/api/*',
+  authMiddleware({
+    skipPaths: ['/api/health', '/api/migration', '/api/import', /^\/api\/deck-master/],
+    debug: true,
+  })
+);
 
 // ルートエンドポイント
 app.get('/', (c) => {
