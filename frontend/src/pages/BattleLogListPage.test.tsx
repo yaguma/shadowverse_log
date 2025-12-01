@@ -220,34 +220,37 @@ describe('BattleLogListPage', () => {
       // 【期待される動作】: 削除確認ダイアログがクローズされる、エラーメッセージエリアに "対戦履歴が見つかりません" が表示される、fetchBattleLogs()が実行され、一覧が最新状態に同期される 🔵
       // 🔵 信頼性レベル: EDGE-003（削除中にエラー発生）に基づく
 
-      // 【テストデータ準備】: 状態を動的に管理するためのオブジェクト 🔵
-      let currentError: string | null = null;
+      // 【テストデータ準備】: モック状態を管理するためのオブジェクト 🔵
+      const mockState = {
+        error: null as string | null,
+      };
       const fetchBattleLogs = vi.fn();
 
-      // 【エラーを投げるdeleteBattleLogモック関数】: エラー発生時にcurrentErrorを更新 🔵
+      // 【エラーを投げるdeleteBattleLogモック関数】: エラー発生時にmockStateを更新 🔵
       const deleteBattleLog = vi.fn().mockImplementation(async () => {
-        currentError = '対戦履歴が見つかりません';
+        mockState.error = '対戦履歴が見つかりません';
         throw new Error('対戦履歴が見つかりません');
       });
 
-      // 【動的モック設定】: モックが呼ばれるたびに最新のcurrentErrorを返す 🔵
+      // 【テストデータ】: 削除対象の対戦履歴データ 🔵
+      const testBattleLog = {
+        id: 'log_20251108_001',
+        date: '2025/11/08',
+        battleType: 'ランクマッチ' as const,
+        rank: 'ダイアモンド' as const,
+        group: 'AAA',
+        myDeckId: 'deck-001',
+        turn: '先攻' as const,
+        result: '勝ち' as const,
+        opponentDeckId: 'deck-master-001',
+      };
+
+      // 【動的モック設定】: モックが呼ばれるたびに最新のmockState.errorを返す 🔵
       vi.mocked(useBattleLogStore).mockImplementation(() => ({
-        battleLogs: [
-          {
-            id: 'log_20251108_001',
-            date: '2025/11/08',
-            battleType: 'ランクマッチ',
-            rank: 'ダイアモンド',
-            group: 'AAA',
-            myDeckId: 'deck-001',
-            turn: '先攻',
-            result: '勝ち',
-            opponentDeckId: 'deck-master-001',
-          },
-        ],
+        battleLogs: [testBattleLog],
         previousInput: null,
         isLoading: false,
-        error: currentError,
+        error: mockState.error,
         fetchBattleLogs,
         createBattleLog: vi.fn(),
         deleteBattleLog,
@@ -256,7 +259,7 @@ describe('BattleLogListPage', () => {
       }));
 
       // 【実際の処理実行】: 削除ボタンをクリックし、削除確認ダイアログで「削除する」をクリック 🔵
-      render(<BattleLogListPage />);
+      const { rerender } = render(<BattleLogListPage />);
 
       // 【注記】: 実装時に、削除ボタンクリック → 削除確認ダイアログ表示 → 削除実行 の流れを確認
       const deleteButton = screen.getByRole('button', { name: /削除/ });
@@ -266,10 +269,16 @@ describe('BattleLogListPage', () => {
       const confirmButton = screen.getByRole('button', { name: '削除する' });
       fireEvent.click(confirmButton);
 
-      // 【結果検証】: エラーメッセージが表示され、ダイアログがクローズされることを確認 🔵
+      // 【非同期処理を待つ】: deleteBattleLog()が呼ばれるのを待つ 🔵
       await waitFor(() => {
-        expect(screen.getByText('対戦履歴が見つかりません')).toBeInTheDocument(); // 【確認内容】: エラーメッセージが表示される 🔵
+        expect(deleteBattleLog).toHaveBeenCalledWith('log_20251108_001');
       });
+
+      // 【再レンダリング】: モックの状態更新後、コンポーネントを再レンダリングしてエラー状態を反映 🔵
+      rerender(<BattleLogListPage />);
+
+      // 【結果検証】: エラーメッセージが表示されることを確認 🔵
+      expect(screen.getByText('対戦履歴が見つかりません')).toBeInTheDocument();
 
       // 【確認内容】: fetchBattleLogs()が実行され、一覧が最新状態に同期される 🔵
       expect(fetchBattleLogs).toHaveBeenCalled();
