@@ -34,6 +34,8 @@ interface AuthMiddlewareOptions {
   skipPaths?: Array<string | RegExp>;
   /** デバッグモード（本番環境では無効化すること） */
   debug?: boolean;
+  /** テスト環境で認証をスキップする（ENVIRONMENT=testの場合） */
+  skipInTestEnv?: boolean;
 }
 
 /**
@@ -77,10 +79,23 @@ function getJWKS(teamDomain: string): ReturnType<typeof createRemoteJWKSet> {
  * ```
  */
 export function authMiddleware(options: AuthMiddlewareOptions = {}): MiddlewareHandler {
-  const { skipPaths = [], debug = false } = options;
+  const { skipPaths = [], debug = false, skipInTestEnv = true } = options;
 
   return async (c: Context, next: Next) => {
     const path = c.req.path;
+    const environment = (c.env as { ENVIRONMENT?: string }).ENVIRONMENT;
+
+    // テスト環境では認証をスキップ（オプションで無効化可能）
+    if (skipInTestEnv && environment === 'test') {
+      if (debug) {
+        console.log(`[Auth] Skipping authentication in test environment for path: ${path}`);
+      }
+      // テスト環境用のダミーユーザー情報を設定
+      c.set('userId', 'test-user-id');
+      c.set('userEmail', 'test@example.com');
+      await next();
+      return;
+    }
 
     // スキップパスのチェック
     const shouldSkip = skipPaths.some((pattern) => {
