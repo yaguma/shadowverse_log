@@ -70,9 +70,9 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
           {/* 【TC-DELETE-DIALOG-004対応】: ローディングスピナーの表示 */}
           {isLoading && (
             <div className="mb-4 text-center">
-              <div role="status" className="inline-block">
+              <output className="inline-block">
                 <span className="text-gray-600">削除中...</span>
-              </div>
+              </output>
             </div>
           )}
 

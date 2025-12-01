@@ -551,9 +551,9 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
       {/* 【ローディングスピナー】: ローディング中に表示 🔵 */}
       {isLoading && (
-        <div role="status" className="mb-4 text-center">
+        <output className="mb-4 text-center block">
           <span className="text-gray-600">送信中...</span>
-        </div>
+        </output>
       )}
 
       {/* 【フォームアクション】: キャンセル・登録ボタン 🔵 */}
