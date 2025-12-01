@@ -1,0 +1,182 @@
+name: D1 Database Migration
+
+on:
+  push:
+    paths:
+      - 'backend/src/db/migrations/**'
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      migration_file:
+        description: 'Migration file to apply (e.g., 0001_add_indexes.sql)'
+        required: false
+        type: string
+      apply_all:
+        description: 'Apply all pending migrations'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  # =============================================================================
+  # Job 1: Validate Migration Files
+  # =============================================================================
+  validate:
+    name: Validate Migration Files
+    runs-on: ubuntu-latest
+    outputs:
+      migration_files: ${{ steps.detect.outputs.files }}
+      has_migrations: ${{ steps.detect.outputs.has_migrations }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed migration files
+        id: detect
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            if [ "${{ inputs.apply_all }}" == "true" ]; then
+              # Get all migration files
+              files=$(ls backend/src/db/migrations/*.sql 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+            elif [ -n "${{ inputs.migration_file }}" ]; then
+              files="backend/src/db/migrations/${{ inputs.migration_file }}"
+            else
+              files=""
+            fi
+          else
+            # Get changed migration files in the push
+            files=$(git diff --name-only HEAD~1 HEAD -- 'backend/src/db/migrations/*.sql' | tr '\n' ',' | sed 's/,$//')
+          fi
+
+          echo "files=$files" >> $GITHUB_OUTPUT
+
+          if [ -n "$files" ]; then
+            echo "has_migrations=true" >> $GITHUB_OUTPUT
+            echo "📋 Migration files to process: $files"
+          else
+            echo "has_migrations=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No migration files to process"
+          fi
+
+      - name: Validate SQL syntax
+        if: steps.detect.outputs.has_migrations == 'true'
+        run: |
+          echo "Validating SQL syntax..."
+          IFS=',' read -ra FILES <<< "${{ steps.detect.outputs.files }}"
+          for file in "${FILES[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✓ Validating: $file"
+              # Basic SQL validation (check for common issues)
+              if grep -qE '^\s*(DROP|TRUNCATE)\s+' "$file"; then
+                echo "⚠️ Warning: Destructive operation found in $file"
+              fi
+            fi
+          done
+          echo "✓ Validation complete"
+
+  # =============================================================================
+  # Job 2: Apply Migrations to Staging (for PR)
+  # =============================================================================
+  migrate-staging:
+    name: Apply Migrations (Staging)
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.has_migrations == 'true' && github.event_name == 'pull_request'
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: backend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations to staging
+        working-directory: ./backend
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "Applying migrations to staging database..."
+          IFS=',' read -ra FILES <<< "${{ needs.validate.outputs.migration_files }}"
+          for file in "${FILES[@]}"; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              echo "📄 Applying: $filename"
+              pnpm exec wrangler d1 execute shadowverse-db-staging --remote --file="$file" || {
+                echo "❌ Failed to apply: $filename"
+                exit 1
+              }
+              echo "✓ Applied: $filename"
+            fi
+          done
+          echo "✅ All migrations applied to staging"
+
+  # =============================================================================
+  # Job 3: Apply Migrations to Production
+  # =============================================================================
+  migrate-production:
+    name: Apply Migrations (Production)
+    runs-on: ubuntu-latest
+    needs: validate
+    if: needs.validate.outputs.has_migrations == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: backend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply migrations to production
+        working-directory: ./backend
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "🚀 Applying migrations to production database..."
+          IFS=',' read -ra FILES <<< "${{ needs.validate.outputs.migration_files }}"
+          for file in "${FILES[@]}"; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              echo "📄 Applying: $filename"
+              pnpm exec wrangler d1 execute shadowverse-db --remote --file="$file" || {
+                echo "❌ Failed to apply: $filename"
+                exit 1
+              }
+              echo "✓ Applied: $filename"
+            fi
+          done
+          echo "✅ All migrations applied to production"
+
+      - name: Migration summary
+        run: |
+          echo "📊 Migration Summary"
+          echo "===================="
+          echo "Files applied: ${{ needs.validate.outputs.migration_files }}"
+          echo "Environment: Production"
+          echo "Status: ✅ Success"

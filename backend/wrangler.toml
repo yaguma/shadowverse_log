@@ -1,4 +1,4 @@
-name = "shadowverse-battle-log"
+name = "shadowverse-battle-log-api"
 main = "src/index.ts"
 compatibility_date = "2025-11-25"
 compatibility_flags = ["nodejs_compat"]
@@ -24,8 +24,31 @@ database_id = "fd5dbb0e-c674-47c1-8795-0865e46c9bf7"
 
 # 注記: R2は使用しない方針に変更しました
 
+# =============================================================================
+# ステージング環境設定
+# =============================================================================
+[env.staging]
+name = "shadowverse-battle-log-api-staging"
+workers_dev = true
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+API_VERSION = "v1"
+CF_ACCESS_TEAM_DOMAIN = "your-team.cloudflareaccess.com"
+CF_ACCESS_AUD = "your-application-aud-tag"
+ALLOWED_ORIGINS = "https://staging.shadowverse-battle-log.pages.dev"
+
+# ステージング用D1 Database（本番と同じID、または別のステージング用DBを使用）
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "shadowverse-db-staging"
+database_id = "fd5dbb0e-c674-47c1-8795-0865e46c9bf7"
+
+# =============================================================================
 # 本番環境設定
+# =============================================================================
 [env.production]
+name = "shadowverse-battle-log-api"
 workers_dev = false
 routes = [
   { pattern = "api.shadowverse-log.example.com/*", zone_name = "example.com" }
@@ -38,4 +61,10 @@ API_VERSION = "v1"
 # 実際の値は Cloudflare Dashboard または wrangler secret コマンドで設定
 CF_ACCESS_TEAM_DOMAIN = "your-team.cloudflareaccess.com"
 CF_ACCESS_AUD = "your-application-aud-tag"
-ALLOWED_ORIGINS = "https://your-app.pages.dev"
+ALLOWED_ORIGINS = "https://shadowverse-battle-log.pages.dev"
+
+# 本番用D1 Database
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "shadowverse-db"
+database_id = "fd5dbb0e-c674-47c1-8795-0865e46c9bf7"

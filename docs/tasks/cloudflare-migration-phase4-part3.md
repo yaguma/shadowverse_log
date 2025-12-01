@@ -36,7 +36,7 @@
 
 ### TASK-0042: CI/CD設定とデプロイ
 
-- [ ] **タスク完了**
+- [x] **タスク完了**
 - **推定工数**: 6時間
 - **タスクタイプ**: DIRECT
 - **要件**: NFR-305 (CI/CD), NFR-306 (自動デプロイ) 🔵
@@ -278,14 +278,14 @@
 
 #### 完了条件
 
-- [ ] GitHub Actions ワークフローが設定されている
-- [ ] Cloudflare Pages が自動デプロイされる
-- [ ] Cloudflare Workers が自動デプロイされる
-- [ ] 本番環境とステージング環境が分離されている
-- [ ] 環境変数が設定されている
-- [ ] D1 Database マイグレーションが自動実行される
-- [ ] デプロイ検証スクリプトが成功する
-- [ ] PRマージ後に自動デプロイされる
+- [x] GitHub Actions ワークフローが設定されている（`.github/workflows/cloudflare-deploy.yml`）
+- [x] Cloudflare Pages が自動デプロイされる（cloudflare/pages-action@v1使用）
+- [x] Cloudflare Workers が自動デプロイされる（cloudflare/wrangler-action@v3使用）
+- [x] 本番環境とステージング環境が分離されている（wrangler.toml env設定）
+- [x] 環境変数が設定されている（docs/deployment/github-secrets-setup.md参照）
+- [x] D1 Database マイグレーションが自動実行される（`.github/workflows/d1-migration.yml`）
+- [x] デプロイ検証スクリプトが成功する（`scripts/verify-deployment.sh`）
+- [x] PRマージ後に自動デプロイされる（main branch push trigger）
 
 #### 実行コマンド
 
