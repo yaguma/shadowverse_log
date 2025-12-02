@@ -17,8 +17,8 @@ test.describe('Battle Log - 対戦履歴機能', () => {
    * 🔵 信頼性レベル: 要件定義書に基づく
    */
   test('対戦履歴ページが表示される', async ({ page }) => {
-    // ページタイトル確認 - h1タグで「対戦履歴一覧」を検索
-    await expect(page.locator('h1')).toContainText('対戦履歴');
+    // ページタイトル確認 - 具体的なheadingを検索（ページ内に複数h1がある場合の対応）
+    await expect(page.getByRole('heading', { name: '対戦履歴一覧' })).toBeVisible();
 
     // 新規登録ボタンが表示される
     await expect(page.getByRole('button', { name: '新規登録' })).toBeVisible();

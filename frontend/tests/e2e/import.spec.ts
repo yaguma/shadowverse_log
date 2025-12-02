@@ -12,8 +12,8 @@ test.describe('Import - データインポート機能', () => {
   });
 
   test('インポートページが表示される', async ({ page }) => {
-    // ページタイトル確認
-    await expect(page.locator('h2')).toContainText('データインポート');
+    // ページタイトル確認 - 具体的なheadingを検索（ページ内に複数h1/h2がある場合の対応）
+    await expect(page.getByRole('heading', { name: 'データインポート' })).toBeVisible();
 
     // ファイル選択ボタンが表示される
     await expect(page.getByLabel('ファイル選択')).toBeVisible();

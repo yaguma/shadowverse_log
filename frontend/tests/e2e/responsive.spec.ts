@@ -22,8 +22,8 @@ test.describe('Responsive Design - レスポンシブデザインテスト', () 
     // トップページにアクセス
     await page.goto('/');
 
-    // ページが表示される
-    await expect(page.locator('h1')).toContainText('対戦履歴');
+    // ページが表示される - 具体的なheadingを検索（ページ内に複数h1がある場合の対応）
+    await expect(page.getByRole('heading', { name: '対戦履歴一覧' })).toBeVisible();
 
     // 新規登録ボタンが表示される
     await expect(page.getByRole('button', { name: '新規登録' })).toBeVisible();
@@ -52,8 +52,8 @@ test.describe('Responsive Design - レスポンシブデザインテスト', () 
     // トップページにアクセス
     await page.goto('/');
 
-    // ページが表示される
-    await expect(page.locator('h1')).toContainText('対戦履歴');
+    // ページが表示される - 具体的なheadingを検索（ページ内に複数h1がある場合の対応）
+    await expect(page.getByRole('heading', { name: '対戦履歴一覧' })).toBeVisible();
 
     // 新規登録ボタンが表示される
     await expect(page.getByRole('button', { name: '新規登録' })).toBeVisible();
@@ -79,8 +79,8 @@ test.describe('Responsive Design - レスポンシブデザインテスト', () 
     // 統計ページにアクセス
     await page.goto('/statistics');
 
-    // ページタイトルが表示される
-    await expect(page.locator('h2')).toContainText('統計ダッシュボード');
+    // ページタイトルが表示される - 具体的なheadingを検索
+    await expect(page.getByRole('heading', { name: '統計ダッシュボード' })).toBeVisible();
 
     // 期間選択フォームが表示される
     await expect(page.locator('input[type="date"]').first()).toBeVisible();
@@ -120,7 +120,8 @@ test.describe('Responsive Design - レスポンシブデザインテスト', () 
     const statisticsLink = page.getByRole('link', { name: /統計/ });
     if (await statisticsLink.isVisible()) {
       await statisticsLink.click();
-      await expect(page.locator('h2')).toContainText('統計ダッシュボード');
+      // 具体的なheadingを検索（ページ内に複数h2がある場合の対応）
+      await expect(page.getByRole('heading', { name: '統計ダッシュボード' })).toBeVisible();
     }
 
     await context.close();
