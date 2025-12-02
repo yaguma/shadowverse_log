@@ -6,15 +6,16 @@ compatibility_flags = ["nodejs_compat"]
 # Cloudflare Workers 設定
 workers_dev = true
 
-# 環境変数（ローカル開発用）
+# 環境変数（本番環境用 - wrangler deploy で使用される）
+# ローカル開発時は .dev.vars ファイルで上書き可能
 [vars]
-ENVIRONMENT = "development"
+ENVIRONMENT = "production"
 API_VERSION = "v1"
-# Cloudflare Access 認証設定（開発用）
-# 本番環境では wrangler secret コマンドで設定
+# Cloudflare Access 認証設定
+# 実際の値は Cloudflare Dashboard または wrangler secret コマンドで設定
 CF_ACCESS_TEAM_DOMAIN = "your-team.cloudflareaccess.com"
 CF_ACCESS_AUD = "your-application-aud-tag"
-ALLOWED_ORIGINS = "http://localhost:5173"
+ALLOWED_ORIGINS = "https://shadowverse-battle-log.pages.dev"
 
 # D1 Database バインディング
 [[d1_databases]]
