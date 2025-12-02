@@ -58,7 +58,7 @@ app.use('/api/*', rateLimit({ limit: 100, windowMs: 60000 }));
 app.use(
   '/api/*',
   authMiddleware({
-    skipPaths: ['/api/health', '/api/migration', '/api/import', /^\/api\/deck-master/],
+    skipPaths: ['/api/health', '/api/migration', '/api/import', /^\/api\/deck-master/, /^\/api\/statistics/],
     debug: true,
   })
 );
