@@ -15,8 +15,8 @@ test.describe('Import - データインポート機能', () => {
     // ページタイトル確認 - 具体的なheadingを検索（ページ内に複数h1/h2がある場合の対応）
     await expect(page.getByRole('heading', { name: 'データインポート' })).toBeVisible();
 
-    // ファイル選択ボタンが表示される
-    await expect(page.getByLabel('ファイル選択')).toBeVisible();
+    // ファイル選択ボタンが表示される（input要素はhiddenなので、ボタンをチェック）
+    await expect(page.getByRole('button', { name: 'ファイルを選択' })).toBeVisible();
   });
 
   test('JSON形式のファイルをインポートできる', async ({ page: _page }) => {

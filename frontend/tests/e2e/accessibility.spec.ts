@@ -25,6 +25,7 @@ test.describe('Accessibility - アクセシビリティテスト', () => {
 
   test('統計ダッシュボードページのアクセシビリティ', async ({ page }) => {
     await page.goto('/statistics');
+    await injectAxe(page); // ページ遷移後に再度axeを注入
     await checkA11y(page, undefined, {
       detailedReport: true,
     });
@@ -32,6 +33,7 @@ test.describe('Accessibility - アクセシビリティテスト', () => {
 
   test('インポートページのアクセシビリティ', async ({ page }) => {
     await page.goto('/import');
+    await injectAxe(page); // ページ遷移後に再度axeを注入
     await checkA11y(page, undefined, {
       detailedReport: true,
     });
