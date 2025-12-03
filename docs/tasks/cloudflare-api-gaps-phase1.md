@@ -29,7 +29,7 @@
 
 ### TASK-0043: battle-logs ルート実装
 
-- [ ] **タスク完了**
+- [x] **タスク完了** (2025-12-03)
 
 | 項目 | 内容 |
 |------|------|
@@ -111,18 +111,18 @@ export default battleLogs;
 
 #### 完了条件
 
-- [ ] GET /api/battle-logs が正常動作
-- [ ] POST /api/battle-logs が正常動作（バリデーション含む）
-- [ ] DELETE /api/battle-logs/:id が正常動作
-- [ ] エラーレスポンスが統一フォーマット
-- [ ] TypeScript型エラーなし
-- [ ] Biome lint通過
+- [x] GET /api/battle-logs が正常動作
+- [x] POST /api/battle-logs が正常動作（バリデーション含む）
+- [x] DELETE /api/battle-logs/:id が正常動作
+- [x] エラーレスポンスが統一フォーマット
+- [x] TypeScript型エラーなし
+- [x] Biome lint通過
 
 #### テスト要件
 
-- [ ] 一覧取得のテスト（ページネーション）
-- [ ] 新規作成のテスト（正常系・異常系）
-- [ ] 削除のテスト（存在する/しないID）
+- [x] 一覧取得のテスト（ページネーション）
+- [x] 新規作成のテスト（正常系・異常系）
+- [x] 削除のテスト（存在する/しないID）
 
 #### TDD実行コマンド
 
@@ -395,7 +395,7 @@ pnpm run type-check
 
 | タスク | ステータス | 完了日 |
 |--------|-----------|--------|
-| TASK-0043: battle-logs ルート実装 | ⬜ 未着手 | |
+| TASK-0043: battle-logs ルート実装 | ✅ 完了 | 2025-12-03 |
 | TASK-0044: deck-master ルート実装 | ⬜ 未着手 | |
 | TASK-0045: index.ts登録 | ⬜ 未着手 | |
 | TASK-0046: 統合テスト・動作確認 | ⬜ 未着手 | |

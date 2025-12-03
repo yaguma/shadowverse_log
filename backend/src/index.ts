@@ -11,6 +11,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { authMiddleware } from './middleware/auth';
 import { rateLimit } from './middleware/rate-limit';
+import battleLogsRoutes from './routes/battle-logs';
 import importRoutes from './routes/import';
 import migrationRoutes from './routes/migration';
 import statisticsRoutes from './routes/statistics';
@@ -55,13 +56,13 @@ app.use('*', logger());
 app.use('/api/*', rateLimit({ limit: 100, windowMs: 60000 }));
 // 認証ミドルウェア: TASK-0040で有効化
 // 開発環境ではスキップ、本番環境では有効化
-// app.use(
-//   '/api/*',
-//   authMiddleware({
-//     skipPaths: ['/api/health', '/api/migration', '/api/import', '/api/battle-logs', '/api/deck-master', '/api/statistics'],
-//     debug: true,
-//   })
-// );
+app.use(
+  '/api/*',
+  authMiddleware({
+    skipPaths: ['/api/health', '/api/migration', '/api/import', '/api/battle-logs', '/api/deck-master', '/api/statistics'],
+    debug: true,
+  })
+);
 
 // ルートエンドポイント
 app.get('/', (c) => {
@@ -95,6 +96,9 @@ app.route('/api/statistics', statisticsRoutes);
 
 // インポートAPIルート
 app.route('/api/import', importRoutes);
+
+// 対戦履歴APIルート
+app.route('/api/battle-logs', battleLogsRoutes);
 
 // 404ハンドラー
 app.notFound((c) => {
