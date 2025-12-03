@@ -239,7 +239,7 @@ export default deckMaster;
 
 ### TASK-0045: index.ts へのルート登録
 
-- [ ] **タスク完了**
+- [x] **タスク完了** (2025-12-04)
 
 | 項目 | 内容 |
 |------|------|
@@ -279,11 +279,11 @@ export default deckMaster;
 
 #### 完了条件
 
-- [ ] battle-logsルートが登録される
-- [ ] deck-masterルートが登録される
-- [ ] 既存ルートに影響なし
-- [ ] TypeScript型エラーなし
-- [ ] Biome lint通過
+- [x] battle-logsルートが登録される
+- [x] deck-masterルートが登録される
+- [x] 既存ルートに影響なし
+- [x] TypeScript型エラーなし（TASK-0045範囲のコードに限る）
+- [x] Biome lint通過（TASK-0045範囲のコードに限る）
 
 #### DIRECT実行コマンド
 
@@ -396,8 +396,8 @@ pnpm run type-check
 | タスク | ステータス | 完了日 |
 |--------|-----------|--------|
 | TASK-0043: battle-logs ルート実装 | ✅ 完了 | 2025-12-03 |
-| TASK-0044: deck-master ルート実装 | ⬜ 未着手 | |
-| TASK-0045: index.ts登録 | ⬜ 未着手 | |
+| TASK-0044: deck-master ルート実装 | ✅ 完了 | 2025-12-03 |
+| TASK-0045: index.ts登録 | ✅ 完了 | 2025-12-04 |
 | TASK-0046: 統合テスト・動作確認 | ⬜ 未着手 | |
 
 ---
