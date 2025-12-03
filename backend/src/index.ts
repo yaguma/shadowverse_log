@@ -12,6 +12,7 @@ import { logger } from 'hono/logger';
 import { authMiddleware } from './middleware/auth';
 import { rateLimit } from './middleware/rate-limit';
 import battleLogsRoutes from './routes/battle-logs';
+import deckMasterRoutes from './routes/deck-master';
 import importRoutes from './routes/import';
 import migrationRoutes from './routes/migration';
 import statisticsRoutes from './routes/statistics';
@@ -99,6 +100,9 @@ app.route('/api/import', importRoutes);
 
 // 対戦履歴APIルート
 app.route('/api/battle-logs', battleLogsRoutes);
+
+// デッキマスターAPIルート
+app.route('/api/deck-master', deckMasterRoutes);
 
 // 404ハンドラー
 app.notFound((c) => {

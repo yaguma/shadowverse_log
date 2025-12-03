@@ -139,7 +139,7 @@ export default battleLogs;
 
 ### TASK-0044: deck-master ルート実装
 
-- [ ] **タスク完了**
+- [x] **タスク完了** (2025-12-03)
 
 | 項目 | 内容 |
 |------|------|
@@ -212,17 +212,17 @@ export default deckMaster;
 
 #### 完了条件
 
-- [ ] GET /api/deck-master が正常動作
-- [ ] Cache-Controlヘッダーが設定される
-- [ ] sortOrder昇順でソートされる
-- [ ] TypeScript型エラーなし
-- [ ] Biome lint通過
+- [x] GET /api/deck-master が正常動作
+- [x] Cache-Controlヘッダーが設定される
+- [x] sortOrder昇順でソートされる
+- [x] TypeScript型エラーなし
+- [x] Biome lint通過
 
 #### テスト要件
 
-- [ ] 一覧取得のテスト
-- [ ] キャッシュヘッダーのテスト
-- [ ] 空データ時のテスト
+- [x] 一覧取得のテスト
+- [x] キャッシュヘッダーのテスト
+- [x] 空データ時のテスト
 
 #### TDD実行コマンド
 
