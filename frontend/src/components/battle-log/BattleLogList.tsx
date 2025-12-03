@@ -75,7 +75,7 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({ battleLogs, onDele
               {/* 【ランク】: "ダイアモンド"等を表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.rank}</td>
               {/* 【グループ】: "AAA"等を表示 🔵 */}
-              <td className="border border-gray-300 px-4 py-2">{log.group}</td>
+              <td className="border border-gray-300 px-4 py-2">{log.groupName}</td>
               {/* 【使用デッキ】: デッキIDを表示（最小実装） 🔵 */}
               {/* 【最小実装】: myDeckIdをそのまま表示（デッキ名表示は後で改善） */}
               <td className="border border-gray-300 px-4 py-2">{log.myDeckId}</td>
@@ -151,10 +151,10 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({ battleLogs, onDele
                       <span>{log.rank}</span>
                     </>
                   )}
-                  {log.group !== '-' && (
+                  {log.groupName !== '-' && (
                     <>
                       <span className="mx-2">|</span>
-                      <span>{log.group}</span>
+                      <span>{log.groupName}</span>
                     </>
                   )}
                 </div>

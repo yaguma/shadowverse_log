@@ -111,7 +111,7 @@ export const BattleLogDetailModal: React.FC<BattleLogDetailModalProps> = ({
               </div>
               <div>
                 <span className="text-sm text-gray-500">グループ</span>
-                <p className="text-base font-semibold text-gray-800">{log.group}</p>
+                <p className="text-base font-semibold text-gray-800">{log.groupName}</p>
               </div>
             </div>
 

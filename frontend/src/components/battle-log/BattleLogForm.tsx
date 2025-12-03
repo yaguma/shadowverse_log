@@ -38,7 +38,7 @@ interface ValidationErrors {
   date?: string;
   battleType?: string;
   rank?: string;
-  group?: string;
+  groupName?: string;
   myDeckId?: string;
   turn?: string;
   result?: string;
@@ -83,7 +83,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
     date: new Date().toISOString().split('T')[0], // 今日の日付（YYYY-MM-DD形式） 🔵
     battleType: '' as BattleType,
     rank: '' as Rank,
-    group: '' as Group,
+    groupName: '' as Group,
     myDeckId: '',
     turn: '' as Turn,
     result: '' as BattleResult,
@@ -108,7 +108,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         date: new Date().toISOString().split('T')[0], // 日付は常に今日（前回値を引き継がない） 🔵
         battleType: previousInput.battleType || ('' as BattleType),
         rank: previousInput.rank || ('' as Rank),
-        group: previousInput.group || ('' as Group),
+        groupName: previousInput.groupName || ('' as Group),
         myDeckId: previousInput.myDeckId || '',
         turn: previousInput.turn || ('' as Turn),
         result: previousInput.result || ('' as BattleResult),
@@ -427,14 +427,14 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
       {/* 【グループフィールド】: グループ選択 🔵 */}
       <div className="mb-4">
-        <label htmlFor="group" className="label">
+        <label htmlFor="groupName" className="label">
           グループ
         </label>
         <select
-          id="group"
+          id="groupName"
           className="input-field"
-          value={formData.group}
-          onChange={(e) => handleChange('group', e.target.value)}
+          value={formData.groupName}
+          onChange={(e) => handleChange('groupName', e.target.value)}
         >
           <option value="">選択してください</option>
           {GROUPS_OPTIONS.map((group) => (

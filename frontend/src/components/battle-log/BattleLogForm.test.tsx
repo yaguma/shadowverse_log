@@ -81,7 +81,7 @@ describe('BattleLogForm', () => {
         date: '2025-11-06', // 前回の日付（引き継がれない）
         battleType: 'ランクマッチ' as const,
         rank: 'ダイアモンド' as const,
-        group: 'AAA' as const,
+        groupName: 'AAA' as const,
         myDeckId: 'deck-001',
         turn: '先攻' as const,
         result: '勝ち' as const,

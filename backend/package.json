@@ -17,7 +17,11 @@
     "db:migrate:prod": "wrangler d1 execute shadowverse-db --remote --file=./src/db/migrations/0000_init.sql",
     "db:studio": "drizzle-kit studio",
     "db:studio:local": "drizzle-kit studio --config=drizzle.config.local.ts",
-    "db:studio:prod": "drizzle-kit studio --config=drizzle.config.ts"
+    "db:studio:prod": "drizzle-kit studio --config=drizzle.config.ts",
+    "db:seed": "node scripts/seed-database.mjs",
+    "db:seed:clear": "node scripts/seed-database.mjs --clear",
+    "db:seed:generate": "node scripts/generate-seed-sql.mjs",
+    "db:seed:prod": "wrangler d1 execute shadowverse-db --remote --file=./src/db/migrations/seed-data.sql"
   },
   "keywords": [
     "shadowverse",

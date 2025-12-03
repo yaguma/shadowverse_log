@@ -35,8 +35,8 @@ export interface BattleLog {
   battleType: BattleType;
   /** ランク */
   rank: Rank;
-  /** グループ */
-  group: Group;
+  /** グループ名 */
+  groupName: Group;
   /** マイデッキID */
   myDeckId: string;
   /** ターン */
@@ -60,8 +60,8 @@ export interface CreateBattleLogRequest {
   battleType: BattleType;
   /** ランク */
   rank: Rank;
-  /** グループ */
-  group: Group;
+  /** グループ名 */
+  groupName: Group;
   /** マイデッキID */
   myDeckId: string;
   /** ターン */
