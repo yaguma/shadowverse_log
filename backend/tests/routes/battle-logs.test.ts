@@ -83,17 +83,16 @@ function createValidationTestApp() {
     const parseResult = NewBattleLogSchema.safeParse(body);
     if (!parseResult.success) {
       const issues = parseResult.error?.issues || [];
+      const details: Record<string, string> = {};
+      for (const err of issues) {
+        const pathStr = err.path.map(String).join('.') || 'unknown';
+        details[pathStr] = err.message;
+      }
       return c.json(
         createErrorResponse(
           'VALIDATION_ERROR',
           '入力値が不正です',
-          issues.reduce(
-            (acc: Record<string, string>, err: { path: (string | number)[]; message: string }) => {
-              acc[err.path.join('.') || 'unknown'] = err.message;
-              return acc;
-            },
-            {} as Record<string, string>
-          )
+          details
         ),
         400
       );
