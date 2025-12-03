@@ -4,9 +4,6 @@ node_modules/
 # Build output
 dist/
 
-# Local settings (keep template tracked)
-local.settings.json
-
 # Test coverage
 coverage/
 
@@ -19,11 +16,6 @@ npm-debug.log*
 .env.local
 .dev.vars
 
-# Azure Functions
-.funcignore
-bin/
-obj/
-
 # IDE
 .vscode/
 .idea/
@@ -31,3 +23,6 @@ obj/
 # OS
 .DS_Store
 Thumbs.db
+
+# Cloudflare
+.wrangler/

@@ -6,10 +6,6 @@ build/
 .env.local
 .env.*.local
 
-# Azure
-local.settings.json
-*.publish
-
 # IDE
 .vscode/
 .idea/
