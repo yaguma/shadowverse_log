@@ -38,8 +38,22 @@ describe('BattleLogForm', () => {
         { id: 'deck-master-005', className: 'ウィッチ', deckName: '相手デッキ5', sortOrder: 5 },
       ],
       myDecks: [
-        { id: 'deck-001', deckId: '1', deckCode: 'xxx', deckName: 'テストデッキ1', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
-        { id: 'deck-002', deckId: '2', deckCode: 'yyy', deckName: 'テストデッキ2', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
+        {
+          id: 'deck-001',
+          deckId: '1',
+          deckCode: 'xxx',
+          deckName: 'テストデッキ1',
+          isActive: true,
+          createdAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          id: 'deck-002',
+          deckId: '2',
+          deckCode: 'yyy',
+          deckName: 'テストデッキ2',
+          isActive: true,
+          createdAt: '2024-01-01T00:00:00.000Z',
+        },
       ],
       isLoading: false,
       isMyDecksLoading: false,
@@ -920,7 +934,14 @@ describe('BattleLogForm', () => {
           { id: 'deck-master-002', className: 'ウィッチ', deckName: '相手デッキ2', sortOrder: 2 },
         ],
         myDecks: [
-          { id: 'deck-001', deckId: '1', deckCode: 'xxx', deckName: 'テストデッキ1', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
+          {
+            id: 'deck-001',
+            deckId: '1',
+            deckCode: 'xxx',
+            deckName: 'テストデッキ1',
+            isActive: true,
+            createdAt: '2024-01-01T00:00:00.000Z',
+          },
         ],
         isLoading: false,
         isMyDecksLoading: false,
@@ -950,7 +971,14 @@ describe('BattleLogForm', () => {
           { id: 'api-deck-002', className: 'ウィッチ', deckName: 'APIデッキ2', sortOrder: 2 },
         ],
         myDecks: [
-          { id: 'deck-001', deckId: '1', deckCode: 'xxx', deckName: 'テストデッキ1', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
+          {
+            id: 'deck-001',
+            deckId: '1',
+            deckCode: 'xxx',
+            deckName: 'テストデッキ1',
+            isActive: true,
+            createdAt: '2024-01-01T00:00:00.000Z',
+          },
         ],
         isLoading: false,
         isMyDecksLoading: false,
@@ -980,7 +1008,14 @@ describe('BattleLogForm', () => {
       vi.mocked(useDeckStore).mockReturnValue({
         deckMasters: [],
         myDecks: [
-          { id: 'deck-001', deckId: '1', deckCode: 'xxx', deckName: 'テストデッキ1', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
+          {
+            id: 'deck-001',
+            deckId: '1',
+            deckCode: 'xxx',
+            deckName: 'テストデッキ1',
+            isActive: true,
+            createdAt: '2024-01-01T00:00:00.000Z',
+          },
         ],
         isLoading: true,
         isMyDecksLoading: false,
@@ -1008,7 +1043,14 @@ describe('BattleLogForm', () => {
       vi.mocked(useDeckStore).mockReturnValue({
         deckMasters: [],
         myDecks: [
-          { id: 'deck-001', deckId: '1', deckCode: 'xxx', deckName: 'テストデッキ1', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
+          {
+            id: 'deck-001',
+            deckId: '1',
+            deckCode: 'xxx',
+            deckName: 'テストデッキ1',
+            isActive: true,
+            createdAt: '2024-01-01T00:00:00.000Z',
+          },
         ],
         isLoading: false,
         isMyDecksLoading: false,
@@ -1037,7 +1079,14 @@ describe('BattleLogForm', () => {
       vi.mocked(useDeckStore).mockReturnValue({
         deckMasters: [],
         myDecks: [
-          { id: 'deck-001', deckId: '1', deckCode: 'xxx', deckName: 'テストデッキ1', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
+          {
+            id: 'deck-001',
+            deckId: '1',
+            deckCode: 'xxx',
+            deckName: 'テストデッキ1',
+            isActive: true,
+            createdAt: '2024-01-01T00:00:00.000Z',
+          },
         ],
         isLoading: false,
         isMyDecksLoading: false,
