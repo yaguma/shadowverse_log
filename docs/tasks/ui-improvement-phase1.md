@@ -34,7 +34,7 @@ ui-improvement
 
 ## TASK-0047: 型定義の拡張（BattleLogWithDeckNames追加）
 
-- [ ] タスク完了
+- [x] タスク完了
 
 ### 基本情報
 
@@ -80,16 +80,16 @@ ui-improvement
 - `frontend/src/types/index.ts`
 
 ### 完了条件
-- [ ] `BattleLogWithDeckNames`型が定義されている
-- [ ] `BattleLogsResponse`が`BattleLogWithDeckNames[]`を使用している
-- [ ] TypeScriptコンパイルエラーがない
-- [ ] 既存テストが通る
+- [x] `BattleLogWithDeckNames`型が定義されている
+- [x] `BattleLogsResponse`が`BattleLogWithDeckNames[]`を使用している
+- [x] TypeScriptコンパイルエラーがない
+- [x] 既存テストが通る
 
 ### テスト要件
 
 #### 単体テスト
-- [ ] 型定義が正しくエクスポートされている
-- [ ] 既存の`BattleLog`型との互換性
+- [x] 型定義が正しくエクスポートされている
+- [x] 既存の`BattleLog`型との互換性
 
 ---
 

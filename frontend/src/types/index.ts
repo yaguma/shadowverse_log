@@ -48,6 +48,18 @@ export interface BattleLog {
 }
 
 /**
+ * 対戦履歴エンティティ（デッキ名付き）
+ * 【型定義】: 対戦履歴一覧表示でデッキ名を表示するための拡張型
+ * 🔵 信頼性レベル: docs/design/shadowverse-battle-log/interfaces.ts に基づく
+ */
+export interface BattleLogWithDeckNames extends BattleLog {
+  /** マイデッキ名 */
+  myDeckName: string;
+  /** 相手デッキ名 */
+  opponentDeckName: string;
+}
+
+/**
  * 対戦履歴登録リクエスト型
  * 【型定義】: 新規対戦履歴を登録する際のリクエストボディ型
  * 【改善内容】: battleLogStore.tsから共有型定義ファイルに移動（DRY原則）
@@ -136,9 +148,12 @@ export interface ApiResponse<T> {
 
 /**
  * 対戦履歴一覧レスポンス
+ * 【型定義】: 対戦履歴一覧APIのレスポンス型
+ * 【改善内容】: battleLogsをBattleLogWithDeckNames[]に変更（TASK-0047対応）
+ * 🔵 信頼性レベル: TASK-0047の要件に基づく
  */
 export interface BattleLogsResponse {
-  battleLogs: BattleLog[];
+  battleLogs: BattleLogWithDeckNames[];
   total: number;
   limit: number;
   offset: number;
