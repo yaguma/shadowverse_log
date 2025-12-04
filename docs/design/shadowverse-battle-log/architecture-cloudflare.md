@@ -34,7 +34,7 @@ graph TD
     subgraph "Cloudflare Pages"
         B[React SPA]
         B1[React Router]
-        B2[Zustand State]
+        B2[Zustand State + Persist]
         B3[API Client]
     end
 
@@ -88,7 +88,7 @@ graph TD
 **フレームワーク**: React 19.x 🔵 *tech-stack.mdより*
 **ビルドツール**: Vite 6.x 🔵 *tech-stack.mdより*
 **言語**: TypeScript 5.7+ (strict mode) 🔵 *tech-stack.mdより*
-**状態管理**: Zustand (軽量状態管理) 🔵 *tech-stack.mdより*
+**状態管理**: Zustand (軽量状態管理 + persist middleware) 🔵 *tech-stack.mdより*
 **スタイリング**: Tailwind CSS v4 🔵 *tech-stack.mdより*
 **ルーティング**: React Router v7 🔵 *tech-stack.mdより*
 **HTTPクライアント**: Fetch API (Cloudflare Workers対応)
@@ -99,6 +99,11 @@ graph TD
 - 自動HTTPS、グローバルCDN
 - ビルド: 月500回まで無料
 - Git統合による自動デプロイ
+
+**UI/UX特徴**:
+- カスタムfavicon（Shadowverseブルーテーマの対戦記録本 + 剣アイコン）
+- ページタイトル「Shadowverse Battle Log」
+- フォーム入力の自動復元（Zustand persistによりブラウザ更新後も前回値を保持）
 
 #### ディレクトリ構成
 
@@ -179,11 +184,12 @@ backend/
 **Phase 1**:
 - `/api/battle-logs` - 対戦履歴CRUD
 - `/api/deck-master` - デッキマスター取得
+- `/api/my-decks` - マイデッキ取得（自分のデッキ一覧）
 - `/api/statistics` - 統計計算
 - `/api/import` - データインポート
 
 **Phase 2**:
-- `/api/my-decks` - マイデッキCRUD
+- `/api/my-decks` - マイデッキCRUD拡張（作成・更新・削除）
 - `/api/export` - データエクスポート
 - `/api/auth/*` - 認証関連（Cloudflare Access連携）
 
@@ -444,9 +450,37 @@ sequenceDiagram
 }
 ```
 
-**pnpm設定**:
+**pnpmワークスペース設定** (`pnpm-workspace.yaml`):
+
+```yaml
+packages:
+  - 'frontend'
+  - 'backend'
+```
+
+**ルートpackage.json**:
+
+```json
+{
+  "name": "shadowverse-battle-log",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter backend dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
+```
+
+**pnpmコマンド**:
 
 ```bash
+# ルートから両方を同時起動
+pnpm dev           # フロントエンドとバックエンドを同時起動
+
 # フロントエンド
 cd frontend
 pnpm install
@@ -465,6 +499,11 @@ pnpm lint         # Biome lint
 pnpm format       # Biome format
 pnpm test         # Unit テスト
 pnpm deploy       # Cloudflare Workers デプロイ
+
+# データベースシード（開発用）
+pnpm db:seed              # ローカルD1にシードデータ投入
+pnpm db:seed:clear        # ローカルD1のデータをクリア
+pnpm db:seed:generate     # 本番用SQLファイル生成
 ```
 
 ---
@@ -567,6 +606,12 @@ pnpm deploy       # Cloudflare Workers デプロイ
 
 ## 更新履歴
 
+- **2025-12-05**: Phase 1機能拡張
+  - pnpmワークスペース設定を追加（ルートから両パッケージを同時起動可能に）
+  - カスタムfaviconとページタイトルを追加
+  - Zustand persist middlewareによるフォーム入力永続化
+  - `/api/my-decks`エンドポイントをPhase 1に追加
+  - データベースシードスクリプトを追加
 - **2025-11-25**: Cloudflare版作成
   - Azure環境からCloudflare環境への移行設計
   - Cloudflare Workers, D1, R2, Accessを使用したアーキテクチャ

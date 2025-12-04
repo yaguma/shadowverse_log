@@ -1,4 +1,4 @@
-# データフロー図
+# データフロー図 (Cloudflare版)
 
 **【信頼性レベル凡例】**:
 - 🔵 **青信号**: EARS要件定義書・設計文書を参考にしてほぼ推測していない場合
@@ -11,13 +11,14 @@
 
 ```mermaid
 flowchart TD
-    A[User: PC/スマホ] -->|HTTPS| B[Azure Static Web Apps<br/>React SPA]
-    B -->|REST API| C[Azure Functions<br/>HTTP Trigger]
-    C -->|Blob SDK| D[Azure Blob Storage<br/>JSON Files]
+    A[User: PC/スマホ] -->|HTTPS| B[Cloudflare Pages<br/>React SPA]
+    B -->|REST API| C[Cloudflare Workers<br/>Hono Framework]
+    C -->|D1 SDK| D[Cloudflare D1<br/>SQLite]
 
     subgraph "フロントエンド"
-        B -->|State| E[Zustand Store]
+        B -->|State| E[Zustand Store + Persist]
         E -->|Render| B
+        E -->|LocalStorage| LS[永続化ストレージ]
     end
 
     subgraph "バックエンド"
@@ -27,9 +28,9 @@ flowchart TD
     end
 
     subgraph "データストレージ"
-        D -->|Files| H[battle-logs.json]
-        D -->|Files| I[deck-master.json]
-        D -->|Files| J[my-decks.json]
+        D -->|Tables| H[battle_logs]
+        D -->|Tables| I[deck_master]
+        D -->|Tables| J[my_decks]
     end
 ```
 
@@ -41,39 +42,38 @@ flowchart TD
 sequenceDiagram
     participant U as User
     participant F as Frontend<br/>(React)
-    participant Z as Zustand Store
-    participant AF as Azure Functions<br/>(battle-log)
-    participant BS as Blob Storage<br/>(battle-logs.json)
+    participant Z as Zustand Store<br/>+ Persist
+    participant CW as Cloudflare Workers<br/>(Hono)
+    participant D1 as Cloudflare D1<br/>(SQLite)
 
-    Note over U,BS: Step 1: ダイアログ表示と前回値引き継ぎ
+    Note over U,D1: Step 1: ダイアログ表示と前回値引き継ぎ
     U->>F: 「登録」ボタンクリック
     F->>Z: getPreviousInput()
-    Z-->>F: 前回入力値を返却
+    Z-->>F: 前回入力値を返却<br/>(LocalStorageから復元)
     F->>F: ダイアログ表示（前回値をデフォルト設定）
 
-    Note over U,BS: Step 2: データ入力とバリデーション
+    Note over U,D1: Step 2: データ入力とバリデーション
     U->>F: データ入力
     F->>F: リアルタイムバリデーション<br/>(日付・必須項目チェック)
 
-    Note over U,BS: Step 3: データ送信と保存
+    Note over U,D1: Step 3: データ送信と保存
     U->>F: 「登録」ボタンクリック
-    F->>AF: POST /api/battle-logs<br/>{ date, battleType, rank, ... }
+    F->>CW: POST /api/battle-logs<br/>{ date, battleType, rank, ... }
 
-    AF->>AF: サーバー側バリデーション<br/>(Zod Schema)
-    AF->>BS: GET battle-logs.json
-    BS-->>AF: 既存データ返却<br/>[{ id: "1", ... }, ...]
+    CW->>CW: サーバー側バリデーション<br/>(Zod Schema)
+    CW->>CW: 日付形式正規化<br/>(YYYY-MM-DD → YYYY/MM/DD)
+    CW->>CW: UUID生成
 
-    AF->>AF: 新規ID生成<br/>(既存最大ID + 1)
-    AF->>AF: 新規データ追加<br/>push({ id: "NEW_ID", ... })
+    CW->>D1: INSERT INTO battle_logs
+    D1-->>CW: 保存完了
 
-    AF->>BS: PUT battle-logs.json<br/>(更新後の全データ)
-    BS-->>AF: 保存完了
+    CW-->>F: 201 Created<br/>{ success: true, data: {...} }
 
-    AF-->>F: 201 Created<br/>{ success: true, data: {...} }
-
-    Note over U,BS: Step 4: 画面更新
+    Note over U,D1: Step 4: 画面更新と入力値保存
     F->>Z: addBattleLog(newData)
+    F->>Z: setPreviousInput(inputData)
     Z->>Z: State更新
+    Z->>Z: LocalStorage永続化
     F->>F: 一覧画面再レンダリング
     F->>U: 登録完了メッセージ表示
 ```
@@ -87,49 +87,42 @@ sequenceDiagram
     participant U as User
     participant F as Frontend<br/>(React)
     participant Z as Zustand Store
-    participant AF as Azure Functions<br/>(battle-log)
-    participant BS as Blob Storage<br/>(battle-logs.json)
-    participant DM as Blob Storage<br/>(deck-master.json)
+    participant CW as Cloudflare Workers<br/>(Hono)
+    participant D1 as Cloudflare D1<br/>(SQLite)
 
-    Note over U,DM: Step 1: 初回データ取得
+    Note over U,D1: Step 1: 初回データ取得
     U->>F: ページ表示
-    F->>AF: GET /api/battle-logs?period=1week&limit=100
+    F->>CW: GET /api/battle-logs?limit=100
 
-    AF->>BS: GET battle-logs.json
-    BS-->>AF: 全データ返却
+    CW->>D1: SELECT * FROM battle_logs<br/>ORDER BY date DESC, created_at DESC<br/>LIMIT 100
+    D1-->>CW: 対戦履歴データ
 
-    AF->>DM: GET deck-master.json
-    DM-->>AF: デッキマスターデータ
+    CW->>D1: SELECT * FROM deck_master
+    D1-->>CW: デッキマスターデータ
 
-    AF->>AF: フィルタリング<br/>(直近1週間)
-    AF->>AF: ソート<br/>(日付降順)
-    AF->>AF: 制限<br/>(最大100件)
-    AF->>AF: デッキID→デッキ名変換
+    CW->>CW: デッキID→デッキ名変換<br/>(myDeckName, opponentDeckName)
 
-    AF-->>F: 200 OK<br/>{ success: true, data: [...] }
+    CW-->>F: 200 OK<br/>{ success: true, data: [...] }
 
     F->>Z: setBattleLogs(data)
     Z->>Z: State更新
     F->>F: 一覧レンダリング
-    F->>U: 対戦履歴一覧表示
+    F->>U: 対戦履歴一覧表示<br/>(デッキ名表示)
 
-    Note over U,DM: Step 2: 詳細表示
+    Note over U,D1: Step 2: 詳細表示
     U->>F: 詳細ボタンクリック
     F->>F: モーダル表示<br/>(Zustand Stateから取得)
     F->>U: 詳細モーダル表示
 
-    Note over U,DM: Step 3: 削除
+    Note over U,D1: Step 3: 削除
     U->>F: 削除ボタンクリック
     F->>F: 確認ダイアログ表示
     U->>F: 「削除する」選択
 
-    F->>AF: DELETE /api/battle-logs/{id}
-    AF->>BS: GET battle-logs.json
-    BS-->>AF: 全データ返却
-    AF->>AF: 該当ID削除<br/>(filter)
-    AF->>BS: PUT battle-logs.json
-    BS-->>AF: 保存完了
-    AF-->>F: 200 OK<br/>{ success: true }
+    F->>CW: DELETE /api/battle-logs/{id}
+    CW->>D1: DELETE FROM battle_logs WHERE id = ?
+    D1-->>CW: 削除完了
+    CW-->>F: 200 OK<br/>{ success: true }
 
     F->>Z: removeBattleLog(id)
     Z->>Z: State更新
@@ -146,29 +139,24 @@ sequenceDiagram
     participant U as User
     participant F as Frontend<br/>(StatsDashboard)
     participant Z as Zustand Store
-    participant AF as Azure Functions<br/>(statistics)
-    participant BS as Blob Storage<br/>(battle-logs.json)
-    participant DM as Blob Storage<br/>(deck-master.json)
+    participant CW as Cloudflare Workers<br/>(Hono)
+    participant D1 as Cloudflare D1<br/>(SQLite)
 
-    Note over U,DM: Step 1: ダッシュボード表示
+    Note over U,D1: Step 1: ダッシュボード表示
     U->>F: ダッシュボード画面に遷移
-    F->>AF: GET /api/statistics?period=1week
+    F->>CW: GET /api/statistics?period=1week
 
-    AF->>BS: GET battle-logs.json
-    BS-->>AF: 全データ返却
+    CW->>D1: SELECT COUNT(*), SUM(CASE WHEN result='勝ち'...)<br/>FROM battle_logs WHERE date >= ?
+    D1-->>CW: 統計データ返却
 
-    AF->>DM: GET deck-master.json
-    DM-->>AF: デッキマスターデータ
+    Note over CW: 統計計算処理
+    CW->>CW: 全体勝率計算
+    CW->>CW: デッキ別勝率計算
+    CW->>CW: 対戦相手デッキ別勝率計算
+    CW->>CW: ランク帯別成績計算
+    CW->>CW: 相手デッキ分布計算
 
-    Note over AF: 統計計算処理
-    AF->>AF: 期間フィルタリング<br/>(直近1週間)
-    AF->>AF: 全体勝率計算<br/>(WIN/LOSE カウント)
-    AF->>AF: デッキ別勝率計算<br/>(myDeckId ごとに集計)
-    AF->>AF: 対戦相手デッキ別勝率計算<br/>(opponentDeckId ごとに集計)
-    AF->>AF: ランク帯別成績計算<br/>(rank ごとに集計)
-    AF->>AF: 相手デッキ分布計算<br/>(opponentDeckId の出現回数)
-
-    AF-->>F: 200 OK<br/>{ success: true, data: {<br/>  overall: { winRate: 0.6, ... },<br/>  byMyDeck: [...],<br/>  byOpponentDeck: [...],<br/>  byRank: [...],<br/>  opponentDistribution: [...]<br/>}}
+    CW-->>F: 200 OK<br/>{ success: true, data: {<br/>  overall: { winRate: 0.6, ... },<br/>  byMyDeck: [...],<br/>  byOpponentDeck: [...],<br/>  byRank: [...],<br/>  opponentDistribution: [...]<br/>}}
 
     F->>Z: setStatistics(data)
     Z->>Z: State更新
@@ -179,13 +167,12 @@ sequenceDiagram
 
     F->>U: ダッシュボード表示完了
 
-    Note over U,DM: Step 2: 期間変更
+    Note over U,D1: Step 2: 期間変更
     U->>F: 期間ドロップダウン変更<br/>(1週間 → 1ヶ月)
-    F->>AF: GET /api/statistics?period=1month
-    AF->>BS: GET battle-logs.json
-    BS-->>AF: 全データ返却
-    AF->>AF: 統計再計算<br/>(1ヶ月分)
-    AF-->>F: 200 OK<br/>(更新後の統計データ)
+    F->>CW: GET /api/statistics?period=1month
+    CW->>D1: 統計クエリ実行
+    D1-->>CW: 統計データ返却
+    CW-->>F: 200 OK<br/>(更新後の統計データ)
     F->>Z: setStatistics(data)
     F->>F: グラフ・統計再描画
     F->>U: ダッシュボード更新
@@ -199,15 +186,15 @@ sequenceDiagram
 sequenceDiagram
     participant U as User
     participant F as Frontend<br/>(ImportDialog)
-    participant AF as Azure Functions<br/>(import)
-    participant BS as Blob Storage<br/>(battle-logs.json)
+    participant CW as Cloudflare Workers<br/>(Hono)
+    participant D1 as Cloudflare D1<br/>(SQLite)
 
-    Note over U,BS: Step 1: ファイル選択
+    Note over U,D1: Step 1: ファイル選択
     U->>F: インポートボタンクリック
     F->>F: ファイル選択ダイアログ表示
     U->>F: JSON/CSVファイル選択
 
-    Note over U,BS: Step 2: クライアント側検証
+    Note over U,D1: Step 2: クライアント側検証
     F->>F: ファイル形式チェック<br/>(.json / .csv)
     F->>F: ファイルサイズチェック<br/>(最大10MB)
     F->>F: ファイル読み込み<br/>(FileReader API)
@@ -220,34 +207,22 @@ sequenceDiagram
         F->>F: データ構造変換<br/>(CSV → JSON)
     end
 
-    Note over U,BS: Step 3: サーバー送信
-    F->>AF: POST /api/import<br/>{ data: [...], format: "json" }
+    Note over U,D1: Step 3: サーバー送信
+    F->>CW: POST /api/import<br/>{ data: [...], format: "json" }
 
-    AF->>AF: サーバー側バリデーション<br/>(Zod Schema)
-    AF->>AF: データ整合性チェック<br/>(日付形式、デッキID存在確認等)
+    CW->>CW: サーバー側バリデーション<br/>(Zod Schema)
+    CW->>CW: データ整合性チェック<br/>(日付形式正規化、デッキID確認)
 
     alt バリデーションエラーの場合
-        AF-->>F: 400 Bad Request<br/>{ success: false, error: {<br/>  message: "不正なデータ",<br/>  details: [{line: 3, field: "date", ...}]<br/>}}
+        CW-->>F: 400 Bad Request<br/>{ success: false, error: {<br/>  message: "不正なデータ",<br/>  details: [{line: 3, field: "date", ...}]<br/>}}
         F->>U: エラー詳細表示
     else バリデーション成功の場合
-        Note over AF,BS: データマージ処理
-        AF->>BS: GET battle-logs.json
-        BS-->>AF: 既存データ返却
+        Note over CW,D1: バッチINSERT処理
+        CW->>CW: 日付形式正規化<br/>(YYYY-MM-DD → YYYY/MM/DD)
+        CW->>D1: INSERT OR IGNORE INTO battle_logs<br/>(バッチ処理)
+        D1-->>CW: 保存完了
 
-        AF->>AF: IDの重複チェック
-        alt 重複IDがある場合
-            AF-->>F: 409 Conflict<br/>{ success: false, error: {<br/>  message: "重複データあり",<br/>  duplicates: [...]<br/>}}
-            F->>U: 重複データ確認ダイアログ表示
-            U->>F: 上書き/スキップ選択
-            F->>AF: POST /api/import<br/>{ data: [...], mode: "overwrite" }
-        end
-
-        AF->>AF: データマージ<br/>(既存 + 新規)
-        AF->>AF: 日付順ソート
-        AF->>BS: PUT battle-logs.json<br/>(マージ後のデータ)
-        BS-->>AF: 保存完了
-
-        AF-->>F: 200 OK<br/>{ success: true, data: {<br/>  imported: 50,<br/>  skipped: 3,<br/>  total: 53<br/>}}
+        CW-->>F: 200 OK<br/>{ success: true, data: {<br/>  imported: 50,<br/>  skipped: 3,<br/>  total: 53<br/>}}
 
         F->>F: インポート結果表示
         F->>U: "50件インポートしました"
@@ -257,59 +232,51 @@ sequenceDiagram
 
 ---
 
-## Phase 2: 認証フロー (Azure AD B2C) 🔵 *REQ-701〜702より*
+## Phase 2: 認証フロー (Cloudflare Access) 🔵 *REQ-701〜702より*
 
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant F as Frontend<br/>(React + MSAL)
-    participant AAD as Azure AD B2C
-    participant AF as Azure Functions
-    participant BS as Blob Storage
+    participant F as Frontend<br/>(React)
+    participant CA as Cloudflare Access
+    participant CW as Cloudflare Workers<br/>(Hono)
+    participant D1 as Cloudflare D1<br/>(SQLite)
 
-    Note over U,BS: Step 1: 初回ログイン
+    Note over U,D1: Step 1: 初回ログイン
     U->>F: アプリアクセス
-    F->>F: 認証状態チェック<br/>(MSAL)
-    F->>U: ログイン画面表示
-    U->>F: 「ログイン」ボタンクリック
+    F->>CA: 認証リクエスト
+    CA->>U: Cloudflare Accessログイン画面表示
+    U->>CA: OAuth プロバイダーでログイン<br/>(Google/GitHub等)
 
-    F->>AAD: 認証リクエスト<br/>(Authorization Code Flow with PKCE)
-    AAD->>U: Azure AD B2C ログイン画面表示
-    U->>AAD: Microsoftアカウントでログイン
+    CA-->>F: CF-Access-JWT-Assertion<br/>(JWT Token)
 
-    AAD->>F: 認証コード返却<br/>(Authorization Code)
-    F->>AAD: トークンリクエスト<br/>(Code + PKCE Verifier)
-    AAD-->>F: アクセストークン + IDトークン<br/>(JWT)
-
-    F->>F: トークンをLocalStorageに保存
-    F->>F: ユーザー情報抽出<br/>(IDトークンから userId)
+    F->>F: トークンをCookieに保存
+    F->>F: ユーザー情報抽出<br/>(JWTから userId)
     F->>U: ダッシュボード画面表示
 
-    Note over U,BS: Step 2: API呼び出し (認証あり)
+    Note over U,D1: Step 2: API呼び出し (認証あり)
     U->>F: 対戦履歴一覧表示
-    F->>F: トークン取得<br/>(localStorage)
-    F->>AF: GET /api/battle-logs<br/>Authorization: Bearer {token}
+    F->>CW: GET /api/battle-logs<br/>CF-Access-JWT-Assertion: {token}
 
-    AF->>AF: トークン検証<br/>(署名検証、有効期限チェック)
-    AF->>AF: userId抽出<br/>(トークンのclaimから)
+    CW->>CA: トークン検証
+    CA-->>CW: ユーザー情報返却
+    CW->>CW: userId抽出<br/>(トークンのclaimから)
 
     alt トークン無効の場合
-        AF-->>F: 401 Unauthorized
-        F->>AAD: トークンリフレッシュ<br/>(Refresh Token)
-        AAD-->>F: 新しいアクセストークン
-        F->>AF: 再リクエスト
+        CW-->>F: 401 Unauthorized
+        F->>CA: 再認証リダイレクト
     end
 
-    AF->>BS: GET {userId}/battle-logs.json
-    BS-->>AF: ユーザー固有データ返却
-    AF-->>F: 200 OK<br/>{ success: true, data: [...] }
+    CW->>D1: SELECT * FROM battle_logs<br/>WHERE user_id = ?
+    D1-->>CW: ユーザー固有データ返却
+    CW-->>F: 200 OK<br/>{ success: true, data: [...] }
     F->>U: 一覧表示
 
-    Note over U,BS: Step 3: ログアウト
+    Note over U,D1: Step 3: ログアウト
     U->>F: 「ログアウト」ボタンクリック
-    F->>F: LocalStorage からトークン削除
-    F->>AAD: ログアウトリクエスト
-    AAD-->>F: ログアウト完了
+    F->>F: Cookie からトークン削除
+    F->>CA: ログアウトリクエスト
+    CA-->>F: ログアウト完了
     F->>U: ログイン画面表示
 ```
 
@@ -319,8 +286,8 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-    A[Frontend: API リクエスト] -->|try| B[Azure Functions]
-    B -->|try| C[Blob Storage アクセス]
+    A[Frontend: API リクエスト] -->|try| B[Cloudflare Workers]
+    B -->|try| C[D1 Database アクセス]
 
     C -->|成功| D[データ返却]
     D --> E[Frontend: 正常表示]
@@ -358,8 +325,8 @@ flowchart TD
 
     B -->|いいえ| E
 
-    E --> F[Azure Functions]
-    F --> G[Blob Storage]
+    E --> F[Cloudflare Workers]
+    F --> G[D1 Database]
     G --> H[データ取得]
     H --> I[Frontend: State 更新]
     I --> J[TTL設定: 5分]
@@ -369,6 +336,10 @@ flowchart TD
 
     L[ユーザーがデータ変更<br/>(登録・削除)] --> M[キャッシュ無効化]
     M --> E
+
+    N[フォーム入力] --> O[Zustand Persist]
+    O --> P[LocalStorage保存]
+    P --> Q[ブラウザ更新後も復元]
 ```
 
 ---
@@ -405,6 +376,12 @@ stateDiagram-v2
 
 ## 更新履歴
 
+- **2025-12-05**: Cloudflare版に全面更新
+  - Azure (Functions, Blob Storage) → Cloudflare (Workers, D1) に移行
+  - Zustand persist middleware によるフォーム入力永続化フローを追加
+  - 日付形式正規化（YYYY-MM-DD → YYYY/MM/DD）フローを追加
+  - BattleLogWithDeckNames型によるデッキ名表示フローを追加
+  - Phase 2認証をAzure AD B2CからCloudflare Accessに変更
 - **2025-10-23**: 初版作成（tsumiki:kairo-design により自動生成）
   - Phase 1（基本機能）のデータフロー定義
   - Phase 2（認証機能）のデータフロー定義

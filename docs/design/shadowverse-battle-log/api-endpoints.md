@@ -1,4 +1,7 @@
-# API Endpoints Design
+# API Endpoints Design (Azure版 - 非推奨)
+
+> ⚠️ **注意**: このドキュメントはAzure版の設計です。現在はCloudflare版に移行済みのため、
+> 最新の設計は `api-endpoints-cloudflare.md` を参照してください。
 
 **プロジェクト**: Shadowverse Battle Log
 **作成日**: 2025-10-24

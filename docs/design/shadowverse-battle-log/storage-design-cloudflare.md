@@ -43,13 +43,13 @@
 -- 対戦履歴テーブル
 CREATE TABLE battle_logs (
     id TEXT PRIMARY KEY,
-    date TEXT NOT NULL,
-    battle_type TEXT NOT NULL,
-    rank TEXT NOT NULL,
-    group_name TEXT NOT NULL,
+    date TEXT NOT NULL,                          -- YYYY/MM/DD形式（スラッシュ区切り）
+    battle_type TEXT NOT NULL,                   -- 'ランクマッチ' | '対戦台' | 'ロビー大会'
+    rank TEXT NOT NULL,                          -- 'サファイア' | 'ダイアモンド' | 'ルビー' | 'トパーズ' | '-'
+    group_name TEXT NOT NULL,                    -- 'A' | 'AA' | 'AAA' | 'Master' | 'GrandMaster0' | 'GrandMaster1' | 'GrandMaster2' | 'GrandMaster3' | '-'
     my_deck_id TEXT NOT NULL,
-    turn TEXT NOT NULL,
-    result TEXT NOT NULL,
+    turn TEXT NOT NULL,                          -- '先攻' | '後攻'
+    result TEXT NOT NULL,                        -- '勝ち' | '負け'
     opponent_deck_id TEXT NOT NULL,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
@@ -257,6 +257,61 @@ const stats = await c.env.DB.prepare(`
 
 ### 既存JSONデータの移行
 
+#### データベースシードスクリプト
+
+開発環境およびテスト用に、JSONファイルからD1データベースにシードデータを投入するスクリプトを提供しています。
+
+**シードスクリプトの構成**:
+
+```
+backend/scripts/
+├── seed-database.mjs      # ローカルD1へのシード投入
+├── generate-seed-sql.mjs  # 本番用SQLファイル生成
+└── fix-date-format.js     # 日付形式修正スクリプト
+
+backend/src/db/migrations/
+└── seed-data.sql          # 生成されたSQLファイル
+```
+
+**npmスクリプト**:
+
+```bash
+# ローカルD1にシードデータを投入
+pnpm db:seed
+
+# ローカルD1のデータをクリア
+pnpm db:seed:clear
+
+# 本番用SQLファイルを生成
+pnpm db:seed:generate
+
+# 本番D1にSQLを適用
+pnpm db:seed:prod
+```
+
+**シードデータのソース** (`data/json/`):
+
+- `battle-logs.json` - 対戦履歴サンプルデータ
+- `deck-master.json` - デッキマスターデータ
+- `my-decks.json` - マイデッキサンプルデータ
+
+#### 日付形式の正規化
+
+日付データはスラッシュ形式（YYYY/MM/DD）で統一して保存します。
+
+**正規化ルール**:
+- 入力時に `YYYY-MM-DD` 形式は `YYYY/MM/DD` に自動変換
+- `create()` および `update()` メソッドで正規化を適用
+- ソート時は `date DESC, createdAt DESC` の順（同一日付内では登録順）
+
+```typescript
+// 日付正規化関数
+function normalizeDateFormat(date: string): string {
+  // YYYY-MM-DD → YYYY/MM/DD に変換
+  return date.replace(/-/g, '/')
+}
+```
+
 #### 移行スクリプト (Cloudflare Workers)
 
 ```typescript
@@ -281,7 +336,7 @@ export default {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).bind(
           log.id,
-          log.date,
+          normalizeDateFormat(log.date),  // 日付正規化
           log.battleType,
           log.rank,
           log.group,
@@ -630,6 +685,11 @@ pnpm test:watch              # Watch モード
 
 ## 更新履歴
 
+- **2025-12-05**: シード機能・日付正規化の追加
+  - データベースシードスクリプト追加（seed-database.mjs, generate-seed-sql.mjs）
+  - 日付形式の正規化（YYYY-MM-DD → YYYY/MM/DD）
+  - 同一日付内のソート順を createdAt DESC で2次ソート
+  - Group型にGrandMaster0-3を追加
 - **2025-11-27**: R2削除、D1のみの運用に変更
   - R2 (Object Storage) の使用を廃止
   - バックアップはD1の自動バックアップ機能（30日間保持）を利用

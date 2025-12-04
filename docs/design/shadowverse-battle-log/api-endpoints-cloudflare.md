@@ -401,9 +401,57 @@ app.get('/api/deck-master', async (c) => {
 
 ---
 
-### 4. データインポート
+### 4. マイデッキ管理
 
-#### 4.1 データインポート
+#### 4.1 マイデッキ一覧取得
+
+**エンドポイント**: `GET /api/my-decks`
+
+**説明**: マイデッキ（自分が使用するデッキ）の一覧を取得 🔵 *REQ-040より*
+
+**レスポンス例**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "myDecks": [
+      {
+        "id": "deck_001",
+        "deckCode": "ABC123",
+        "deckName": "進化ロイヤル",
+        "isActive": true,
+        "createdAt": "2025-01-01T00:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "timestamp": "2025-11-25T12:34:56.789Z",
+    "requestId": "req_abc123"
+  }
+}
+```
+
+**Cloudflare Workers実装例**:
+
+```typescript
+app.get('/api/my-decks', async (c) => {
+  const { results } = await c.env.DB.prepare(
+    'SELECT * FROM my_decks WHERE is_active = 1 ORDER BY created_at DESC'
+  ).all()
+
+  return c.json({
+    success: true,
+    data: { myDecks: results }
+  })
+})
+```
+
+---
+
+### 5. データインポート
+
+#### 5.1 データインポート
 
 **エンドポイント**: `POST /api/import`
 
@@ -671,6 +719,7 @@ app.use('*', async (c, next) => {
 
 | バージョン | 日付 | 変更内容 |
 |---|---|---|
+| 2.1.0 | 2025-12-05 | Phase 1にマイデッキ一覧取得エンドポイント追加、GrandMaster0-3対応 |
 | 2.0.0 | 2025-11-25 | Cloudflare版作成 (Workers, D1対応) |
 | 1.0.0 | 2025-10-24 | Azure版初版作成 |
 

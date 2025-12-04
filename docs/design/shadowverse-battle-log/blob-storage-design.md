@@ -1,4 +1,7 @@
-# Azure Blob Storage 設計
+# Azure Blob Storage 設計 (Azure版 - 非推奨)
+
+> ⚠️ **注意**: このドキュメントはAzure Blob Storage版の設計です。現在はCloudflare D1に移行済みのため、
+> 最新の設計は `storage-design-cloudflare.md` を参照してください。
 
 このドキュメントでは、シャドウバース対戦履歴管理アプリケーションにおけるAzure Blob Storageのデータ構造、アクセスパターン、運用方針を定義します。
 
