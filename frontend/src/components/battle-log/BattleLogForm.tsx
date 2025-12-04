@@ -79,13 +79,17 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   // 【Zustand Store取得】: useBattleLogStoreからストアの状態とアクションを取得 🔵
   const { previousInput, isLoading, error, createBattleLog } = useBattleLogStore();
 
-  // 【Zustand Store取得】: useDeckStoreからデッキマスター一覧を取得 🔵
+  // 【Zustand Store取得】: useDeckStoreからデッキマスター一覧とマイデッキ一覧を取得 🔵
   // 🔵 TASK-0049: API連携のため、デッキマスター一覧をStoreから取得
   const {
     deckMasters,
+    myDecks,
     isLoading: isDeckLoading,
+    isMyDecksLoading,
     error: deckError,
+    myDecksError,
     fetchDeckMasters,
+    fetchMyDecks,
   } = useDeckStore();
 
   // 【ローカル状態管理】: フォームデータとバリデーションエラーを管理 🔵
@@ -101,7 +105,6 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-  const [myDecks, setMyDecks] = useState<Array<{ id: string; deckName: string }>>([]);
 
   /**
    * 【初期化処理】: previousInputから前回入力値を引き継ぐ（日付以外）
@@ -127,20 +130,15 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   }, [previousInput]);
 
   /**
-   * 【マイデッキ一覧取得】: 初期化時にマイデッキ一覧を取得（モック）
-   * 【実装方針】: TC-FORM-INT-001を通すための最小実装
+   * 【マイデッキ一覧取得】: 初期化時にマイデッキ一覧をAPIから取得
+   * 【実装方針】: TC-FORM-INT-001を通すための実装
    * 【テスト対応】: TC-FORM-INT-001, TC-FORM-BND-004を通すための実装
-   * 🟡 信頼性レベル: API設計から妥当な推測
+   * 🔵 信頼性レベル: API連携の本実装
    */
   useEffect(() => {
-    // 【モックデータ】: テストを通すための仮データ（空配列の場合を考慮） 🟡
-    // 【TC-FORM-BND-004対応】: マイデッキが0件の場合のテストケース
-    const mockDecks = [
-      { id: 'deck-001', deckName: 'テストデッキ1' },
-      { id: 'deck-002', deckName: 'テストデッキ2' },
-    ];
-    setMyDecks(mockDecks);
-  }, []);
+    // 【API呼び出し】: useDeckStoreのfetchMyDecksを呼び出してマイデッキ一覧を取得 🔵
+    fetchMyDecks();
+  }, [fetchMyDecks]);
 
   /**
    * 【デッキマスター一覧取得】: 初期化時にデッキマスター一覧をAPIから取得
@@ -340,6 +338,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   const isSubmitDisabled =
     isLoading ||
     isDeckLoading || // 🔵 TASK-0049: デッキマスター取得中も無効化
+    isMyDecksLoading || // 🔵 マイデッキ取得中も無効化
     myDecks.length === 0 ||
     deckMasters.length === 0 ||
     (Object.keys(validationErrors).length > 0 &&
@@ -371,6 +370,13 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
       {deckError && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {deckError}
+        </div>
+      )}
+
+      {/* 【マイデッキエラーメッセージ】: マイデッキ取得エラーを表示 🔵 */}
+      {myDecksError && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {myDecksError}
         </div>
       )}
 

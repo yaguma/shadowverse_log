@@ -15,6 +15,7 @@ import battleLogsRoutes from './routes/battle-logs';
 import deckMasterRoutes from './routes/deck-master';
 import importRoutes from './routes/import';
 import migrationRoutes from './routes/migration';
+import myDecksRoutes from './routes/my-decks';
 import statisticsRoutes from './routes/statistics';
 
 /** 環境バインディング型 */
@@ -60,7 +61,7 @@ app.use('/api/*', rateLimit({ limit: 100, windowMs: 60000 }));
 app.use(
   '/api/*',
   authMiddleware({
-    skipPaths: ['/api/health', '/api/migration', '/api/import', '/api/battle-logs', '/api/deck-master', '/api/statistics'],
+    skipPaths: ['/api/health', '/api/migration', '/api/import', '/api/battle-logs', '/api/deck-master', '/api/my-decks', '/api/statistics'],
     debug: true,
   })
 );
@@ -103,6 +104,9 @@ app.route('/api/battle-logs', battleLogsRoutes);
 
 // デッキマスターAPIルート
 app.route('/api/deck-master', deckMasterRoutes);
+
+// マイデッキAPIルート
+app.route('/api/my-decks', myDecksRoutes);
 
 // 404ハンドラー
 app.notFound((c) => {

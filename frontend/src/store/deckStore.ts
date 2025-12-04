@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { apiClient, extractErrorMessage } from '../api/client';
-import type { DeckMaster } from '../types';
+import type { DeckMaster, MyDeck } from '../types';
 
 /**
  * 【機能概要】: デッキマスターデータの状態管理を行うZustandストア
@@ -17,6 +17,13 @@ interface DeckMastersResponse {
 }
 
 /**
+ * My Decksレスポンス型
+ */
+interface MyDecksResponse {
+  myDecks: MyDeck[];
+}
+
+/**
  * Deck Storeの状態型
  * 【型定義】: Zustandストアの状態とアクションを定義
  * 🔵 信頼性レベル: 要件定義書のDeckStore仕様に準拠
@@ -24,13 +31,18 @@ interface DeckMastersResponse {
 interface DeckState {
   // 【データ状態】: デッキマスターデータを保持 🔵
   deckMasters: DeckMaster[];
+  // 【データ状態】: マイデッキデータを保持 🔵
+  myDecks: MyDeck[];
 
   // 【UI状態】: ローディング状態とエラー状態を保持 🔵
   isLoading: boolean;
+  isMyDecksLoading: boolean;
   error: string | null;
+  myDecksError: string | null;
 
   // 【アクション】: データ取得・設定アクションを定義 🔵
   fetchDeckMasters: () => Promise<void>;
+  fetchMyDecks: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -42,8 +54,11 @@ interface DeckState {
 export const useDeckStore = create<DeckState>((set) => ({
   // 【初期状態】: ストアの初期値を設定 🔵
   deckMasters: [],
+  myDecks: [],
   isLoading: false,
+  isMyDecksLoading: false,
   error: null,
+  myDecksError: null,
 
   /**
    * 【機能概要】: デッキマスター一覧を取得
@@ -72,6 +87,31 @@ export const useDeckStore = create<DeckState>((set) => ({
   },
 
   /**
+   * 【機能概要】: マイデッキ一覧を取得
+   * 【実装方針】: API Clientを使用してBackend APIからマイデッキを取得し、ストアの状態を更新
+   * 🔵 信頼性レベル: 要件定義書のfetchMyDecks仕様に準拠
+   */
+  fetchMyDecks: async () => {
+    // 【ローディング開始】: isMyDecksLoadingをtrueに設定し、myDecksErrorをnullにクリア 🔵
+    set({ isMyDecksLoading: true, myDecksError: null });
+
+    try {
+      // 【API呼び出し】: API Clientのget()メソッドでマイデッキ一覧を取得 🔵
+      const response = await apiClient.get<MyDecksResponse>('/my-decks');
+
+      // 【状態更新】: myDecksを更新し、isMyDecksLoadingをfalseに設定 🔵
+      set({ myDecks: response.myDecks, isMyDecksLoading: false });
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定し、isMyDecksLoadingをfalseに設定 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({
+        myDecksError: errorMessage,
+        isMyDecksLoading: false,
+      });
+    }
+  },
+
+  /**
    * 【機能概要】: エラー状態をクリア
    * 【実装方針】: errorをnullに設定する同期処理
    * 【テスト対応】: TC-STORE-DM-004を通すための実装
@@ -79,6 +119,6 @@ export const useDeckStore = create<DeckState>((set) => ({
    */
   clearError: () => {
     // 【エラークリア】: errorをnullに設定 🔵
-    set({ error: null });
+    set({ error: null, myDecksError: null });
   },
 }));
