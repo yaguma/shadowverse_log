@@ -11,7 +11,7 @@ export type Rank = 'サファイア' | 'ダイアモンド' | 'ルビー' | 'ト
 /**
  * グループ
  */
-export type Group = 'A' | 'AA' | 'AAA' | 'Master' | '-';
+export type Group = 'A' | 'AA' | 'AAA' | 'Master' | 'GrandMaster0' | 'GrandMaster1' | 'GrandMaster2' | 'GrandMaster3' | '-';
 
 /**
  * ターン
@@ -123,7 +123,7 @@ export const BATTLE_TYPES: readonly BattleType[] = ['ランクマッチ', '対�
 
 export const RANKS: readonly Rank[] = ['サファイア', 'ダイアモンド', 'ルビー', 'トパーズ', '-'];
 
-export const GROUPS: readonly Group[] = ['A', 'AA', 'AAA', 'Master', '-'];
+export const GROUPS: readonly Group[] = ['A', 'AA', 'AAA', 'Master', 'GrandMaster0', 'GrandMaster1', 'GrandMaster2', 'GrandMaster3', '-'];
 
 export const TURNS: readonly Turn[] = ['先攻', '後攻'];
 

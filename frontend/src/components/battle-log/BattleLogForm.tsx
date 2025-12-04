@@ -65,7 +65,7 @@ const RANKS_OPTIONS: readonly Rank[] = [
   'トパーズ',
   '-',
 ] as const;
-const GROUPS_OPTIONS: readonly Group[] = ['A', 'AA', 'AAA', 'Master', '-'] as const;
+const GROUPS_OPTIONS: readonly Group[] = ['A', 'AA', 'AAA', 'Master', 'GrandMaster0', 'GrandMaster1', 'GrandMaster2', 'GrandMaster3', '-'] as const;
 const TURNS_OPTIONS: readonly Turn[] = ['先攻', '後攻'] as const;
 const BATTLE_RESULTS_OPTIONS: readonly BattleResult[] = ['勝ち', '負け'] as const;
 

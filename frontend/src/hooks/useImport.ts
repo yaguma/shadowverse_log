@@ -61,7 +61,7 @@ const REQUIRED_FIELDS = [
  */
 const ALLOWED_BATTLE_TYPES: readonly BattleType[] = ['ランクマッチ', '対戦台', 'ロビー大会'];
 const ALLOWED_RANKS: readonly Rank[] = ['サファイア', 'ダイアモンド', 'ルビー', 'トパーズ', '-'];
-const ALLOWED_GROUPS: readonly Group[] = ['A', 'AA', 'AAA', 'Master', '-'];
+const ALLOWED_GROUPS: readonly Group[] = ['A', 'AA', 'AAA', 'Master', 'GrandMaster0', 'GrandMaster1', 'GrandMaster2', 'GrandMaster3', '-'];
 const ALLOWED_TURNS: readonly Turn[] = ['先攻', '後攻'];
 const ALLOWED_BATTLE_RESULTS: readonly BattleResult[] = ['勝ち', '負け'];
 
