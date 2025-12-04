@@ -1,0 +1,20 @@
+{
+  "name": "shadowverse-log",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shadowverse Battle Log - Monorepo",
+  "scripts": {
+    "dev": "pnpm --filter frontend --filter shadowverse-battle-log-backend run --parallel dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "pnpm --filter shadowverse-battle-log-backend dev",
+    "build": "pnpm run -r build",
+    "test": "pnpm run -r test",
+    "lint": "pnpm run -r lint",
+    "format": "pnpm run -r format",
+    "type-check": "pnpm --filter frontend type-check"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  }
+}
