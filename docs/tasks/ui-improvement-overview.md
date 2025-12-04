@@ -88,6 +88,32 @@ TASK-0047 (型定義) ─→ TASK-0048 (deckStore) ─→ TASK-0049 (Form本実�
 - TASK-0050 は TASK-0047 完了後（独立して進行可能）
 - TASK-0051 は すべてのタスク完了後
 
+## 実行順序（ガントチャート）
+
+```mermaid
+gantt
+    title UI Improvement タスク実行順序
+    dateFormat  HH:mm
+    axisFormat  %H:%M
+
+    section 基盤整備
+    TASK-0047 型定義拡張       :t47, 00:00, 30m
+    TASK-0048 deckStore API連携 :t48, after t47, 60m
+
+    section フロントエンド実装
+    TASK-0049 BattleLogForm本実装 :t49, after t48, 90m
+    TASK-0050 BattleLogList改善   :t50, after t47, 90m
+
+    section 品質確認
+    TASK-0051 統合テスト・動作確認 :t51, after t49 t50, 90m
+```
+
+## クリティカルパス
+
+`TASK-0047 → TASK-0048 → TASK-0049 → TASK-0051` (合計: 4.5h)
+
+並行実行可能: TASK-0050 は TASK-0049 と並行で進められる
+
 ## 技術スタック
 
 - **Frontend**: React 19.x, TypeScript, Zustand, Tailwind CSS
