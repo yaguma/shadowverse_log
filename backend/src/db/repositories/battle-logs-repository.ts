@@ -23,6 +23,17 @@ export class BattleLogsRepository
   constructor(private db: Database) {}
 
   /**
+   * 日付フォーマットを正規化（ハイフン形式をスラッシュ形式に変換）
+   * 既存データとの互換性を維持するため、YYYY/MM/DD形式に統一
+   * @param dateStr - 日付文字列（YYYY-MM-DD または YYYY/MM/DD）
+   * @returns YYYY/MM/DD形式の日付文字列
+   */
+  private normalizeDateFormat(dateStr: string): string {
+    // YYYY-MM-DD形式の場合、YYYY/MM/DD形式に変換
+    return dateStr.replace(/-/g, '/');
+  }
+
+  /**
    * IDで対戦履歴を検索
    */
   async findById(id: string): Promise<BattleLog | null> {
@@ -36,13 +47,13 @@ export class BattleLogsRepository
 
   /**
    * すべての対戦履歴を取得（ページネーション対応）
-   * 日付の降順でソート
+   * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
    */
   async findAll(limit = 50, offset = 0): Promise<BattleLog[]> {
     return await this.db
       .select()
       .from(battleLogs)
-      .orderBy(desc(battleLogs.date))
+      .orderBy(desc(battleLogs.date), desc(battleLogs.createdAt))
       .limit(limit)
       .offset(offset);
   }
@@ -50,6 +61,7 @@ export class BattleLogsRepository
   /**
    * 対戦履歴を作成
    * @param data - 作成するデータ（idが含まれている場合はそれを使用）
+   * 日付フォーマットはYYYY/MM/DD形式に正規化される
    */
   async create(data: NewBattleLog): Promise<BattleLog> {
     // データにIDが含まれている場合はそれを使用、なければ生成
@@ -58,7 +70,7 @@ export class BattleLogsRepository
     const newBattleLog = {
       id,
       userId: data.userId,
-      date: data.date,
+      date: this.normalizeDateFormat(data.date), // 日付フォーマットを正規化
       battleType: data.battleType,
       rank: data.rank,
       groupName: data.groupName,
@@ -80,6 +92,7 @@ export class BattleLogsRepository
 
   /**
    * 対戦履歴を更新
+   * 日付フォーマットが含まれる場合はYYYY/MM/DD形式に正規化される
    */
   async update(
     id: string,
@@ -88,7 +101,12 @@ export class BattleLogsRepository
     const existing = await this.findById(id);
     if (!existing) return null;
 
-    await this.db.update(battleLogs).set(data).where(eq(battleLogs.id, id));
+    // 日付が含まれる場合は正規化
+    const normalizedData = data.date
+      ? { ...data, date: this.normalizeDateFormat(data.date) }
+      : data;
+
+    await this.db.update(battleLogs).set(normalizedData).where(eq(battleLogs.id, id));
 
     return await this.findById(id);
   }
@@ -108,6 +126,7 @@ export class BattleLogsRepository
 
   /**
    * ユーザーIDで対戦履歴を検索
+   * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
    */
   async findByUserId(
     userId: string,
@@ -120,13 +139,14 @@ export class BattleLogsRepository
       .select()
       .from(battleLogs)
       .where(eq(battleLogs.userId, userId))
-      .orderBy(desc(battleLogs.date))
+      .orderBy(desc(battleLogs.date), desc(battleLogs.createdAt))
       .limit(limit)
       .offset(offset);
   }
 
   /**
    * 日付範囲で対戦履歴を検索
+   * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
    */
   async findByDateRange(
     startDate: string,
@@ -146,11 +166,12 @@ export class BattleLogsRepository
       .select()
       .from(battleLogs)
       .where(and(...conditions))
-      .orderBy(desc(battleLogs.date));
+      .orderBy(desc(battleLogs.date), desc(battleLogs.createdAt));
   }
 
   /**
    * デッキIDで対戦履歴を検索
+   * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
    */
   async findByMyDeckId(
     myDeckId: string,
@@ -163,7 +184,7 @@ export class BattleLogsRepository
       .select()
       .from(battleLogs)
       .where(eq(battleLogs.myDeckId, myDeckId))
-      .orderBy(desc(battleLogs.date))
+      .orderBy(desc(battleLogs.date), desc(battleLogs.createdAt))
       .limit(limit)
       .offset(offset);
   }
