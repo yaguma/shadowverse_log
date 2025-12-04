@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useBattleLogStore } from '../../store/battleLogStore';
+import { useDeckStore } from '../../store/deckStore';
 import { BattleLogForm } from './BattleLogForm';
 
 // 【テストファイル概要】: Battle Log登録フォームコンポーネントの単体テスト
@@ -9,6 +10,7 @@ import { BattleLogForm } from './BattleLogForm';
 
 // 【モック設定】: Zustand Storeをモック化してストアの動作を制御
 vi.mock('../../store/battleLogStore');
+vi.mock('../../store/deckStore');
 
 describe('BattleLogForm', () => {
   // 【テスト前準備】: 各テスト実行前にモックを初期化し、一貫したテスト環境を構築
@@ -24,6 +26,20 @@ describe('BattleLogForm', () => {
       createBattleLog: vi.fn(),
       deleteBattleLog: vi.fn(),
       setPreviousInput: vi.fn(),
+      clearError: vi.fn(),
+    });
+
+    // 【モック初期化】: useDeckStoreのモックをデフォルト状態に設定
+    // 🔵 TASK-0049: API連携のため、デッキマスター一覧をStoreから取得するモック
+    vi.mocked(useDeckStore).mockReturnValue({
+      deckMasters: [
+        { id: 'deck-master-001', deckName: '相手デッキ1' },
+        { id: 'deck-master-002', deckName: '相手デッキ2' },
+        { id: 'deck-master-005', deckName: '相手デッキ5' },
+      ],
+      isLoading: false,
+      error: null,
+      fetchDeckMasters: vi.fn(),
       clearError: vi.fn(),
     });
 
@@ -877,6 +893,131 @@ describe('BattleLogForm', () => {
 
       const battleTypeSelect = screen.getByLabelText('対戦タイプ') as HTMLSelectElement;
       expect(battleTypeSelect.value).toBe(''); // 【確認内容】: 対戦タイプは空 🔵
+    });
+  });
+
+  // ==================== 8. API連携テストケース (TASK-0049) ====================
+
+  describe('API連携テスト (TASK-0049)', () => {
+    it('TC-0049-001: デッキマスター一覧がAPI経由で取得される（fetchDeckMastersが呼ばれる）', () => {
+      // 【テスト目的】: BattleLogFormがマウント時にfetchDeckMastersを呼び出すことを確認
+      // 【テスト内容】: useDeckStoreのfetchDeckMastersが呼び出されることを検証
+      // 【期待される動作】: fetchDeckMastersが1回呼び出される
+      // 🔵 信頼性レベル: REQ-0049-001に基づく
+
+      const fetchDeckMasters = vi.fn();
+      vi.mocked(useDeckStore).mockReturnValue({
+        deckMasters: [
+          { id: 'deck-master-001', deckName: '相手デッキ1' },
+          { id: 'deck-master-002', deckName: '相手デッキ2' },
+        ],
+        isLoading: false,
+        error: null,
+        fetchDeckMasters,
+        clearError: vi.fn(),
+      });
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【結果検証】: fetchDeckMastersが呼ばれることを確認
+      expect(fetchDeckMasters).toHaveBeenCalledTimes(1); // 【確認内容】: fetchDeckMastersが1回呼ばれる 🔵
+    });
+
+    it('TC-0049-002: デッキマスター一覧がStoreから取得されドロップダウンに表示される', async () => {
+      // 【テスト目的】: useDeckStoreから取得したデッキマスター一覧が相手デッキドロップダウンに表示されることを確認
+      // 【テスト内容】: Storeのデッキマスター一覧がドロップダウンの選択肢として表示される
+      // 【期待される動作】: デッキマスター一覧が選択肢として表示される
+      // 🔵 信頼性レベル: REQ-0049-001に基づく
+
+      vi.mocked(useDeckStore).mockReturnValue({
+        deckMasters: [
+          { id: 'api-deck-001', deckName: 'APIデッキ1' },
+          { id: 'api-deck-002', deckName: 'APIデッキ2' },
+        ],
+        isLoading: false,
+        error: null,
+        fetchDeckMasters: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【結果検証】: Storeから取得したデッキマスターが表示されることを確認
+      await waitFor(() => {
+        expect(screen.getByText('APIデッキ1')).toBeInTheDocument(); // 【確認内容】: APIデッキ1が表示される 🔵
+        expect(screen.getByText('APIデッキ2')).toBeInTheDocument(); // 【確認内容】: APIデッキ2が表示される 🔵
+      });
+    });
+
+    it('TC-0049-004: デッキマスター取得中のローディング状態', () => {
+      // 【テスト目的】: デッキマスター取得中にローディング状態が反映されることを確認
+      // 【テスト内容】: useDeckStoreのisLoadingがtrueの場合、送信ボタンが無効化される
+      // 【期待される動作】: ローディング中は送信ボタンが無効化される
+      // 🔵 信頼性レベル: REQ-0049-003に基づく
+
+      vi.mocked(useDeckStore).mockReturnValue({
+        deckMasters: [],
+        isLoading: true,
+        error: null,
+        fetchDeckMasters: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【結果検証】: 送信ボタンが無効化されることを確認
+      const submitButton = screen.getByRole('button', { name: '登録' });
+      expect(submitButton).toBeDisabled(); // 【確認内容】: 送信ボタンが無効化される 🔵
+    });
+
+    it('TC-0049-005: デッキマスター取得エラー時のエラー表示', async () => {
+      // 【テスト目的】: デッキマスター取得エラー時にエラーメッセージが表示されることを確認
+      // 【テスト内容】: useDeckStoreのerrorがエラーメッセージを持つ場合、エラーメッセージが表示される
+      // 【期待される動作】: エラーメッセージが表示される
+      // 🔵 信頼性レベル: REQ-0049-004に基づく
+
+      vi.mocked(useDeckStore).mockReturnValue({
+        deckMasters: [],
+        isLoading: false,
+        error: 'デッキ情報の取得に失敗しました',
+        fetchDeckMasters: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【結果検証】: エラーメッセージが表示されることを確認
+      await waitFor(() => {
+        expect(screen.getByText('デッキ情報の取得に失敗しました')).toBeInTheDocument(); // 【確認内容】: エラーメッセージが表示される 🔵
+      });
+    });
+
+    it('TC-0049-006: デッキマスターが0件の場合メッセージ表示', () => {
+      // 【テスト目的】: デッキマスターが0件の場合の動作を確認
+      // 【テスト内容】: デッキマスターが存在しない場合はメッセージ表示と送信ボタン無効化
+      // 【期待される動作】: 「デッキマスターを登録してください」メッセージが表示される
+      // 🔵 信頼性レベル: 既存テストTC-FORM-BND-005の拡張
+
+      vi.mocked(useDeckStore).mockReturnValue({
+        deckMasters: [],
+        isLoading: false,
+        error: null,
+        fetchDeckMasters: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【結果検証】: メッセージが表示され、送信ボタンが無効化されることを確認
+      expect(screen.getByText('デッキマスターを登録してください')).toBeInTheDocument(); // 【確認内容】: メッセージが表示される 🔵
+
+      const submitButton = screen.getByRole('button', { name: '登録' });
+      expect(submitButton).toBeDisabled(); // 【確認内容】: 送信ボタンが無効化される 🔵
     });
   });
 });

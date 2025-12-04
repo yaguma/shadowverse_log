@@ -10,6 +10,7 @@
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useBattleLogStore } from '../../store/battleLogStore';
+import { useDeckStore } from '../../store/deckStore';
 import type {
   BattleResult,
   BattleType,
@@ -78,6 +79,15 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   // 【Zustand Store取得】: useBattleLogStoreからストアの状態とアクションを取得 🔵
   const { previousInput, isLoading, error, createBattleLog } = useBattleLogStore();
 
+  // 【Zustand Store取得】: useDeckStoreからデッキマスター一覧を取得 🔵
+  // 🔵 TASK-0049: API連携のため、デッキマスター一覧をStoreから取得
+  const {
+    deckMasters,
+    isLoading: isDeckLoading,
+    error: deckError,
+    fetchDeckMasters,
+  } = useDeckStore();
+
   // 【ローカル状態管理】: フォームデータとバリデーションエラーを管理 🔵
   const [formData, setFormData] = useState<CreateBattleLogRequest>({
     date: new Date().toISOString().split('T')[0], // 今日の日付（YYYY-MM-DD形式） 🔵
@@ -92,7 +102,6 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [myDecks, setMyDecks] = useState<Array<{ id: string; deckName: string }>>([]);
-  const [deckMasters, setDeckMasters] = useState<Array<{ id: string; deckName: string }>>([]);
 
   /**
    * 【初期化処理】: previousInputから前回入力値を引き継ぐ（日付以外）
@@ -134,21 +143,15 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   }, []);
 
   /**
-   * 【デッキマスター一覧取得】: 初期化時にデッキマスター一覧を取得（モック）
-   * 【実装方針】: TC-FORM-INT-002を通すための最小実装
-   * 【テスト対応】: TC-FORM-INT-002, TC-FORM-BND-005を通すための実装
-   * 🟡 信頼性レベル: API設計から妥当な推測
+   * 【デッキマスター一覧取得】: 初期化時にデッキマスター一覧をAPIから取得
+   * 【実装方針】: TC-FORM-INT-002, TC-0049-001, TC-0049-002を通すための実装
+   * 【テスト対応】: TC-FORM-INT-002, TC-FORM-BND-005, TASK-0049テストケースを通すための実装
+   * 🔵 信頼性レベル: TASK-0049 REQ-0049-001に基づく（モック→API連携本実装）
    */
   useEffect(() => {
-    // 【モックデータ】: テストを通すための仮データ（空配列の場合を考慮） 🟡
-    // 【TC-FORM-BND-005対応】: デッキマスターが0件の場合のテストケース
-    const mockDeckMasters = [
-      { id: 'deck-master-001', deckName: '相手デッキ1' },
-      { id: 'deck-master-002', deckName: '相手デッキ2' },
-      { id: 'deck-master-005', deckName: '相手デッキ5' },
-    ];
-    setDeckMasters(mockDeckMasters);
-  }, []);
+    // 【API呼び出し】: useDeckStoreのfetchDeckMastersを呼び出してデッキマスター一覧を取得 🔵
+    fetchDeckMasters();
+  }, [fetchDeckMasters]);
 
   /**
    * 【日付バリデーション】: 未来日付を禁止するバリデーション
@@ -330,12 +333,13 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
   /**
    * 【送信ボタン無効化判定】: マイデッキまたはデッキマスターが0件、またはローディング中、またはバリデーションエラーがある場合は無効化
-   * 【実装方針】: TC-FORM-BND-004, TC-FORM-BND-005, TC-FORM-UI-001を通すための実装
+   * 【実装方針】: TC-FORM-BND-004, TC-FORM-BND-005, TC-FORM-UI-001, TC-0049-004を通すための実装
    * 【改善】: バリデーションエラーがある場合のみ無効化（必須フィールドの入力状態は validateForm で確認）
-   * 🟡 信頼性レベル: エッジケースとして妥当な推測
+   * 🔵 信頼性レベル: TASK-0049 REQ-0049-003に基づく（デッキローディング状態の統合）
    */
   const isSubmitDisabled =
     isLoading ||
+    isDeckLoading || // 🔵 TASK-0049: デッキマスター取得中も無効化
     myDecks.length === 0 ||
     deckMasters.length === 0 ||
     (Object.keys(validationErrors).length > 0 &&
@@ -360,6 +364,13 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
       {error && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {error}
+        </div>
+      )}
+
+      {/* 【デッキエラーメッセージ】: デッキマスター取得エラーを表示 🔵 TASK-0049 */}
+      {deckError && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {deckError}
         </div>
       )}
 
