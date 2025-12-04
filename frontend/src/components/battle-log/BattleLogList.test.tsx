@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { BattleLog } from '../../types';
+import type { BattleLog, DeckMaster } from '../../types';
 import { BattleLogList } from './BattleLogList';
 
 // 【テストファイル概要】: Battle Log一覧表示コンポーネントの単体テスト
@@ -380,6 +380,189 @@ describe('BattleLogList', () => {
 
       const detailButton = screen.getByRole('button', { name: /詳細/ });
       expect(detailButton).toHaveAttribute('aria-label'); // 【確認内容】: aria-label属性が設定される 🟡
+    });
+  });
+
+  // ==================== 4. デッキ名表示テストケース ====================
+
+  describe('デッキ名表示テスト', () => {
+    // 【テストデータ準備】: デッキマスターモックデータ 🔵
+    const mockDeckMasters: DeckMaster[] = [
+      { id: 'deck-master-001', className: 'エルフ', deckName: 'エルフデッキ', sortOrder: 1 },
+      { id: 'deck-master-002', className: 'ロイヤル', deckName: 'ロイヤルデッキ', sortOrder: 2 },
+      { id: 'deck-master-003', className: 'ウィッチ', deckName: 'ウィッチデッキ', sortOrder: 3 },
+    ];
+
+    it('TC-DECK-NAME-001: デッキマスターが渡された場合、相手デッキ名が表示される', () => {
+      // 【テスト目的】: デッキマスター一覧が渡された場合、opponentDeckIdに対応するデッキ名が表示されること 🔵
+      // 【テスト内容】: deckMastersを渡してデッキ名が表示されることを確認 🔵
+      // 【期待される動作】: 「相手デッキ」列に「エルフデッキ」が表示される 🔵
+      // 🔵 信頼性レベル: FR-001に基づく
+
+      const mockBattleLogs: BattleLog[] = [
+        {
+          id: 'log_20251108_001',
+          date: '2025/11/08',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          groupName: 'AAA',
+          myDeckId: 'deck-001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck-master-001',
+        },
+      ];
+
+      const onDelete = vi.fn();
+      const onDetail = vi.fn();
+
+      // 【実際の処理実行】: BattleLogListコンポーネントをレンダリング 🔵
+      render(
+        <BattleLogList
+          battleLogs={mockBattleLogs}
+          deckMasters={mockDeckMasters}
+          onDelete={onDelete}
+          onDetail={onDetail}
+        />
+      );
+
+      // 【結果検証】: デッキ名が表示されることを確認 🔵
+      expect(screen.getByText('エルフデッキ')).toBeInTheDocument();
+    });
+
+    it('TC-DECK-NAME-002: デッキマスターが空の場合、IDがフォールバック表示される', () => {
+      // 【テスト目的】: デッキマスター一覧が空の場合、opponentDeckIdがそのまま表示されること 🔵
+      // 【テスト内容】: 空のdeckMastersを渡してIDが表示されることを確認 🔵
+      // 【期待される動作】: 「相手デッキ」列に「deck-master-001」が表示される 🔵
+      // 🔵 信頼性レベル: FR-001に基づく
+
+      const mockBattleLogs: BattleLog[] = [
+        {
+          id: 'log_20251108_001',
+          date: '2025/11/08',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          groupName: 'AAA',
+          myDeckId: 'deck-001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck-master-001',
+        },
+      ];
+
+      const onDelete = vi.fn();
+      const onDetail = vi.fn();
+
+      // 【実際の処理実行】: 空のデッキマスター配列でレンダリング 🔵
+      render(
+        <BattleLogList
+          battleLogs={mockBattleLogs}
+          deckMasters={[]}
+          onDelete={onDelete}
+          onDetail={onDetail}
+        />
+      );
+
+      // 【結果検証】: IDがフォールバック表示されることを確認 🔵
+      expect(screen.getByText('deck-master-001')).toBeInTheDocument();
+    });
+
+    it('TC-DECK-NAME-003: デッキIDがデッキマスターに存在しない場合、IDがフォールバック表示される', () => {
+      // 【テスト目的】: opponentDeckIdに対応するデッキがデッキマスター一覧に存在しない場合、IDがそのまま表示されること 🔵
+      // 【テスト内容】: 存在しないIDでレンダリングしてIDが表示されることを確認 🔵
+      // 【期待される動作】: 「相手デッキ」列に「unknown-deck」が表示される 🔵
+      // 🔵 信頼性レベル: FR-001に基づく
+
+      const mockBattleLogs: BattleLog[] = [
+        {
+          id: 'log_20251108_001',
+          date: '2025/11/08',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          groupName: 'AAA',
+          myDeckId: 'deck-001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'unknown-deck',
+        },
+      ];
+
+      const onDelete = vi.fn();
+      const onDetail = vi.fn();
+
+      // 【実際の処理実行】: 存在しないデッキIDでレンダリング 🔵
+      render(
+        <BattleLogList
+          battleLogs={mockBattleLogs}
+          deckMasters={mockDeckMasters}
+          onDelete={onDelete}
+          onDetail={onDetail}
+        />
+      );
+
+      // 【結果検証】: IDがフォールバック表示されることを確認 🔵
+      expect(screen.getByText('unknown-deck')).toBeInTheDocument();
+    });
+
+    it('TC-DECK-NAME-004: 複数件のデッキ名が正しく表示される', () => {
+      // 【テスト目的】: 複数の対戦履歴で、各デッキ名が正しく表示されること 🔵
+      // 【テスト内容】: 3件の対戦履歴を渡して各デッキ名が表示されることを確認 🔵
+      // 【期待される動作】: 各行に対応するデッキ名が表示される 🔵
+      // 🔵 信頼性レベル: FR-001に基づく
+
+      const mockBattleLogs: BattleLog[] = [
+        {
+          id: 'log_20251108_001',
+          date: '2025/11/08',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          groupName: 'AAA',
+          myDeckId: 'deck-001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck-master-001',
+        },
+        {
+          id: 'log_20251107_001',
+          date: '2025/11/07',
+          battleType: 'ランクマッチ',
+          rank: 'ダイアモンド',
+          groupName: 'AA',
+          myDeckId: 'deck-002',
+          turn: '後攻',
+          result: '負け',
+          opponentDeckId: 'deck-master-002',
+        },
+        {
+          id: 'log_20251106_001',
+          date: '2025/11/06',
+          battleType: '対戦台',
+          rank: '-',
+          groupName: '-',
+          myDeckId: 'deck-001',
+          turn: '先攻',
+          result: '勝ち',
+          opponentDeckId: 'deck-master-003',
+        },
+      ];
+
+      const onDelete = vi.fn();
+      const onDetail = vi.fn();
+
+      // 【実際の処理実行】: 3件の対戦履歴でレンダリング 🔵
+      render(
+        <BattleLogList
+          battleLogs={mockBattleLogs}
+          deckMasters={mockDeckMasters}
+          onDelete={onDelete}
+          onDetail={onDetail}
+        />
+      );
+
+      // 【結果検証】: 各デッキ名が表示されることを確認 🔵
+      expect(screen.getByText('エルフデッキ')).toBeInTheDocument();
+      expect(screen.getByText('ロイヤルデッキ')).toBeInTheDocument();
+      expect(screen.getByText('ウィッチデッキ')).toBeInTheDocument();
     });
   });
 });

@@ -13,6 +13,7 @@ import { BattleLogForm } from '../components/battle-log/BattleLogForm';
 import { BattleLogList } from '../components/battle-log/BattleLogList';
 import { DeleteConfirmDialog } from '../components/battle-log/DeleteConfirmDialog';
 import { useBattleLogStore } from '../store/battleLogStore';
+import { useDeckStore } from '../store/deckStore';
 import type { BattleLog } from '../types';
 
 /**
@@ -25,6 +26,9 @@ export function BattleLogListPage() {
   // 【Zustand Store取得】: useBattleLogStoreからストアの状態とアクションを取得 🔵
   const { battleLogs, isLoading, error, fetchBattleLogs, deleteBattleLog, clearError } =
     useBattleLogStore();
+
+  // 【TASK-0050対応】: useDeckStoreからデッキマスター一覧を取得 🔵
+  const { deckMasters, fetchDeckMasters } = useDeckStore();
 
   // 【ローカル状態管理】: フォーム表示、削除ダイアログ表示、詳細モーダル表示を管理 🔵
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
@@ -42,7 +46,9 @@ export function BattleLogListPage() {
     // 【初回データ取得】: ページマウント時にfetchBattleLogs()を実行 🔵
     // 【TC-LIST-PAGE-002対応】: fetchBattleLogs()が1回だけ呼ばれる
     fetchBattleLogs();
-  }, [fetchBattleLogs]);
+    // 【TASK-0050対応】: デッキマスター一覧も取得 🔵
+    fetchDeckMasters();
+  }, [fetchBattleLogs, fetchDeckMasters]);
 
   /**
    * 【新規登録ボタンハンドラー】: 新規登録フォームを表示
@@ -208,8 +214,14 @@ export function BattleLogListPage() {
 
       {/* 【一覧表示】: BattleLogListコンポーネントを表示 🔵 */}
       {/* 【TC-LIST-PAGE-001対応】: 一覧表示エリアの表示 */}
+      {/* 【TASK-0050対応】: deckMastersを渡してデッキ名を表示 */}
       {!isLoading && (
-        <BattleLogList battleLogs={battleLogs} onDelete={handleDelete} onDetail={handleDetail} />
+        <BattleLogList
+          battleLogs={battleLogs}
+          deckMasters={deckMasters}
+          onDelete={handleDelete}
+          onDetail={handleDetail}
+        />
       )}
 
       {/* 【新規登録フォームモーダル】: BattleLogFormコンポーネントを表示 🔵 */}

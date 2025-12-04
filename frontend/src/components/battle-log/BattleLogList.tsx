@@ -5,15 +5,19 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-009, REQ-010, REQ-011, REQ-034, REQ-103, REQ-603）に基づく
  */
 
-import type { BattleLog } from '../../types';
+import { useCallback } from 'react';
+import type { BattleLog, DeckMaster } from '../../types';
 
 /**
  * 【型定義】: BattleLogListコンポーネントのプロップス型
  * 🔵 信頼性レベル: 要件定義書のBattleLogListProps仕様に準拠
+ * 【TASK-0050対応】: deckMastersプロパティを追加
  */
 interface BattleLogListProps {
   /** 対戦履歴一覧データ */
   battleLogs: BattleLog[];
+  /** デッキマスター一覧データ（デッキ名表示用、オプショナル） */
+  deckMasters?: DeckMaster[];
   /** 削除ボタンクリック時のコールバック関数 */
   onDelete: (id: string) => void;
   /** 詳細ボタンクリック時のコールバック関数 */
@@ -26,7 +30,25 @@ interface BattleLogListProps {
  * 【テスト対応】: TC-LIST-001〜TC-A11Y-002の全10ケースを通すための実装
  * 🔵 信頼性レベル: 要件定義書のBattleLogList仕様に準拠
  */
-export const BattleLogList: React.FC<BattleLogListProps> = ({ battleLogs, onDelete, onDetail }) => {
+export const BattleLogList: React.FC<BattleLogListProps> = ({
+  battleLogs,
+  deckMasters = [],
+  onDelete,
+  onDetail,
+}) => {
+  /**
+   * 【デッキ名ルックアップ関数】: デッキIDからデッキ名を取得
+   * 【TASK-0050対応】: opponentDeckIdをデッキ名に変換
+   * 🔵 信頼性レベル: FR-001に基づく
+   */
+  const getDeckName = useCallback(
+    (deckId: string): string => {
+      const deck = deckMasters.find((d) => d.id === deckId);
+      return deck?.deckName ?? deckId; // 見つからない場合はIDをフォールバック
+    },
+    [deckMasters]
+  );
+
   // 【境界値処理】: 対戦履歴が0件の場合、空データメッセージを表示 🔵
   // 【TC-BND-001対応】: battleLogs = [] の場合の表示
   if (battleLogs.length === 0) {
@@ -83,9 +105,11 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({ battleLogs, onDele
               <td className="border border-gray-300 px-4 py-2">{log.turn}</td>
               {/* 【対戦結果】: "勝ち" or "負け"を表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.result}</td>
-              {/* 【相手デッキ】: デッキIDを表示（最小実装） 🔵 */}
-              {/* 【最小実装】: opponentDeckIdをそのまま表示（デッキ名表示は後で改善） */}
-              <td className="border border-gray-300 px-4 py-2">{log.opponentDeckId}</td>
+              {/* 【相手デッキ】: デッキ名を表示 🔵 */}
+              {/* 【TASK-0050対応】: getDeckName()でデッキ名に変換、見つからない場合はIDをフォールバック */}
+              <td className="border border-gray-300 px-4 py-2">
+                {getDeckName(log.opponentDeckId)}
+              </td>
               {/* 【アクション】: 詳細・削除ボタンを表示 🔵 */}
               {/* 【TC-LIST-004、TC-LIST-005、TC-A11Y-002対応】: ボタンのクリックとaria-label */}
               <td className="border border-gray-300 px-4 py-2">
@@ -172,9 +196,10 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({ battleLogs, onDele
                 </div>
 
                 {/* 【相手デッキ】: 4行目 */}
+                {/* 【TASK-0050対応】: getDeckName()でデッキ名に変換 */}
                 <div className="text-sm">
                   <span className="text-gray-500">相手デッキ:</span>
-                  <span className="ml-2 text-gray-700">{log.opponentDeckId}</span>
+                  <span className="ml-2 text-gray-700">{getDeckName(log.opponentDeckId)}</span>
                 </div>
               </div>
 
