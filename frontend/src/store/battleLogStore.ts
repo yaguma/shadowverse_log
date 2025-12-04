@@ -177,9 +177,14 @@ export const useBattleLogStore = create<BattleLogState>()(
     }),
     {
       name: 'battle-log-storage', // localStorageのキー名
-      // 【永続化対象】: previousInputのみを永続化（他の状態はリロード時にリセット）
+      // 【永続化対象】: previousInputの一部のみを永続化（他の状態はリロード時にリセット）
       // 🔵 REQ-003対応: 前回入力値の保持機能
-      partialize: (state) => ({ previousInput: state.previousInput }),
+      // 【保持対象外】: date, opponentDeckId, turn, result（毎回変わる項目）
+      partialize: (state) => {
+        if (!state.previousInput) return { previousInput: null };
+        const { date, opponentDeckId, turn, result, ...rest } = state.previousInput;
+        return { previousInput: rest };
+      },
     }
   )
 );
