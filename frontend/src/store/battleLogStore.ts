@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { apiClient, extractErrorMessage } from '../api/client';
 import type { BattleLog, BattleLogsResponse, CreateBattleLogRequest } from '../types';
 
@@ -37,12 +38,14 @@ interface BattleLogState {
  * 【Zustandストア定義】: create関数でストアを作成
  * 🔵 信頼性レベル: Zustand公式ドキュメントの推奨パターンに準拠
  */
-export const useBattleLogStore = create<BattleLogState>((set, get) => ({
-  // 【初期状態】: ストアの初期値を設定 🔵
-  battleLogs: [],
-  previousInput: null,
-  isLoading: false,
-  error: null,
+export const useBattleLogStore = create<BattleLogState>()(
+  persist(
+    (set, get) => ({
+      // 【初期状態】: ストアの初期値を設定 🔵
+      battleLogs: [],
+      previousInput: null,
+      isLoading: false,
+      error: null,
 
   /**
    * 【機能概要】: 対戦履歴一覧を取得
@@ -171,4 +174,12 @@ export const useBattleLogStore = create<BattleLogState>((set, get) => ({
     // 【TC-STORE-BL-008対応】: エラー状態のクリアが正しく動作することをテスト
     set({ error: null });
   },
-}));
+    }),
+    {
+      name: 'battle-log-storage', // localStorageのキー名
+      // 【永続化対象】: previousInputのみを永続化（他の状態はリロード時にリセット）
+      // 🔵 REQ-003対応: 前回入力値の保持機能
+      partialize: (state) => ({ previousInput: state.previousInput }),
+    }
+  )
+);
