@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build && npm run copy",
     "copy": "cp staticwebapp.config.json dist/",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",

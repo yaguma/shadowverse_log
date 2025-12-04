@@ -30,7 +30,9 @@
       "Bash(pnpm run type-check:*)",
       "Bash(pnpm exec tsc:*)",
       "Bash(pnpm run build:*)",
-      "Bash(pnpm exec playwright test:*)"
+      "Bash(pnpm exec playwright test:*)",
+      "Bash(pnpm run db:seed:generate:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
