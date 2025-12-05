@@ -59,7 +59,7 @@ export function TurnComparisonChart({ first, second }: TurnComparisonChartProps)
     active?: boolean;
     payload?: Array<{ payload: (typeof data)[0] }>;
   }) => {
-    if (active && payload && payload.length) {
+    if (active && payload && payload.length > 0 && payload[0]) {
       const item = payload[0].payload;
       return (
         <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
@@ -101,7 +101,11 @@ export function TurnComparisonChart({ first, second }: TurnComparisonChartProps)
             <LabelList
               dataKey="winRate"
               position="right"
-              formatter={(value: number) => `${value.toFixed(1)}%`}
+              formatter={(value) => {
+                if (typeof value === 'number') return `${value.toFixed(1)}%`;
+                if (typeof value === 'string') return `${value}%`;
+                return '';
+              }}
               style={{ fontSize: 14, fontWeight: 600, fill: '#374151' }}
             />
           </Bar>
