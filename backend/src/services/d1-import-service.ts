@@ -10,6 +10,7 @@ import type { Database } from '../db';
 import { battleLogs } from '../db/schema/battle-logs';
 import type { ImportResponse, ImportBattleLogInput } from '../types/import';
 import { parseJSON, parseCSV } from '../utils/parser';
+import { getNowInJST } from '../utils/date';
 
 /**
  * バリデーションスキーマ
@@ -22,7 +23,7 @@ const importBattleLogSchema = z.object({
     .refine(
       (date) => {
         const inputDate = new Date(date);
-        const today = new Date();
+        const today = getNowInJST();
         today.setHours(23, 59, 59, 999);
         return inputDate <= today;
       },

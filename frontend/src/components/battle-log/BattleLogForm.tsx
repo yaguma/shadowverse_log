@@ -19,6 +19,7 @@ import type {
   Rank,
   Turn,
 } from '../../types';
+import { getTodayInJST } from '../../utils/date';
 
 /**
  * 【型定義】: BattleLogFormコンポーネントのプロップス型
@@ -105,7 +106,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
   // 【ローカル状態管理】: フォームデータとバリデーションエラーを管理 🔵
   const [formData, setFormData] = useState<CreateBattleLogRequest>({
-    date: new Date().toISOString().split('T')[0], // 今日の日付（YYYY-MM-DD形式） 🔵
+    date: getTodayInJST(), // 今日の日付（日本時間、YYYY-MM-DD形式） 🔵
     battleType: '' as BattleType,
     rank: '' as Rank,
     groupName: '' as Group,
@@ -129,7 +130,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
     if (previousInput) {
       setFormData((prev) => ({
         ...prev,
-        date: new Date().toISOString().split('T')[0], // 日付は常に今日（前回値を引き継がない） 🔵
+        date: getTodayInJST(), // 日付は常に今日（日本時間、前回値を引き継がない） 🔵
         battleType: previousInput.battleType || ('' as BattleType),
         rank: previousInput.rank || ('' as Rank),
         groupName: previousInput.groupName || ('' as Group),
@@ -181,8 +182,8 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
       return undefined; // 日付は省略可能 🔵
     }
 
-    // 【日付比較】: YYYY-MM-DD形式の文字列で比較 🔵
-    const today = new Date().toISOString().split('T')[0] || '';
+    // 【日付比較】: YYYY-MM-DD形式の文字列で比較（日本時間） 🔵
+    const today = getTodayInJST();
 
     if (date > today) {
       return '未来の日付は入力できません'; // 🔵 REQ-030

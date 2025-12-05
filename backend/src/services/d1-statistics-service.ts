@@ -11,6 +11,7 @@ import type { Database } from '../db';
 import { battleLogs } from '../db/schema/battle-logs';
 import { deckMaster } from '../db/schema/deck-master';
 import { myDecks } from '../db/schema/my-decks';
+import { getTodayInJST, getDateBeforeDays } from '../utils/date';
 
 /**
  * 勝敗の定数（データベースの値に合わせる）
@@ -111,12 +112,9 @@ export class D1StatisticsService {
    * @returns 統計情報
    */
   async getStatistics(params: StatisticsParams): Promise<StatisticsResult> {
-    // デフォルト期間の設定
-    const today = new Date();
-    const endDate =
-      params.endDate || today.toISOString().split('T')[0] || '';
-    const startDate =
-      params.startDate || this.getDateBeforeDays(endDate, 7);
+    // デフォルト期間の設定（日本時間）
+    const endDate = params.endDate || getTodayInJST();
+    const startDate = params.startDate || getDateBeforeDays(endDate, 7);
 
     // 対戦履歴を取得
     const logs = await this.fetchBattleLogs(
@@ -488,12 +486,4 @@ export class D1StatisticsService {
     return Math.round((wins / totalGames) * 1000) / 10;
   }
 
-  /**
-   * 指定日から指定日数前の日付を取得
-   */
-  private getDateBeforeDays(date: string, days: number): string {
-    const baseDate = new Date(date);
-    baseDate.setDate(baseDate.getDate() - days);
-    return baseDate.toISOString().split('T')[0] || '';
-  }
 }

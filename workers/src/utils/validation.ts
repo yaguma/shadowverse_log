@@ -1,20 +1,21 @@
 import { z } from "zod";
+import { getTodayInJST, getNowInJST } from "./date";
 
 /**
- * 未来日付かどうかを判定する
+ * 未来日付かどうかを判定する（日本時間基準）
  */
 const isFutureDate = (dateStr: string): boolean => {
   const inputDate = new Date(dateStr);
-  const today = new Date();
+  const today = getNowInJST();
   today.setHours(23, 59, 59, 999);
   return inputDate > today;
 };
 
 /**
- * 今日の日付をYYYY-MM-DD形式で取得する
+ * 今日の日付をYYYY-MM-DD形式で取得する（日本時間）
  */
 const getTodayString = (): string => {
-  return new Date().toISOString().split("T")[0];
+  return getTodayInJST();
 };
 
 /**
