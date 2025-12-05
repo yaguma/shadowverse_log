@@ -75,6 +75,7 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
         <thead>
           <tr className="bg-gray-100">
             <th className="border border-gray-300 px-4 py-2">対戦日</th>
+            <th className="border border-gray-300 px-4 py-2">シーズン</th>
             <th className="border border-gray-300 px-4 py-2">対戦タイプ</th>
             <th className="border border-gray-300 px-4 py-2">ランク</th>
             <th className="border border-gray-300 px-4 py-2">グループ</th>
@@ -92,6 +93,10 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
             <tr key={log.id} className="hover:bg-gray-50">
               {/* 【対戦日】: YYYY/MM/DD形式で表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.date}</td>
+              {/* 【シーズン】: シーズン番号を表示（未設定の場合は"-"） 🔵 */}
+              <td className="border border-gray-300 px-4 py-2 text-center">
+                {log.season ?? '-'}
+              </td>
               {/* 【対戦タイプ】: "ランクマッチ"等を表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.battleType}</td>
               {/* 【ランク】: "ダイアモンド"等を表示 🔵 */}
@@ -166,7 +171,7 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
 
               {/* 【カードボディ】: 対戦情報を2列で表示 🔵 */}
               <div className="space-y-2 mb-4">
-                {/* 【対戦タイプ・ランク・グループ】: 1行目 */}
+                {/* 【対戦タイプ・ランク・グループ・シーズン】: 1行目 */}
                 <div className="flex text-sm text-gray-600">
                   <span>{log.battleType}</span>
                   {log.rank !== '-' && (
@@ -179,6 +184,12 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
                     <>
                       <span className="mx-2">|</span>
                       <span>{log.groupName}</span>
+                    </>
+                  )}
+                  {log.season && (
+                    <>
+                      <span className="mx-2">|</span>
+                      <span>S{log.season}</span>
                     </>
                   )}
                 </div>
