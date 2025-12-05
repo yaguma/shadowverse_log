@@ -83,6 +83,7 @@ export interface StatisticsParams {
   startDate?: string;
   endDate?: string;
   battleType?: string;
+  season?: number; // シーズンフィルタ
 }
 
 /**
@@ -109,7 +110,8 @@ export class D1StatisticsService {
     const logs = await this.fetchBattleLogs(
       startDate,
       endDate,
-      params.battleType
+      params.battleType,
+      params.season
     );
 
     // デッキ名のマッピングを取得
@@ -138,7 +140,8 @@ export class D1StatisticsService {
   private async fetchBattleLogs(
     startDate: string,
     endDate: string,
-    battleType?: string
+    battleType?: string,
+    season?: number
   ) {
     const conditions = [
       gte(battleLogs.date, startDate),
@@ -147,6 +150,10 @@ export class D1StatisticsService {
 
     if (battleType) {
       conditions.push(eq(battleLogs.battleType, battleType));
+    }
+
+    if (season) {
+      conditions.push(eq(battleLogs.season, season));
     }
 
     return await this.db

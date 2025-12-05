@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { index, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 /**
  * 対戦履歴テーブル
@@ -19,6 +19,7 @@ export const battleLogs = sqliteTable(
     turn: text('turn').notNull(),
     result: text('result').notNull(),
     opponentDeckId: text('opponent_deck_id').notNull(),
+    season: integer('season'), // シーズン番号（任意）
     createdAt: text('created_at').default(sql`(datetime('now'))`),
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),
   },
@@ -27,6 +28,7 @@ export const battleLogs = sqliteTable(
     index('idx_battle_logs_my_deck_id').on(table.myDeckId),
     index('idx_battle_logs_opponent_deck_id').on(table.opponentDeckId),
     index('idx_battle_logs_user_id').on(table.userId), // Phase 2
+    index('idx_battle_logs_season').on(table.season), // シーズンフィルタ用
   ]
 );
 

@@ -21,9 +21,11 @@ import { DeckStatsTable } from '../components/statistics/DeckStatsTable';
 import { EmptyState } from '../components/statistics/EmptyState';
 import { StatisticsError } from '../components/statistics/Error';
 import { Loading } from '../components/statistics/Loading';
+import { OpponentDeckPieChart } from '../components/statistics/OpponentDeckPieChart';
 import { OverallStats } from '../components/statistics/OverallStats';
 import { PeriodSelector } from '../components/statistics/PeriodSelector';
 import { RankStatsTable } from '../components/statistics/RankStatsTable';
+import { SeasonSelector } from '../components/statistics/SeasonSelector';
 import { TurnStats } from '../components/statistics/TurnStats';
 import type { StatisticsResponse } from '../types';
 
@@ -40,9 +42,10 @@ const DEFAULT_PERIOD_DAYS = 7;
  * 統計情報を表示するページコンポーネント
  */
 export function StatisticsDashboardPage() {
-  // 🔵 State管理: 期間選択、統計データ、ローディング状態、エラー状態
+  // 🔵 State管理: 期間選択、シーズン選択、統計データ、ローディング状態、エラー状態
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [season, setSeason] = useState<number | undefined>(undefined); // シーズンフィルタ
   const [statistics, setStatistics] = useState<StatisticsResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,10 +99,11 @@ export function StatisticsDashboardPage() {
 
     try {
       // 【API呼び出し】: Backend 統計 API を呼び出し
-      // クエリパラメータ: startDate, endDate（YYYY-MM-DD 形式）
+      // クエリパラメータ: startDate, endDate（YYYY-MM-DD 形式）, season（シーズン番号）
       // レスポンス: StatisticsResponse 型（overall, byMyDeck, byOpponentDeck, byRank, byTurn）
+      const seasonParam = season ? `&season=${season}` : '';
       const data = await apiClient.get<StatisticsResponse>(
-        `/statistics?startDate=${startDate}&endDate=${endDate}`
+        `/statistics?startDate=${startDate}&endDate=${endDate}${seasonParam}`
       );
 
       // 【成功時処理】: 取得した統計データを State に保存
@@ -115,7 +119,7 @@ export function StatisticsDashboardPage() {
       // finally ブロックにより、エラー時も確実にローディングを終了
       setIsLoading(false);
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, season]);
 
   /**
    * 【期間変更時の自動データ取得】: 開始日または終了日が変更されたら統計を再取得
@@ -170,19 +174,26 @@ export function StatisticsDashboardPage() {
   };
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto">
       {/* 🔵 ページヘッダー */}
-      <h2 className="text-xl font-bold mb-4">統計ダッシュボード</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">統計ダッシュボード</h2>
 
       {/* 🔵 REQ-202: 期間選択フォーム */}
-      <PeriodSelector
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-        onSearch={handleSearch}
-        isLoading={isLoading}
-      />
+      <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="flex flex-wrap items-end gap-4">
+          <PeriodSelector
+            startDate={startDate}
+            endDate={endDate}
+            onStartDateChange={setStartDate}
+            onEndDateChange={setEndDate}
+            onSearch={handleSearch}
+            isLoading={isLoading}
+          />
+
+          {/* 🔵 シーズンフィルタ */}
+          <SeasonSelector season={season} onSeasonChange={setSeason} isLoading={isLoading} />
+        </div>
+      </div>
 
       {/* 🔵 REQ-502: ローディング状態 */}
       {isLoading && <Loading />}
@@ -195,21 +206,34 @@ export function StatisticsDashboardPage() {
 
       {/* 🔵 REQ-203: 統計情報表示 */}
       {!isLoading && !error && statistics && statistics.overall.totalGames > 0 && (
-        <div>
-          {/* 🔵 全体統計 */}
+        <div className="space-y-6">
+          {/* === グラフィカルエリア（優先表示） === */}
+
+          {/* 🔵 全体統計（勝率ゲージ） */}
           <OverallStats stats={statistics.overall} />
 
-          {/* 🔵 デッキ別統計（マイデッキ） */}
-          <DeckStatsTable title="マイデッキ別統計" deckStats={statistics.byMyDeck} />
-
-          {/* 🔵 デッキ別統計（相手デッキ） */}
-          <DeckStatsTable title="相手デッキ別統計" deckStats={statistics.byOpponentDeck} />
-
-          {/* 🔵 ランク帯別統計 */}
-          <RankStatsTable rankStats={statistics.byRank} />
-
-          {/* 🔵 先攻後攻別統計 */}
+          {/* 🔵 先攻後攻別統計（棒グラフ） */}
           <TurnStats turnStats={statistics.byTurn} />
+
+          {/* 🔵 相手デッキ分布（円グラフ） */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-xl font-bold mb-4 text-center text-gray-800">相手デッキ分布</h3>
+            <OpponentDeckPieChart data={statistics.byOpponentDeck} />
+          </div>
+
+          {/* === テーブルエリア（下部に配置、削除しやすく） === */}
+          <div className="border-t-2 border-gray-200 pt-6 mt-6">
+            <h3 className="text-lg font-semibold mb-4 text-gray-600">詳細統計（テーブル）</h3>
+
+            {/* 🔵 デッキ別統計（マイデッキ） */}
+            <DeckStatsTable title="マイデッキ別統計" deckStats={statistics.byMyDeck} />
+
+            {/* 🔵 デッキ別統計（相手デッキ） */}
+            <DeckStatsTable title="相手デッキ別統計" deckStats={statistics.byOpponentDeck} />
+
+            {/* 🔵 ランク帯別統計 */}
+            <RankStatsTable rankStats={statistics.byRank} />
+          </div>
         </div>
       )}
     </div>

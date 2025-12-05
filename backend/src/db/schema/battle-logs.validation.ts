@@ -38,6 +38,7 @@ export const NewBattleLogSchema = z.object({
   turn: TurnSchema,
   result: ResultSchema,
   opponentDeckId: z.string().min(1, '相手のデッキIDは必須です'),
+  season: z.number().int().positive().optional(), // シーズン番号（任意、1以上の整数）
 });
 
 export type NewBattleLogInput = z.infer<typeof NewBattleLogSchema>;

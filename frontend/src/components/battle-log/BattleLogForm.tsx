@@ -87,7 +87,8 @@ const BATTLE_RESULTS_OPTIONS: readonly BattleResult[] = ['勝ち', '負け'] as 
  */
 export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCancel }) => {
   // 【Zustand Store取得】: useBattleLogStoreからストアの状態とアクションを取得 🔵
-  const { previousInput, isLoading, error, createBattleLog } = useBattleLogStore();
+  const { previousInput, lastSeason, isLoading, error, createBattleLog, setLastSeason } =
+    useBattleLogStore();
 
   // 【Zustand Store取得】: useDeckStoreからデッキマスター一覧とマイデッキ一覧を取得 🔵
   // 🔵 TASK-0049: API連携のため、デッキマスター一覧をStoreから取得
@@ -112,6 +113,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
     turn: '' as Turn,
     result: '' as BattleResult,
     opponentDeckId: '',
+    season: undefined, // シーズン番号（任意）
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -135,9 +137,16 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         turn: previousInput.turn || ('' as Turn),
         result: previousInput.result || ('' as BattleResult),
         opponentDeckId: previousInput.opponentDeckId || '',
+        season: previousInput.season ?? lastSeason ?? undefined, // シーズンは前回値を引き継ぐ
+      }));
+    } else if (lastSeason) {
+      // previousInputがなくてもlastSeasonがあれば設定
+      setFormData((prev) => ({
+        ...prev,
+        season: lastSeason,
       }));
     }
-  }, [previousInput]);
+  }, [previousInput, lastSeason]);
 
   /**
    * 【マイデッキ一覧取得】: 初期化時にマイデッキ一覧をAPIから取得
@@ -232,19 +241,24 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
    * 🔵 信頼性レベル: Reactの基本的な動作パターンに基づく
    */
   const handleChange = useCallback(
-    (field: keyof CreateBattleLogRequest, value: string) => {
+    (field: keyof CreateBattleLogRequest, value: string | number | undefined) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
 
       // 【リアルタイムバリデーション】: 日付フィールドのみリアルタイムでバリデーション 🔵
-      if (field === 'date') {
+      if (field === 'date' && typeof value === 'string') {
         const dateError = validateDate(value);
         setValidationErrors((prev) => ({
           ...prev,
           date: dateError,
         }));
       }
+
+      // 【シーズン変更時】: lastSeasonを更新 🔵
+      if (field === 'season' && typeof value === 'number') {
+        setLastSeason(value);
+      }
     },
-    [validateDate]
+    [validateDate, setLastSeason]
   );
 
   /**
@@ -430,6 +444,25 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
             </option>
           ))}
         </select>
+      </div>
+
+      {/* 【シーズンフィールド】: シーズン番号入力 🔵 */}
+      <div className="mb-4">
+        <label htmlFor="season" className="label">
+          シーズン
+        </label>
+        <input
+          id="season"
+          type="number"
+          min="1"
+          className="input-field w-24"
+          value={formData.season ?? ''}
+          onChange={(e) => {
+            const value = e.target.value;
+            handleChange('season', value === '' ? undefined : Number(value));
+          }}
+          placeholder="例: 1"
+        />
       </div>
 
       {/* 【ランクフィールド】: ランク選択 🔵 */}

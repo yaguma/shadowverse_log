@@ -58,10 +58,11 @@ function createErrorResponse(code: string, message: string) {
  * @query startDate - 開始日（YYYY-MM-DD）
  * @query endDate - 終了日（YYYY-MM-DD）
  * @query battleType - 対戦タイプ
+ * @query season - シーズン番号（1以上の整数）
  */
 statistics.get('/', async (c) => {
   try {
-    const { startDate, endDate, battleType } = c.req.query();
+    const { startDate, endDate, battleType, season } = c.req.query();
 
     // バリデーション: 日付形式チェック
     if (startDate && !isValidDateFormat(startDate)) {
@@ -95,6 +96,17 @@ statistics.get('/', async (c) => {
       );
     }
 
+    // バリデーション: シーズンチェック
+    if (season && (Number.isNaN(Number(season)) || Number(season) < 1 || !Number.isInteger(Number(season)))) {
+      return c.json(
+        createErrorResponse(
+          'INVALID_SEASON',
+          'シーズンは1以上の整数で指定してください。'
+        ),
+        400
+      );
+    }
+
     // データベース接続とサービス初期化
     const db = createDb(c.env.DB);
     const service = new D1StatisticsService(db);
@@ -104,6 +116,7 @@ statistics.get('/', async (c) => {
       startDate,
       endDate,
       battleType,
+      season: season ? Number(season) : undefined,
     });
 
     return c.json({

@@ -7,6 +7,7 @@ import { StatisticsDashboardPage } from './StatisticsDashboardPage';
 // 【テストファイル概要】: Statistics Dashboardページコンポーネントの単体テスト
 // 【テスト目的】: StatisticsDashboardPageコンポーネントの全機能（正常系・異常系・境界値・UI/UX）を検証する
 // 【テスト範囲】: 統計表示、期間選択、ローディング、エラーハンドリング、レスポンシブデザイン
+// 【更新内容】: グラフィカル表示（WinRateGauge, TurnComparisonChart）に対応
 
 // 【モック設定】: API Clientをモック化してAPIレスポンスを制御
 vi.mock('../api/client');
@@ -110,17 +111,18 @@ describe('StatisticsDashboardPage', () => {
         );
       });
 
-      // 【検証項目】: 全体統計が表示される 🔵
+      // 【検証項目】: 全体統計が表示される（WinRateGaugeによるグラフィカル表示） 🔵
       await waitFor(() => {
-        expect(screen.getByText(/総試合数.*150/)).toBeInTheDocument();
-        expect(screen.getByText(/勝率.*65\.3%/)).toBeInTheDocument();
+        expect(screen.getByText('全体統計')).toBeInTheDocument();
+        expect(screen.getByText('65.3%')).toBeInTheDocument();
+        expect(screen.getByText(/150試合/)).toBeInTheDocument();
       });
     });
 
     it('TC-STATS-002: 全体統計が正しく表示される', async () => {
       // 【テスト目的】: OverallStatsコンポーネントの表示機能を確認
       // 【テスト内容】: APIレスポンスのoverall統計が正確に表示される
-      // 【期待される動作】: 総試合数、勝数、敗数、勝率が正しく表示される
+      // 【期待される動作】: 勝率、試合数情報がWinRateGaugeで表示される
       // 🔵 信頼性レベル: REQ-203 に基づく
 
       // 【テストデータ準備】: 150試合中98勝52敗、勝率65.3%のサンプルデータ
@@ -146,19 +148,18 @@ describe('StatisticsDashboardPage', () => {
 
       render(<StatisticsDashboardPage />);
 
-      // 【検証項目】: 総試合数が表示される 🔵
+      // 【検証項目】: 全体統計タイトルが表示される 🔵
       await waitFor(() => {
-        expect(screen.getByText(/総試合数.*150/)).toBeInTheDocument();
+        expect(screen.getByText('全体統計')).toBeInTheDocument();
       });
 
-      // 【検証項目】: 勝数が表示される 🔵
-      expect(screen.getByText(/勝数.*98/)).toBeInTheDocument();
+      // 【検証項目】: 勝率が小数点第1位まで表示される（WinRateGauge） 🔵
+      expect(screen.getByText('65.3%')).toBeInTheDocument();
 
-      // 【検証項目】: 敗数が表示される 🔵
-      expect(screen.getByText(/敗数.*52/)).toBeInTheDocument();
-
-      // 【検証項目】: 勝率が小数点第1位まで表示される 🔵
-      expect(screen.getByText(/勝率.*65\.3%/)).toBeInTheDocument();
+      // 【検証項目】: 試合数情報が表示される 🔵
+      expect(screen.getByText(/150試合/)).toBeInTheDocument();
+      expect(screen.getByText(/98勝/)).toBeInTheDocument();
+      expect(screen.getByText(/52敗/)).toBeInTheDocument();
     });
 
     it('TC-STATS-003: デッキ別統計が正しく表示される', async () => {
@@ -283,8 +284,8 @@ describe('StatisticsDashboardPage', () => {
 
     it('TC-STATS-005: 先攻後攻別統計が正しく表示される', async () => {
       // 【テスト目的】: TurnStatsコンポーネントの表示機能を確認
-      // 【テスト内容】: APIレスポンスのbyTurn統計が正確に表示される
-      // 【期待される動作】: 先攻後攻別の統計が正しく表示される
+      // 【テスト内容】: APIレスポンスのbyTurn統計がTurnComparisonChartで正確に表示される
+      // 【期待される動作】: 先攻後攻別の統計がグラフィカルに表示される
       // 🔵 信頼性レベル: REQ-203 に基づく
 
       // 【テストデータ準備】: 先攻78試合、後攻72試合の統計データ
@@ -315,23 +316,16 @@ describe('StatisticsDashboardPage', () => {
 
       render(<StatisticsDashboardPage />);
 
-      // 【検証項目】: 先攻の統計が表示される（試合数: 78、勝率: 66.7%） 🔵
-      // 【修正】: 複数の要素に分かれたテキストを個別に検証 🟡
+      // 【検証項目】: 先攻後攻別統計タイトルが表示される 🔵
       await waitFor(() => {
-        expect(
-          screen.getByText((_content, element) => {
-            return element?.textContent === '78試合 52勝 26敗 勝率66.7%';
-          })
-        ).toBeInTheDocument();
+        expect(screen.getByText('先攻後攻別統計')).toBeInTheDocument();
       });
 
-      // 【検証項目】: 後攻の統計が表示される（試合数: 72、勝率: 63.9%） 🔵
-      // 【修正】: 複数の要素に分かれたテキストを個別に検証 🟡
-      expect(
-        screen.getByText((_content, element) => {
-          return element?.textContent === '72試合 46勝 26敗 勝率63.9%';
-        })
-      ).toBeInTheDocument();
+      // 【検証項目】: 先攻の統計が表示される（TurnComparisonChart） 🔵
+      expect(screen.getByText(/先攻.*78試合/)).toBeInTheDocument();
+
+      // 【検証項目】: 後攻の統計が表示される（TurnComparisonChart） 🔵
+      expect(screen.getByText(/後攻.*72試合/)).toBeInTheDocument();
     });
 
     it('TC-STATS-006: 期間選択で統計情報が更新される', async () => {
@@ -375,9 +369,10 @@ describe('StatisticsDashboardPage', () => {
 
       render(<StatisticsDashboardPage />);
 
-      // 初回表示を待つ
+      // 初回表示を待つ（グラフィカル表示に対応）
       await waitFor(() => {
-        expect(screen.getByText(/総試合数.*150/)).toBeInTheDocument();
+        expect(screen.getByText('全体統計')).toBeInTheDocument();
+        expect(screen.getByText('65.3%')).toBeInTheDocument();
       });
 
       // 【実際の処理実行】: 開始日・終了日を変更（useEffectで自動的にAPI呼び出しが実行される）
@@ -400,10 +395,10 @@ describe('StatisticsDashboardPage', () => {
         { timeout: 3000 }
       );
 
-      // 【検証項目】: 新しい統計情報が表示される 🔵
-      // 【修正】: 複数の要素に分かれたテキストを正規表現で検証 🟡
+      // 【検証項目】: 新しい統計情報が表示される（グラフィカル表示） 🔵
       await waitFor(() => {
-        expect(screen.getByText(/総試合数.*200/)).toBeInTheDocument();
+        expect(screen.getByText('65.0%')).toBeInTheDocument();
+        expect(screen.getByText(/200試合/)).toBeInTheDocument();
       });
     });
 
@@ -426,7 +421,7 @@ describe('StatisticsDashboardPage', () => {
       expect(screen.getByRole('status')).toBeInTheDocument();
 
       // 【検証項目】: 統計情報は表示されない 🔵
-      expect(screen.queryByText(/総試合数/)).not.toBeInTheDocument();
+      expect(screen.queryByText('全体統計')).not.toBeInTheDocument();
 
       // APIレスポンスを返す
       resolveApi!({
@@ -445,7 +440,8 @@ describe('StatisticsDashboardPage', () => {
       // 【検証項目】: ローディング終了後、統計情報が表示される 🔵
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
-        expect(screen.getByText(/総試合数.*150/)).toBeInTheDocument();
+        expect(screen.getByText('全体統計')).toBeInTheDocument();
+        expect(screen.getByText('65.3%')).toBeInTheDocument();
       });
     });
 
@@ -479,7 +475,7 @@ describe('StatisticsDashboardPage', () => {
       });
 
       // 【検証項目】: 統計テーブルは表示されない 🔵
-      expect(screen.queryByText(/デッキ別統計/)).not.toBeInTheDocument();
+      expect(screen.queryByText('全体統計')).not.toBeInTheDocument();
     });
 
     it('TC-STATS-009: 期間選択のデフォルト値が正しく設定される', async () => {

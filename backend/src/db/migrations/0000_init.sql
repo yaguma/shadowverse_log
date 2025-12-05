@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `battle_logs` (
 	`turn` text NOT NULL,
 	`result` text NOT NULL,
 	`opponent_deck_id` text NOT NULL,
+	`season` integer,
 	`created_at` text DEFAULT (datetime('now')),
 	`updated_at` text DEFAULT (datetime('now'))
 );
@@ -22,6 +23,7 @@ CREATE INDEX IF NOT EXISTS `idx_battle_logs_date` ON `battle_logs` (`date`);
 CREATE INDEX IF NOT EXISTS `idx_battle_logs_my_deck_id` ON `battle_logs` (`my_deck_id`);
 CREATE INDEX IF NOT EXISTS `idx_battle_logs_opponent_deck_id` ON `battle_logs` (`opponent_deck_id`);
 CREATE INDEX IF NOT EXISTS `idx_battle_logs_user_id` ON `battle_logs` (`user_id`);
+CREATE INDEX IF NOT EXISTS `idx_battle_logs_season` ON `battle_logs` (`season`);
 
 -- Deck Master Table
 CREATE TABLE IF NOT EXISTS `deck_master` (

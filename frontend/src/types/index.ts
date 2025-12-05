@@ -54,6 +54,8 @@ export interface BattleLog {
   result: BattleResult;
   /** 相手デッキID */
   opponentDeckId: string;
+  /** シーズン番号（任意） */
+  season?: number;
 }
 
 /**
@@ -91,6 +93,8 @@ export interface CreateBattleLogRequest {
   result: BattleResult;
   /** 相手デッキID */
   opponentDeckId: string;
+  /** シーズン番号（任意） */
+  season?: number;
 }
 
 /**

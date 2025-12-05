@@ -20,6 +20,7 @@ interface BattleLogState {
   // 【データ状態】: 対戦履歴データと前回入力値を保持 🔵
   battleLogs: BattleLog[];
   previousInput: Partial<CreateBattleLogRequest> | null;
+  lastSeason: number | null; // 前回入力したシーズン番号
 
   // 【UI状態】: ローディング状態とエラー状態を保持 🔵
   isLoading: boolean;
@@ -30,6 +31,7 @@ interface BattleLogState {
   createBattleLog: (input: CreateBattleLogRequest) => Promise<void>;
   deleteBattleLog: (id: string) => Promise<void>;
   setPreviousInput: (input: Partial<CreateBattleLogRequest>) => void;
+  setLastSeason: (season: number | null) => void; // シーズン設定
   clearError: () => void;
 }
 
@@ -44,6 +46,7 @@ export const useBattleLogStore = create<BattleLogState>()(
       // 【初期状態】: ストアの初期値を設定 🔵
       battleLogs: [],
       previousInput: null,
+      lastSeason: null, // 前回入力したシーズン
       isLoading: false,
       error: null,
 
@@ -164,6 +167,15 @@ export const useBattleLogStore = create<BattleLogState>()(
       },
 
       /**
+       * 【機能概要】: 前回入力したシーズンを設定
+       * 【実装方針】: lastSeasonを直接更新する同期処理
+       * 🔵 信頼性レベル: シーズン機能追加仕様に準拠
+       */
+      setLastSeason: (season: number | null) => {
+        set({ lastSeason: season });
+      },
+
+      /**
        * 【機能概要】: エラー状態をクリア
        * 【実装方針】: errorをnullに設定する同期処理
        * 【テスト対応】: TC-STORE-BL-008を通すための実装
@@ -177,19 +189,26 @@ export const useBattleLogStore = create<BattleLogState>()(
     }),
     {
       name: 'battle-log-storage', // localStorageのキー名
-      // 【永続化対象】: previousInputの一部のみを永続化（他の状態はリロード時にリセット）
+      // 【永続化対象】: previousInputの一部とlastSeasonを永続化（他の状態はリロード時にリセット）
       // 🔵 REQ-003対応: 前回入力値の保持機能
       // 【保持対象外】: date, opponentDeckId, turn, result（毎回変わる項目）
       partialize: (state) => {
-        if (!state.previousInput) return { previousInput: null };
-        const {
-          date: _date,
-          opponentDeckId: _opponentDeckId,
-          turn: _turn,
-          result: _result,
-          ...rest
-        } = state.previousInput;
-        return { previousInput: rest };
+        const previousInput = state.previousInput
+          ? (() => {
+              const {
+                date: _date,
+                opponentDeckId: _opponentDeckId,
+                turn: _turn,
+                result: _result,
+                ...rest
+              } = state.previousInput;
+              return rest;
+            })()
+          : null;
+        return {
+          previousInput,
+          lastSeason: state.lastSeason, // シーズンも永続化
+        };
       },
     }
   )

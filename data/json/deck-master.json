@@ -31,5 +31,6 @@
 {"id":"30",	"className":"ウィッチ",	"deckName":"秘術進化ウィッチ",	"sortOrder":1},
 {"id":"31",	"className":"エルフ",	"deckName":"進化エルフ",	"sortOrder":11},
 {"id":"32",	"className":"ドラゴン",	"deckName":"進化ドラゴン",	"sortOrder":12},
-{"id":"33",	"className":"ナイトメア",	"deckName":"進化ナイトメア",	"sortOrder":6}
+{"id":"33",	"className":"ナイトメア",	"deckName":"進化ナイトメア",	"sortOrder":6},
+{"id":"34",	"className":"ロイヤル",	"deckName":"進化ロイヤル",	"sortOrder":2}
 ]

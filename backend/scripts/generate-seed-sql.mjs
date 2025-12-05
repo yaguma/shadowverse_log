@@ -60,7 +60,8 @@ function generateBattleLogsInserts(data) {
   const lines = ['', '-- battle_logs data', 'DELETE FROM battle_logs;'];
 
   for (const item of data) {
-    const sql = `INSERT INTO battle_logs (id, user_id, date, battle_type, rank, group_name, my_deck_id, turn, result, opponent_deck_id, created_at, updated_at) VALUES (${escapeString(item.id)}, NULL, ${escapeString(item.date)}, ${escapeString(item.battleType)}, ${escapeString(item.rank)}, ${escapeString(item.group)}, ${escapeString(item.myDeckId)}, ${escapeString(item.turn)}, ${escapeString(item.result)}, ${escapeString(item.opponentDeckId)}, datetime('now'), datetime('now'));`;
+    const season = item.season !== null && item.season !== undefined ? item.season : 'NULL';
+    const sql = `INSERT INTO battle_logs (id, user_id, date, battle_type, rank, group_name, my_deck_id, turn, result, opponent_deck_id, season, created_at, updated_at) VALUES (${escapeString(item.id)}, NULL, ${escapeString(item.date)}, ${escapeString(item.battleType)}, ${escapeString(item.rank)}, ${escapeString(item.group)}, ${escapeString(item.myDeckId)}, ${escapeString(item.turn)}, ${escapeString(item.result)}, ${escapeString(item.opponentDeckId)}, ${season}, datetime('now'), datetime('now'));`;
     lines.push(sql);
   }
 
