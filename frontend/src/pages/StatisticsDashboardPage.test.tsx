@@ -4,6 +4,17 @@ import { apiClient } from '../api/client';
 import type { StatisticsResponse } from '../types';
 import { StatisticsDashboardPage } from './StatisticsDashboardPage';
 
+// 【ヘルパー関数】: 最新シーズン取得のモックレスポンスを設定
+const mockLatestSeasonResponse = (latestSeason: number | null = 1) => {
+  vi.mocked(apiClient.get).mockImplementation((url: string) => {
+    if (url === '/battle-logs/latest-season') {
+      return Promise.resolve({ latestSeason });
+    }
+    // 統計APIのモックはテストケース内で設定する
+    return Promise.reject(new Error(`Unexpected API call: ${url}`));
+  });
+};
+
 // 【テストファイル概要】: Statistics Dashboardページコンポーネントの単体テスト
 // 【テスト目的】: StatisticsDashboardPageコンポーネントの全機能（正常系・異常系・境界値・UI/UX）を検証する
 // 【テスト範囲】: 統計表示、期間選択、ローディング、エラーハンドリング、レスポンシブデザイン
@@ -22,10 +33,10 @@ describe('StatisticsDashboardPage', () => {
   // ==================== 1. 正常系テストケース ====================
 
   describe('正常系テスト', () => {
-    it('TC-STATS-001: ページ初期表示 - デフォルト期間（過去7日間）で統計情報が表示される', async () => {
+    it('TC-STATS-001: ページ初期表示 - 最新シーズンで統計情報が表示される', async () => {
       // 【テスト目的】: StatisticsDashboardPageコンポーネントの初回マウント時の動作を確認
-      // 【テスト内容】: デフォルト期間（過去7日間）で自動的にAPI呼び出しが実行され、統計情報が表示される
-      // 【期待される動作】: startDate=今日-7日, endDate=今日の日付でAPIが呼ばれ、統計が表示される
+      // 【テスト内容】: 最新シーズンで自動的にAPI呼び出しが実行され、統計情報が表示される
+      // 【期待される動作】: 最新シーズンが取得され、season=1でAPIが呼ばれ、統計が表示される
       // 🔵 信頼性レベル: REQ-201, REQ-202 に基づく
 
       // ========== Given: テストデータ準備 ==========
@@ -89,7 +100,16 @@ describe('StatisticsDashboardPage', () => {
         },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       // ========== When: 実際の処理実行 ==========
       // 【実際の処理実行】: StatisticsDashboardPageコンポーネントをレンダリング
@@ -100,15 +120,9 @@ describe('StatisticsDashboardPage', () => {
       // 【結果検証】: ローディング状態が表示され、その後統計情報が表示される
       // 【期待値確認】: APIが正しいパラメータで呼ばれ、統計が表示される
 
-      // 【検証項目】: API呼び出しが実行される（デフォルト期間：過去7日間） 🔵
+      // 【検証項目】: API呼び出しが実行される（最新シーズン: season=1） 🔵
       await waitFor(() => {
-        const today = new Date().toISOString().split('T')[0];
-        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split('T')[0];
-        expect(apiClient.get).toHaveBeenCalledWith(
-          `/statistics?startDate=${sevenDaysAgo}&endDate=${today}`
-        );
+        expect(apiClient.get).toHaveBeenCalledWith('/statistics?startDate=&endDate=&season=1');
       });
 
       // 【検証項目】: 全体統計が表示される（WinRateGaugeによるグラフィカル表示） 🔵
@@ -144,7 +158,16 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
@@ -208,7 +231,16 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
@@ -265,7 +297,16 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
@@ -312,7 +353,16 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
@@ -361,11 +411,22 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-01-01', endDate: '2025-01-31' },
       };
 
-      // 【修正】: 日付変更が2回（startDate, endDate）行われるため、最大3回のAPI呼び出しに対応 🟡
-      vi.mocked(apiClient.get)
-        .mockResolvedValueOnce(mockStatistics) // 初回表示
-        .mockResolvedValueOnce(mockStatistics) // startDate変更時（中間状態）
-        .mockResolvedValueOnce(updatedStatistics); // endDate変更時（最終状態）
+      // 【修正】: 最新シーズン取得と統計API呼び出しをモック 🟡
+      let callCount = 0;
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          callCount++;
+          // 日付変更後の呼び出しでは updatedStatistics を返す
+          if (url.includes('startDate=2025-01-01') && url.includes('endDate=2025-01-31')) {
+            return Promise.resolve(updatedStatistics);
+          }
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
@@ -386,10 +447,11 @@ describe('StatisticsDashboardPage', () => {
 
       // 【検証項目】: API呼び出しが再実行される（2025年1月） 🔵
       // 【注意】: useEffectによる自動呼び出しのため、最後の呼び出しを確認
+      // 【修正】: シーズンパラメータも含めて検証
       await waitFor(
         () => {
           expect(apiClient.get).toHaveBeenCalledWith(
-            '/statistics?startDate=2025-01-01&endDate=2025-01-31'
+            '/statistics?startDate=2025-01-01&endDate=2025-01-31&season=1'
           );
         },
         { timeout: 3000 }
@@ -413,12 +475,33 @@ describe('StatisticsDashboardPage', () => {
       const apiPromise = new Promise<StatisticsResponse>((resolve) => {
         resolveApi = resolve;
       });
-      vi.mocked(apiClient.get).mockReturnValueOnce(apiPromise);
+
+      // 最新シーズン取得と統計API呼び出しをモック（両方遅延）
+      let resolveLatestSeason: (value: { latestSeason: number }) => void;
+      const latestSeasonPromise = new Promise<{ latestSeason: number }>((resolve) => {
+        resolveLatestSeason = resolve;
+      });
+
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return latestSeasonPromise;
+        }
+        if (url.startsWith('/statistics')) {
+          return apiPromise;
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
-      // 【検証項目】: ローディングスピナーが表示される 🔵
-      expect(screen.getByRole('status')).toBeInTheDocument();
+      // 【検証項目】: 初期状態ではローディングは表示されない（シーズン取得前） 🔵
+      // シーズンを設定してAPIを呼び出す
+      resolveLatestSeason!({ latestSeason: 1 });
+
+      // 【検証項目】: 統計API呼び出し中はローディングスピナーが表示される 🔵
+      await waitFor(() => {
+        expect(screen.getByRole('status')).toBeInTheDocument();
+      });
 
       // 【検証項目】: 統計情報は表示されない 🔵
       expect(screen.queryByText('全体統計')).not.toBeInTheDocument();
@@ -465,7 +548,16 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
@@ -478,11 +570,11 @@ describe('StatisticsDashboardPage', () => {
       expect(screen.queryByText('全体統計')).not.toBeInTheDocument();
     });
 
-    it('TC-STATS-009: 期間選択のデフォルト値が正しく設定される', async () => {
+    it('TC-STATS-009: 期間選択のデフォルト値が正しく設定される（空で初期化）', async () => {
       // 【テスト目的】: PeriodSelectorコンポーネントの初期値設定を確認
-      // 【テスト内容】: 期間選択フォームのデフォルト値が過去7日間に設定される
-      // 【期待される動作】: startDate=今日から7日前、endDate=今日の日付が初期値として設定される
-      // 🟡 信頼性レベル: 一般的なUX要件から推測
+      // 【テスト内容】: 期間選択フォームのデフォルト値が空で、シーズンベースで動作する
+      // 【期待される動作】: startDate=空、endDate=空、season=最新シーズンが初期値として設定される
+      // 🟡 信頼性レベル: コンポーネントの実装に基づく
 
       // 【テストデータ準備】: モックAPIレスポンスを用意
       const mockStatistics: StatisticsResponse = {
@@ -498,24 +590,28 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
       };
 
-      vi.mocked(apiClient.get).mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
-      // 【検証項目】: startDate input要素のvalue属性が今日から7日前の日付（YYYY-MM-DD形式） 🟡
-      const today = new Date().toISOString().split('T')[0];
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split('T')[0];
-
+      // 【検証項目】: startDate input要素のvalue属性が空（シーズンベースで動作するため） 🟡
       await waitFor(() => {
         const startDateInput = screen.getByLabelText('開始日') as HTMLInputElement;
-        expect(startDateInput.value).toBe(sevenDaysAgo);
+        expect(startDateInput.value).toBe('');
       });
 
-      // 【検証項目】: endDate input要素のvalue属性が今日の日付（YYYY-MM-DD形式） 🟡
+      // 【検証項目】: endDate input要素のvalue属性が空（シーズンベースで動作するため） 🟡
       const endDateInput = screen.getByLabelText('終了日') as HTMLInputElement;
-      expect(endDateInput.value).toBe(today);
+      expect(endDateInput.value).toBe('');
     });
 
     it('TC-STATS-010: API呼び出しが正しいクエリパラメータで実行される', async () => {
@@ -538,9 +634,16 @@ describe('StatisticsDashboardPage', () => {
         dateRange: { startDate: '2025-02-01', endDate: '2025-02-28' },
       };
 
-      vi.mocked(apiClient.get)
-        .mockResolvedValueOnce(mockStatistics)
-        .mockResolvedValueOnce(mockStatistics);
+      // 最新シーズン取得と統計API呼び出しをモック
+      vi.mocked(apiClient.get).mockImplementation((url: string) => {
+        if (url === '/battle-logs/latest-season') {
+          return Promise.resolve({ latestSeason: 1 });
+        }
+        if (url.startsWith('/statistics')) {
+          return Promise.resolve(mockStatistics);
+        }
+        return Promise.reject(new Error(`Unexpected API call: ${url}`));
+      });
 
       render(<StatisticsDashboardPage />);
 
@@ -560,9 +663,10 @@ describe('StatisticsDashboardPage', () => {
       fireEvent.click(searchButton);
 
       // 【検証項目】: API呼び出しが正しいクエリパラメータで実行される 🔵
+      // 【修正】: シーズンパラメータも含めて検証
       await waitFor(() => {
         expect(apiClient.get).toHaveBeenCalledWith(
-          '/statistics?startDate=2025-02-01&endDate=2025-02-28'
+          '/statistics?startDate=2025-02-01&endDate=2025-02-28&season=1'
         );
       });
     });
