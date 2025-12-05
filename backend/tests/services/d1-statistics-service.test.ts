@@ -13,6 +13,7 @@ describe('D1StatisticsService', () => {
   let mockDb: Database;
 
   // テスト用のモック対戦履歴データ
+  // 実際のDBの値に合わせる: result='WIN'/'LOSE', turn='先行'/'後攻'
   const mockBattleLogs = [
     {
       id: '1',
@@ -22,8 +23,8 @@ describe('D1StatisticsService', () => {
       rank: 'ダイアモンド',
       groupName: 'AAA',
       myDeckId: 'deck-1',
-      turn: '先攻',
-      result: '勝ち',
+      turn: '先行',
+      result: 'WIN',
       opponentDeckId: 'opp-1',
     },
     {
@@ -35,7 +36,7 @@ describe('D1StatisticsService', () => {
       groupName: 'AAA',
       myDeckId: 'deck-1',
       turn: '後攻',
-      result: '負け',
+      result: 'LOSE',
       opponentDeckId: 'opp-2',
     },
     {
@@ -46,8 +47,8 @@ describe('D1StatisticsService', () => {
       rank: 'ダイアモンド',
       groupName: 'AAA',
       myDeckId: 'deck-2',
-      turn: '先攻',
-      result: '勝ち',
+      turn: '先行',
+      result: 'WIN',
       opponentDeckId: 'opp-1',
     },
     {
@@ -59,7 +60,7 @@ describe('D1StatisticsService', () => {
       groupName: 'S',
       myDeckId: 'deck-1',
       turn: '後攻',
-      result: '勝ち',
+      result: 'WIN',
       opponentDeckId: 'opp-3',
     },
   ];
@@ -77,6 +78,37 @@ describe('D1StatisticsService', () => {
     { id: 'opp-3', deckName: 'コントロールネクロ', sortOrder: 3 },
   ];
 
+  /**
+   * テーブル名に応じて適切なモックデータを返すヘルパー関数
+   * @param battleLogsData - battle_logsテーブル用のモックデータ
+   * @returns モックDB
+   */
+  const createMockDb = (battleLogsData: typeof mockBattleLogs) => {
+    let queryCount = 0;
+    const mockSelectFrom = vi.fn().mockImplementation((table: unknown) => {
+      queryCount++;
+      // 1回目: battle_logs, 2回目: my_decks, 3回目: deck_master
+      if (queryCount === 1) {
+        return {
+          where: vi.fn().mockResolvedValue(battleLogsData),
+        };
+      }
+      if (queryCount === 2) {
+        // my_decks
+        return {
+          where: vi.fn().mockResolvedValue(mockMyDecks),
+        };
+      }
+      // deck_master
+      return {
+        where: vi.fn().mockResolvedValue(mockDeckMasters),
+      };
+    });
+    return {
+      select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
+    } as unknown as Database;
+  };
+
   beforeEach(() => {
     // モックDBの基本設定
     mockDb = {} as unknown as Database;
@@ -89,12 +121,7 @@ describe('D1StatisticsService', () => {
   describe('TC-001: 全体統計を取得できる', () => {
     it('期間内の全体統計（総試合数、勝利数、敗北数、勝率）を計算する', async () => {
       // モック設定
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(mockBattleLogs.slice(0, 3)),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(mockBattleLogs.slice(0, 3));
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -115,12 +142,7 @@ describe('D1StatisticsService', () => {
   // ===========================================
   describe('TC-002: マイデッキ別統計を取得できる', () => {
     it('myDeckIdでグループ化し、各デッキの統計を計算する', async () => {
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(mockBattleLogs.slice(0, 3)),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(mockBattleLogs.slice(0, 3));
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -146,12 +168,7 @@ describe('D1StatisticsService', () => {
   // ===========================================
   describe('TC-003: 相手デッキ別統計を取得できる', () => {
     it('opponentDeckIdでグループ化し、各相手デッキの統計を計算する', async () => {
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(mockBattleLogs.slice(0, 3)),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(mockBattleLogs.slice(0, 3));
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -169,12 +186,7 @@ describe('D1StatisticsService', () => {
   // ===========================================
   describe('TC-004: ランク別統計を取得できる', () => {
     it('rank + groupNameでグループ化し、各ランク帯の統計を計算する', async () => {
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(mockBattleLogs),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(mockBattleLogs);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -191,13 +203,8 @@ describe('D1StatisticsService', () => {
   // TC-005: ターン別統計を取得できる 🔵
   // ===========================================
   describe('TC-005: ターン別統計を取得できる', () => {
-    it("turn = '先攻' と '後攻' で分けて統計を計算する", async () => {
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(mockBattleLogs.slice(0, 4)),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+    it("turn = '先行' と '後攻' で分けて統計を計算する", async () => {
+      mockDb = createMockDb(mockBattleLogs.slice(0, 4));
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -206,10 +213,10 @@ describe('D1StatisticsService', () => {
       });
 
       expect(result.byTurn).toBeDefined();
-      expect(result.byTurn.first).toBeDefined();
-      expect(result.byTurn.second).toBeDefined();
-      expect(result.byTurn.first.totalGames).toBeGreaterThanOrEqual(0);
-      expect(result.byTurn.second.totalGames).toBeGreaterThanOrEqual(0);
+      expect(result.byTurn.先攻).toBeDefined();
+      expect(result.byTurn.後攻).toBeDefined();
+      expect(result.byTurn.先攻.totalGames).toBeGreaterThanOrEqual(0);
+      expect(result.byTurn.後攻.totalGames).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -222,12 +229,7 @@ describe('D1StatisticsService', () => {
         (log) => log.date >= '2025-01-16' && log.date <= '2025-01-16'
       );
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(filteredLogs),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(filteredLogs);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -248,12 +250,7 @@ describe('D1StatisticsService', () => {
         (log) => log.battleType === 'ランクマッチ'
       );
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(filteredLogs),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(filteredLogs);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -271,12 +268,7 @@ describe('D1StatisticsService', () => {
   // ===========================================
   describe('TC-201: データ0件の場合の処理', () => {
     it('対戦履歴が0件の場合、適切な初期値を返す', async () => {
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue([]),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb([]);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -299,14 +291,9 @@ describe('D1StatisticsService', () => {
   // ===========================================
   describe('TC-202: 全勝の場合の勝率計算', () => {
     it('全勝の場合、勝率が100.0になる', async () => {
-      const allWins = mockBattleLogs.filter((log) => log.result === '勝ち');
+      const allWins = mockBattleLogs.filter((log) => log.result === 'WIN');
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(allWins),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(allWins);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -325,12 +312,7 @@ describe('D1StatisticsService', () => {
     it('全敗の場合、勝率が0.0になる', async () => {
       const allLosses = [mockBattleLogs[1]]; // 負けのみ
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(allLosses),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(allLosses);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -349,12 +331,7 @@ describe('D1StatisticsService', () => {
     it('勝率が小数点第1位まで四捨五入される（2勝1敗 = 66.7%）', async () => {
       const twoWinsOneLoss = mockBattleLogs.slice(0, 3);
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(twoWinsOneLoss),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(twoWinsOneLoss);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -374,12 +351,7 @@ describe('D1StatisticsService', () => {
     it('対戦履歴が1件のみの場合も正常に計算できる', async () => {
       const singleLog = [mockBattleLogs[0]];
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(singleLog),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(singleLog);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -401,12 +373,7 @@ describe('D1StatisticsService', () => {
         (log) => log.date === '2025-01-15'
       );
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(sameDayLogs),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(sameDayLogs);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({
@@ -430,12 +397,7 @@ describe('D1StatisticsService', () => {
           log.battleType === 'ランクマッチ'
       );
 
-      const mockSelectFrom = vi.fn().mockReturnValue({
-        where: vi.fn().mockResolvedValue(filteredLogs),
-      });
-      mockDb = {
-        select: vi.fn().mockReturnValue({ from: mockSelectFrom }),
-      } as unknown as Database;
+      mockDb = createMockDb(filteredLogs);
       service = new D1StatisticsService(mockDb);
 
       const result = await service.getStatistics({

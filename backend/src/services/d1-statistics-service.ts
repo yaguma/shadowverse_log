@@ -6,9 +6,27 @@
  * @implements Cloudflare D1 + Drizzle ORM
  * 🔵 信頼性レベル: 青信号（requirements.md より）
  */
-import { and, eq, gte, lte } from 'drizzle-orm';
+import { and, eq, gte, inArray, lte } from 'drizzle-orm';
 import type { Database } from '../db';
 import { battleLogs } from '../db/schema/battle-logs';
+import { deckMaster } from '../db/schema/deck-master';
+import { myDecks } from '../db/schema/my-decks';
+
+/**
+ * 勝敗の定数（データベースの値に合わせる）
+ */
+const RESULT = {
+  WIN: 'WIN',
+  LOSE: 'LOSE',
+} as const;
+
+/**
+ * ターンの定数（データベースの値に合わせる）
+ */
+const TURN = {
+  FIRST: '先行',
+  SECOND: '後攻',
+} as const;
 
 /**
  * 全体統計の型定義
@@ -53,8 +71,8 @@ export interface StatisticsResult {
   byOpponentDeck: DeckStatistics[];
   byRank: RankStatistics[];
   byTurn: {
-    first: OverallStatistics;
-    second: OverallStatistics;
+    先攻: OverallStatistics;
+    後攻: OverallStatistics;
   };
 }
 
@@ -94,10 +112,14 @@ export class D1StatisticsService {
       params.battleType
     );
 
+    // デッキ名のマッピングを取得
+    const myDeckNameMap = await this.fetchMyDeckNames(logs);
+    const opponentDeckNameMap = await this.fetchDeckMasterNames(logs);
+
     // 各種統計を計算
     const overall = this.calculateOverall(logs);
-    const byMyDeck = this.calculateByMyDeck(logs);
-    const byOpponentDeck = this.calculateByOpponentDeck(logs);
+    const byMyDeck = this.calculateByMyDeck(logs, myDeckNameMap);
+    const byOpponentDeck = this.calculateByOpponentDeck(logs, opponentDeckNameMap);
     const byRank = this.calculateByRank(logs);
     const byTurn = this.calculateByTurn(logs);
 
@@ -134,6 +156,44 @@ export class D1StatisticsService {
   }
 
   /**
+   * マイデッキのデッキ名マッピングを取得
+   */
+  private async fetchMyDeckNames(
+    logs: Array<{ myDeckId: string }>
+  ): Promise<Map<string, string>> {
+    const deckIds = [...new Set(logs.map((log) => log.myDeckId))];
+    if (deckIds.length === 0) {
+      return new Map();
+    }
+
+    const decks = await this.db
+      .select({ id: myDecks.id, deckName: myDecks.deckName })
+      .from(myDecks)
+      .where(inArray(myDecks.id, deckIds));
+
+    return new Map(decks.map((d) => [d.id, d.deckName]));
+  }
+
+  /**
+   * デッキマスターのデッキ名マッピングを取得
+   */
+  private async fetchDeckMasterNames(
+    logs: Array<{ opponentDeckId: string }>
+  ): Promise<Map<string, string>> {
+    const deckIds = [...new Set(logs.map((log) => log.opponentDeckId))];
+    if (deckIds.length === 0) {
+      return new Map();
+    }
+
+    const decks = await this.db
+      .select({ id: deckMaster.id, deckName: deckMaster.deckName })
+      .from(deckMaster)
+      .where(inArray(deckMaster.id, deckIds));
+
+    return new Map(decks.map((d) => [d.id, d.deckName]));
+  }
+
+  /**
    * 全体統計を計算
    */
   private calculateOverall(
@@ -147,9 +207,9 @@ export class D1StatisticsService {
 
     const { wins, losses } = logs.reduce(
       (acc, log) => {
-        if (log.result === '勝ち') {
+        if (log.result === RESULT.WIN) {
           acc.wins++;
-        } else if (log.result === '負け') {
+        } else if (log.result === RESULT.LOSE) {
           acc.losses++;
         }
         return acc;
@@ -167,11 +227,13 @@ export class D1StatisticsService {
    *
    * @param logs - 対戦履歴
    * @param deckIdExtractor - ログからデッキIDを抽出する関数
+   * @param deckNameMap - デッキIDからデッキ名へのマッピング
    * @returns デッキ別統計の配列
    */
   private calculateByDeck<T extends { result: string }>(
     logs: T[],
-    deckIdExtractor: (log: T) => string
+    deckIdExtractor: (log: T) => string,
+    deckNameMap: Map<string, string>
   ): DeckStatistics[] {
     if (logs.length === 0) {
       return [];
@@ -183,16 +245,16 @@ export class D1StatisticsService {
         if (!acc[key]) {
           acc[key] = {
             deckId: key,
-            deckName: key, // TODO: デッキマスターから名前を取得
+            deckName: deckNameMap.get(key) || `Unknown(${key})`,
             totalGames: 0,
             wins: 0,
             losses: 0,
           };
         }
         acc[key].totalGames++;
-        if (log.result === '勝ち') {
+        if (log.result === RESULT.WIN) {
           acc[key].wins++;
-        } else if (log.result === '負け') {
+        } else if (log.result === RESULT.LOSE) {
           acc[key].losses++;
         }
         return acc;
@@ -215,18 +277,20 @@ export class D1StatisticsService {
    * マイデッキ別統計を計算
    */
   private calculateByMyDeck(
-    logs: Array<{ myDeckId: string; result: string }>
+    logs: Array<{ myDeckId: string; result: string }>,
+    deckNameMap: Map<string, string>
   ): DeckStatistics[] {
-    return this.calculateByDeck(logs, (log) => log.myDeckId);
+    return this.calculateByDeck(logs, (log) => log.myDeckId, deckNameMap);
   }
 
   /**
    * 相手デッキ別統計を計算
    */
   private calculateByOpponentDeck(
-    logs: Array<{ opponentDeckId: string; result: string }>
+    logs: Array<{ opponentDeckId: string; result: string }>,
+    deckNameMap: Map<string, string>
   ): DeckStatistics[] {
-    return this.calculateByDeck(logs, (log) => log.opponentDeckId);
+    return this.calculateByDeck(logs, (log) => log.opponentDeckId, deckNameMap);
   }
 
   /**
@@ -252,9 +316,9 @@ export class D1StatisticsService {
           };
         }
         acc[key].totalGames++;
-        if (log.result === '勝ち') {
+        if (log.result === RESULT.WIN) {
           acc[key].wins++;
-        } else if (log.result === '負け') {
+        } else if (log.result === RESULT.LOSE) {
           acc[key].losses++;
         }
         return acc;
@@ -283,23 +347,23 @@ export class D1StatisticsService {
    * ターン別統計を計算
    */
   private calculateByTurn(logs: Array<{ turn: string; result: string }>): {
-    first: OverallStatistics;
-    second: OverallStatistics;
+    先攻: OverallStatistics;
+    後攻: OverallStatistics;
   } {
     const stats = logs.reduce(
       (acc, log) => {
-        if (log.turn === '先攻') {
+        if (log.turn === TURN.FIRST) {
           acc.first.totalGames++;
-          if (log.result === '勝ち') {
+          if (log.result === RESULT.WIN) {
             acc.first.wins++;
-          } else if (log.result === '負け') {
+          } else if (log.result === RESULT.LOSE) {
             acc.first.losses++;
           }
-        } else if (log.turn === '後攻') {
+        } else if (log.turn === TURN.SECOND) {
           acc.second.totalGames++;
-          if (log.result === '勝ち') {
+          if (log.result === RESULT.WIN) {
             acc.second.wins++;
-          } else if (log.result === '負け') {
+          } else if (log.result === RESULT.LOSE) {
             acc.second.losses++;
           }
         }
@@ -312,14 +376,14 @@ export class D1StatisticsService {
     );
 
     return {
-      first: {
+      先攻: {
         ...stats.first,
         winRate: this.calculateWinRate(
           stats.first.wins,
           stats.first.totalGames
         ),
       },
-      second: {
+      後攻: {
         ...stats.second,
         winRate: this.calculateWinRate(
           stats.second.wins,
