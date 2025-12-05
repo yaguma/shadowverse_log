@@ -28,7 +28,7 @@ flowchart TD
     end
 
     subgraph "データストレージ"
-        D -->|Tables| H[battle_logs]
+        D -->|Tables| H[battle_logs<br/>+ season column]
         D -->|Tables| I[deck_master]
         D -->|Tables| J[my_decks]
     end
@@ -142,34 +142,40 @@ sequenceDiagram
     participant CW as Cloudflare Workers<br/>(Hono)
     participant D1 as Cloudflare D1<br/>(SQLite)
 
-    Note over U,D1: Step 1: ダッシュボード表示
+    Note over U,D1: Step 1: ダッシュボード表示（最新シーズン自動選択）
     U->>F: ダッシュボード画面に遷移
-    F->>CW: GET /api/statistics?period=1week
+    F->>CW: GET /api/battle-logs/latest-season
+    CW->>D1: SELECT MAX(season) FROM battle_logs
+    D1-->>CW: 最新シーズン番号
+    CW-->>F: { latestSeason: 30 }
+    F->>CW: GET /api/statistics?season=30
 
-    CW->>D1: SELECT COUNT(*), SUM(CASE WHEN result='勝ち'...)<br/>FROM battle_logs WHERE date >= ?
+    CW->>D1: SELECT COUNT(*), SUM(CASE WHEN result='勝ち'...)<br/>FROM battle_logs WHERE season = ?
     D1-->>CW: 統計データ返却
 
     Note over CW: 統計計算処理
     CW->>CW: 全体勝率計算
     CW->>CW: デッキ別勝率計算
-    CW->>CW: 対戦相手デッキ別勝率計算
+    CW->>CW: 対戦相手クラス別統計
+    CW->>CW: 先攻後攻別統計
     CW->>CW: ランク帯別成績計算
-    CW->>CW: 相手デッキ分布計算
 
-    CW-->>F: 200 OK<br/>{ success: true, data: {<br/>  overall: { winRate: 0.6, ... },<br/>  byMyDeck: [...],<br/>  byOpponentDeck: [...],<br/>  byRank: [...],<br/>  opponentDistribution: [...]<br/>}}
+    CW-->>F: 200 OK<br/>{ success: true, data: {<br/>  overall: { winRate: 0.6, ... },<br/>  byMyDeck: [...],<br/>  byOpponentClass: [...],<br/>  byTurn: { first: {...}, second: {...} },<br/>  byRank: [...]<br/>}}
 
     F->>Z: setStatistics(data)
     Z->>Z: State更新
 
     Note over F: グラフ描画
-    F->>F: Recharts で円グラフ描画<br/>(相手デッキ分布)
+    F->>F: WinRateGauge<br/>(勝率ゲージ、半円プログレス)
+    F->>F: TurnComparisonChart<br/>(先攻後攻横棒グラフ)
+    F->>F: OpponentClassPieChart<br/>(相手クラス分布円グラフ)
     F->>F: 統計情報表示<br/>(勝率、デッキ別勝率等)
 
     F->>U: ダッシュボード表示完了
 
-    Note over U,D1: Step 2: 期間変更
-    U->>F: 期間ドロップダウン変更<br/>(1週間 → 1ヶ月)
-    F->>CW: GET /api/statistics?period=1month
+    Note over U,D1: Step 2: シーズン変更
+    U->>F: シーズンセレクター変更<br/>(30 → 29)
+    F->>CW: GET /api/statistics?season=29
     CW->>D1: 統計クエリ実行
     D1-->>CW: 統計データ返却
     CW-->>F: 200 OK<br/>(更新後の統計データ)
@@ -376,6 +382,12 @@ stateDiagram-v2
 
 ## 更新履歴
 
+- **2025-12-06**: シーズン機能・グラフィカルダッシュボード追加
+  - battle_logsテーブルにseasonカラム追加
+  - 統計ダッシュボードフローを最新シーズン自動選択対応に更新
+  - グラフィカルダッシュボードコンポーネント（WinRateGauge、TurnComparisonChart、OpponentClassPieChart）を追加
+  - シーズンセレクターによるフィルタリングフローを追加
+  - 対戦相手クラス別統計・先攻後攻別統計フローを追加
 - **2025-12-05**: Cloudflare版に全面更新
   - Azure (Functions, Blob Storage) → Cloudflare (Workers, D1) に移行
   - Zustand persist middleware によるフォーム入力永続化フローを追加

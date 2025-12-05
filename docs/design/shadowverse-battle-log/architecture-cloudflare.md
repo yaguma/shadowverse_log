@@ -92,7 +92,8 @@ graph TD
 **スタイリング**: Tailwind CSS v4 🔵 *tech-stack.mdより*
 **ルーティング**: React Router v7 🔵 *tech-stack.mdより*
 **HTTPクライアント**: Fetch API (Cloudflare Workers対応)
-**グラフライブラリ**: Recharts (React向け、軽量) 🟡 *要件から妥当な推測*
+**グラフライブラリ**: Recharts (React向け、軽量) 🔵 *実装済み*
+**日付処理**: JST（日本標準時）ベースの日付ユーティリティ 🔵 *実装済み*
 
 **ホスティング**: Cloudflare Pages
 - 無制限リクエスト（無料枠）
@@ -104,6 +105,9 @@ graph TD
 - カスタムfavicon（Shadowverseブルーテーマの対戦記録本 + 剣アイコン）
 - ページタイトル「Shadowverse Battle Log」
 - フォーム入力の自動復元（Zustand persistによりブラウザ更新後も前回値を保持）
+- シーズンセレクター（統計画面でシーズン別フィルタリング）
+- グラフィカル統計ダッシュボード（勝率ゲージ、先攻後攻比較チャート、対戦相手クラス分布円グラフ）
+- 対戦履歴一覧でのシーズン列表示
 
 #### ディレクトリ構成
 
@@ -113,7 +117,15 @@ frontend/
 │   ├── components/           # 再利用可能コンポーネント
 │   │   ├── common/           # 共通UI (Button, Input, Modal, etc.)
 │   │   ├── battle-log/       # 対戦履歴関連
+│   │   │   ├── BattleLogList.tsx    # シーズン列付き一覧
+│   │   │   └── BattleLogForm.tsx    # 登録フォーム
 │   │   ├── statistics/       # 統計関連
+│   │   │   ├── OverallStats.tsx           # 全体統計
+│   │   │   ├── WinRateGauge.tsx           # 勝率ゲージ（半円プログレス）
+│   │   │   ├── TurnComparisonChart.tsx    # 先攻後攻比較チャート
+│   │   │   ├── TurnStats.tsx              # ターン統計
+│   │   │   ├── SeasonSelector.tsx         # シーズン選択
+│   │   │   └── OpponentClassPieChart.tsx  # 相手クラス分布円グラフ
 │   │   └── layout/           # レイアウト
 │   ├── pages/                # ページコンポーネント
 │   │   ├── BattleLogListPage.tsx
@@ -124,6 +136,7 @@ frontend/
 │   ├── types/                # TypeScript型定義
 │   ├── api/                  # API クライアント
 │   ├── utils/                # ユーティリティ
+│   │   └── date.ts           # JST日付ユーティリティ
 │   └── main.tsx              # エントリーポイント
 ├── public/
 ├── tests/                    # E2E テスト
@@ -172,6 +185,7 @@ backend/
 │   │   └── migrations/       # マイグレーションファイル
 │   ├── types/                # TypeScript型定義
 │   └── utils/                # ユーティリティ
+│       └── date.ts           # JST日付ユーティリティ
 ├── wrangler.toml             # Cloudflare Workers設定
 ├── package.json
 ├── pnpm-lock.yaml            # pnpmロックファイル
@@ -217,6 +231,7 @@ CREATE TABLE battle_logs (
     turn TEXT NOT NULL,
     result TEXT NOT NULL,
     opponent_deck_id TEXT NOT NULL,
+    season INTEGER,  -- シーズン番号（任意）
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
@@ -250,6 +265,7 @@ CREATE TABLE users (
 -- インデックス
 CREATE INDEX idx_battle_logs_date ON battle_logs(date DESC);
 CREATE INDEX idx_battle_logs_user_id ON battle_logs(user_id);  -- Phase 2
+CREATE INDEX idx_battle_logs_season ON battle_logs(season);    -- シーズンフィルタ用
 CREATE INDEX idx_my_decks_user_id ON my_decks(user_id);       -- Phase 2
 ```
 
@@ -606,6 +622,17 @@ pnpm db:seed:generate     # 本番用SQLファイル生成
 
 ## 更新履歴
 
+- **2025-12-06**: シーズン機能・グラフィカルダッシュボード追加
+  - battle_logsテーブルにseasonカラム追加（シーズン番号）
+  - シーズン別フィルタリング機能（SeasonSelector）
+  - デフォルト表示を最新シーズンに変更
+  - 対戦履歴一覧にシーズン列を追加
+  - グラフィカルダッシュボードコンポーネント追加:
+    - WinRateGauge（勝率ゲージ、半円プログレスバー）
+    - TurnComparisonChart（先攻後攻比較横棒グラフ）
+    - OpponentClassPieChart（対戦相手クラス分布円グラフ）
+  - JST日付ユーティリティ（日本標準時での日付処理）
+  - 統計画面のバグ修正（勝敗カウント、デッキ名表示）
 - **2025-12-05**: Phase 1機能拡張
   - pnpmワークスペース設定を追加（ルートから両パッケージを同時起動可能に）
   - カスタムfaviconとページタイトルを追加

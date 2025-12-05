@@ -212,6 +212,7 @@ app.get('/api/battle-logs', async (c) => {
 | `turn` | Turn | Yes | - | 先攻後攻 | 🔵 *REQ-002より* |
 | `result` | BattleResult | Yes | - | 対戦結果 | 🔵 *REQ-002より* |
 | `opponentDeckId` | string | Yes | - | 相手デッキID | 🔵 *REQ-002より* |
+| `season` | number | No | - | シーズン番号 | 🔵 *実装済み* |
 
 **リクエスト例**:
 
@@ -227,7 +228,8 @@ Content-Type: application/json
   "myDeckId": "deck_001",
   "turn": "先攻",
   "result": "勝ち",
-  "opponentDeckId": "deck_master_002"
+  "opponentDeckId": "deck_master_002",
+  "season": 30
 }
 ```
 
@@ -331,6 +333,7 @@ app.delete('/api/battle-logs/:id', async (c) => {
 | `startDate` | string | No | 7日前 | 集計開始日（YYYY-MM-DD） |
 | `endDate` | string | No | 今日 | 集計終了日（YYYY-MM-DD） |
 | `battleType` | string | No | 全て | 対戦タイプ絞り込み |
+| `season` | number | No | 最新シーズン | シーズン番号でフィルタリング |
 
 **Cloudflare Workers実装例**:
 
@@ -363,13 +366,80 @@ app.get('/api/statistics', async (c) => {
     GROUP BY my_deck_id
   `).bind(startDate, endDate).all()
 
+  // 対戦相手クラス分布
+  const byOpponentClass = await c.env.DB.prepare(`
+    SELECT
+      dm.class_name as className,
+      COUNT(*) as totalGames,
+      SUM(CASE WHEN result = '勝ち' THEN 1 ELSE 0 END) as wins,
+      SUM(CASE WHEN result = '負け' THEN 1 ELSE 0 END) as losses,
+      ROUND(SUM(CASE WHEN result = '勝ち' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) as winRate
+    FROM battle_logs bl
+    JOIN deck_master dm ON bl.opponent_deck_id = dm.id
+    WHERE bl.date BETWEEN ? AND ?
+    GROUP BY dm.class_name
+  `).bind(startDate, endDate).all()
+
+  // 先攻後攻別統計
+  const byTurn = await c.env.DB.prepare(`
+    SELECT
+      turn,
+      COUNT(*) as totalGames,
+      SUM(CASE WHEN result = '勝ち' THEN 1 ELSE 0 END) as wins,
+      SUM(CASE WHEN result = '負け' THEN 1 ELSE 0 END) as losses,
+      ROUND(SUM(CASE WHEN result = '勝ち' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) as winRate
+    FROM battle_logs
+    WHERE date BETWEEN ? AND ?
+    GROUP BY turn
+  `).bind(startDate, endDate).all()
+
   return c.json({
     success: true,
     data: {
       overall: overallStats,
       byMyDeck: byMyDeck.results,
+      byOpponentClass: byOpponentClass.results,  // 対戦相手クラス分布
+      byTurn: byTurn.results,                    // 先攻後攻別統計
       // ... その他の統計
     }
+  })
+})
+```
+
+---
+
+#### 2.2 最新シーズン取得
+
+**エンドポイント**: `GET /api/battle-logs/latest-season`
+
+**説明**: データベース内の最新シーズン番号を取得 🔵 *実装済み*
+
+**レスポンス例**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "latestSeason": 30
+  },
+  "meta": {
+    "timestamp": "2025-12-06T12:34:56.789Z",
+    "requestId": "req_abc123"
+  }
+}
+```
+
+**Cloudflare Workers実装例**:
+
+```typescript
+app.get('/api/battle-logs/latest-season', async (c) => {
+  const { latestSeason } = await c.env.DB.prepare(
+    'SELECT MAX(season) as latestSeason FROM battle_logs WHERE season IS NOT NULL'
+  ).first()
+
+  return c.json({
+    success: true,
+    data: { latestSeason }
   })
 })
 ```
@@ -719,6 +789,7 @@ app.use('*', async (c, next) => {
 
 | バージョン | 日付 | 変更内容 |
 |---|---|---|
+| 2.2.0 | 2025-12-06 | シーズン機能追加（seasonパラメータ、最新シーズン取得API）、統計APIに対戦相手クラス分布・先攻後攻別統計を追加 |
 | 2.1.0 | 2025-12-05 | Phase 1にマイデッキ一覧取得エンドポイント追加、GrandMaster0-3対応 |
 | 2.0.0 | 2025-11-25 | Cloudflare版作成 (Workers, D1対応) |
 | 1.0.0 | 2025-10-24 | Azure版初版作成 |
