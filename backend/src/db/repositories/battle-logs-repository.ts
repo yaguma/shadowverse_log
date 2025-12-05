@@ -5,7 +5,7 @@
  * @description 対戦履歴テーブル用のリポジトリ実装
  * CRUD操作とカスタムクエリメソッドを提供
  */
-import { and, desc, eq, gte, lte } from 'drizzle-orm';
+import { and, desc, eq, gte, lte, max } from 'drizzle-orm';
 import type { Database } from '../index';
 import {
   type BattleLog,
@@ -225,5 +225,16 @@ export class BattleLogsRepository
         : await this.db.select().from(battleLogs);
 
     return rows.length;
+  }
+
+  /**
+   * 最新シーズン番号を取得
+   * @returns 最新のシーズン番号、データがない場合はnull
+   */
+  async getLatestSeason(): Promise<number | null> {
+    const result = await this.db
+      .select({ maxSeason: max(battleLogs.season) })
+      .from(battleLogs);
+    return result[0]?.maxSeason ?? null;
   }
 }

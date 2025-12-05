@@ -175,6 +175,37 @@ battleLogs.post('/', async (c) => {
 });
 
 /**
+ * GET /api/battle-logs/latest-season
+ *
+ * 最新シーズン番号を取得
+ *
+ * @returns latestSeason - 最新のシーズン番号（データがない場合はnull）
+ */
+battleLogs.get('/latest-season', async (c) => {
+  try {
+    // データベース接続とリポジトリ初期化
+    const db = createDb(c.env.DB);
+    const repository = new BattleLogsRepository(db);
+
+    // 最新シーズンを取得
+    const latestSeason = await repository.getLatestSeason();
+
+    return c.json({
+      success: true,
+      data: { latestSeason },
+      meta: createMeta(),
+    });
+  } catch (error) {
+    console.error('Battle logs latest-season GET error:', error);
+
+    return c.json(
+      createErrorResponse('DATABASE_ERROR', '最新シーズンの取得中にエラーが発生しました。'),
+      500
+    );
+  }
+});
+
+/**
  * DELETE /api/battle-logs/:id
  *
  * 対戦履歴を削除
