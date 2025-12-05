@@ -63,12 +63,24 @@ export interface RankStatistics {
 }
 
 /**
+ * クラス別統計の型定義
+ */
+export interface ClassStatistics {
+  className: string;
+  totalGames: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+}
+
+/**
  * 統計レスポンスの型定義
  */
 export interface StatisticsResult {
   overall: OverallStatistics;
   byMyDeck: DeckStatistics[];
   byOpponentDeck: DeckStatistics[];
+  byOpponentClass: ClassStatistics[];
   byRank: RankStatistics[];
   byTurn: {
     先攻: OverallStatistics;
@@ -117,11 +129,13 @@ export class D1StatisticsService {
     // デッキ名のマッピングを取得
     const myDeckNameMap = await this.fetchMyDeckNames(logs);
     const opponentDeckNameMap = await this.fetchDeckMasterNames(logs);
+    const opponentClassNameMap = await this.fetchDeckMasterClassNames(logs);
 
     // 各種統計を計算
     const overall = this.calculateOverall(logs);
     const byMyDeck = this.calculateByMyDeck(logs, myDeckNameMap);
     const byOpponentDeck = this.calculateByOpponentDeck(logs, opponentDeckNameMap);
+    const byOpponentClass = this.calculateByOpponentClass(logs, opponentClassNameMap);
     const byRank = this.calculateByRank(logs);
     const byTurn = this.calculateByTurn(logs);
 
@@ -129,6 +143,7 @@ export class D1StatisticsService {
       overall,
       byMyDeck,
       byOpponentDeck,
+      byOpponentClass,
       byRank,
       byTurn,
     };
@@ -198,6 +213,25 @@ export class D1StatisticsService {
       .where(inArray(deckMaster.id, deckIds));
 
     return new Map(decks.map((d) => [d.id, d.deckName]));
+  }
+
+  /**
+   * デッキマスターのクラス名マッピングを取得
+   */
+  private async fetchDeckMasterClassNames(
+    logs: Array<{ opponentDeckId: string }>
+  ): Promise<Map<string, string>> {
+    const deckIds = [...new Set(logs.map((log) => log.opponentDeckId))];
+    if (deckIds.length === 0) {
+      return new Map();
+    }
+
+    const decks = await this.db
+      .select({ id: deckMaster.id, className: deckMaster.className })
+      .from(deckMaster)
+      .where(inArray(deckMaster.id, deckIds));
+
+    return new Map(decks.map((d) => [d.id, d.className]));
   }
 
   /**
@@ -298,6 +332,50 @@ export class D1StatisticsService {
     deckNameMap: Map<string, string>
   ): DeckStatistics[] {
     return this.calculateByDeck(logs, (log) => log.opponentDeckId, deckNameMap);
+  }
+
+  /**
+   * 相手デッキのクラス別統計を計算
+   */
+  private calculateByOpponentClass(
+    logs: Array<{ opponentDeckId: string; result: string }>,
+    classNameMap: Map<string, string>
+  ): ClassStatistics[] {
+    if (logs.length === 0) {
+      return [];
+    }
+
+    const grouped = logs.reduce(
+      (acc, log) => {
+        const className = classNameMap.get(log.opponentDeckId) || 'Unknown';
+        if (!acc[className]) {
+          acc[className] = {
+            className,
+            totalGames: 0,
+            wins: 0,
+            losses: 0,
+          };
+        }
+        acc[className].totalGames++;
+        if (log.result === RESULT.WIN) {
+          acc[className].wins++;
+        } else if (log.result === RESULT.LOSE) {
+          acc[className].losses++;
+        }
+        return acc;
+      },
+      {} as Record<
+        string,
+        Omit<ClassStatistics, 'winRate'>
+      >
+    );
+
+    return Object.values(grouped)
+      .sort((a, b) => b.totalGames - a.totalGames)
+      .map((stat) => ({
+        ...stat,
+        winRate: this.calculateWinRate(stat.wins, stat.totalGames),
+      }));
   }
 
   /**

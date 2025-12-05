@@ -21,6 +21,7 @@ import { DeckStatsTable } from '../components/statistics/DeckStatsTable';
 import { EmptyState } from '../components/statistics/EmptyState';
 import { StatisticsError } from '../components/statistics/Error';
 import { Loading } from '../components/statistics/Loading';
+import { OpponentClassPieChart } from '../components/statistics/OpponentClassPieChart';
 import { OpponentDeckPieChart } from '../components/statistics/OpponentDeckPieChart';
 import { OverallStats } from '../components/statistics/OverallStats';
 import { PeriodSelector } from '../components/statistics/PeriodSelector';
@@ -214,6 +215,12 @@ export function StatisticsDashboardPage() {
 
           {/* 🔵 先攻後攻別統計（棒グラフ） */}
           <TurnStats turnStats={statistics.byTurn} />
+
+          {/* 🔵 相手クラス分布（円グラフ） */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h3 className="text-xl font-bold mb-4 text-center text-gray-800">相手クラス分布</h3>
+            <OpponentClassPieChart data={statistics.byOpponentClass} />
+          </div>
 
           {/* 🔵 相手デッキ分布（円グラフ） */}
           <div className="bg-white rounded-lg shadow-md p-6">

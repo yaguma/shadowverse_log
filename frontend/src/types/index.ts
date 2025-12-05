@@ -208,6 +208,13 @@ export interface StatisticsResponse {
     losses: number;
     winRate: number;
   }>;
+  byOpponentClass: Array<{
+    className: string;
+    totalGames: number;
+    wins: number;
+    losses: number;
+    winRate: number;
+  }>;
   byRank: Array<{
     rank: Rank;
     group: Group;
