@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useBattleLogStore } from '../../store/battleLogStore';
 import { useDeckStore } from '../../store/deckStore';
+import { getTodayInJST } from '../../utils/date';
 import { BattleLogForm } from './BattleLogForm';
 
 // 【テストファイル概要】: Battle Log登録フォームコンポーネントの単体テスト
@@ -88,7 +89,7 @@ describe('BattleLogForm', () => {
 
       // 【結果検証】: すべてのフィールドとボタンが表示されていることを確認
       // 【期待値確認】: 日付フィールドに今日の日付が設定されている
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD形式
+      const today = getTodayInJST(); // YYYY-MM-DD形式（日本時間）
       const dateInput = screen.getByLabelText('対戦日') as HTMLInputElement;
       expect(dateInput.value).toBe(today); // 【確認内容】: 日付フィールドに今日の日付が設定されている 🔵
 
@@ -143,7 +144,7 @@ describe('BattleLogForm', () => {
 
       // 【結果検証】: 日付以外のフィールドに前回値が設定されていることを確認
       // 【期待値確認】: 日付のみ今日の日付、その他は前回値が反映される
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayInJST(); // 日本時間
       const dateInput = screen.getByLabelText('対戦日') as HTMLInputElement;
       expect(dateInput.value).toBe(today); // 【確認内容】: 日付は今日の日付（前回値を引き継がない） 🔵
 
@@ -420,7 +421,7 @@ describe('BattleLogForm', () => {
       // 【実際の処理実行】: 今日の日付でフォームを送信
       render(<BattleLogForm onSuccess={onSuccess} />);
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayInJST(); // 日本時間
       const dateInput = screen.getByLabelText('対戦日') as HTMLInputElement;
       fireEvent.change(dateInput, { target: { value: today } });
 
@@ -450,9 +451,11 @@ describe('BattleLogForm', () => {
       // 【実際の処理実行】: 明日の日付を入力
       render(<BattleLogForm />);
 
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().split('T')[0];
+      // 日本時間の明日の日付を計算
+      const today = getTodayInJST();
+      const todayDate = new Date(today);
+      todayDate.setDate(todayDate.getDate() + 1);
+      const tomorrowStr = todayDate.toISOString().split('T')[0];
 
       const dateInput = screen.getByLabelText('対戦日') as HTMLInputElement;
       fireEvent.change(dateInput, { target: { value: tomorrowStr } });
@@ -908,7 +911,7 @@ describe('BattleLogForm', () => {
       render(<BattleLogForm />);
 
       // 【結果検証】: エラーが発生せず、日付のみ今日の日付が設定されることを確認
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayInJST(); // 日本時間
       const dateInput = screen.getByLabelText('対戦日') as HTMLInputElement;
       expect(dateInput.value).toBe(today); // 【確認内容】: 日付は今日の日付 🔵
 
