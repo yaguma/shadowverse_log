@@ -5,8 +5,7 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-009, REQ-010, REQ-011, REQ-034, REQ-103, REQ-603）に基づく
  */
 
-import { useCallback } from 'react';
-import type { BattleLog, DeckMaster } from '../../types';
+import type { BattleLogWithDeckNames, DeckMaster } from '../../types';
 
 /**
  * 【型定義】: BattleLogListコンポーネントのプロップス型
@@ -14,14 +13,14 @@ import type { BattleLog, DeckMaster } from '../../types';
  * 【TASK-0050対応】: deckMastersプロパティを追加
  */
 interface BattleLogListProps {
-  /** 対戦履歴一覧データ */
-  battleLogs: BattleLog[];
-  /** デッキマスター一覧データ（デッキ名表示用、オプショナル） */
+  /** 対戦履歴一覧データ（デッキ名付き） */
+  battleLogs: BattleLogWithDeckNames[];
+  /** デッキマスター一覧データ（デッキ名表示用、オプショナル - 後方互換性のため維持） */
   deckMasters?: DeckMaster[];
   /** 削除ボタンクリック時のコールバック関数 */
   onDelete: (id: string) => void;
   /** 詳細ボタンクリック時のコールバック関数 */
-  onDetail: (log: BattleLog) => void;
+  onDetail: (log: BattleLogWithDeckNames) => void;
 }
 
 /**
@@ -32,23 +31,9 @@ interface BattleLogListProps {
  */
 export const BattleLogList: React.FC<BattleLogListProps> = ({
   battleLogs,
-  deckMasters = [],
   onDelete,
   onDetail,
 }) => {
-  /**
-   * 【デッキ名ルックアップ関数】: デッキIDからデッキ名を取得
-   * 【TASK-0050対応】: opponentDeckIdをデッキ名に変換
-   * 🔵 信頼性レベル: FR-001に基づく
-   */
-  const getDeckName = useCallback(
-    (deckId: string): string => {
-      const deck = deckMasters.find((d) => d.id === deckId);
-      return deck?.deckName ?? deckId; // 見つからない場合はIDをフォールバック
-    },
-    [deckMasters]
-  );
-
   // 【境界値処理】: 対戦履歴が0件の場合、空データメッセージを表示 🔵
   // 【TC-BND-001対応】: battleLogs = [] の場合の表示
   if (battleLogs.length === 0) {
@@ -101,17 +86,17 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
               <td className="border border-gray-300 px-4 py-2">{log.rank}</td>
               {/* 【グループ】: "AAA"等を表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.groupName}</td>
-              {/* 【使用デッキ】: デッキIDを表示（最小実装） 🔵 */}
-              {/* 【最小実装】: myDeckIdをそのまま表示（デッキ名表示は後で改善） */}
-              <td className="border border-gray-300 px-4 py-2">{log.myDeckId}</td>
+              {/* 【使用デッキ】: デッキ名を表示 🔵 */}
+              {/* 【改善】: APIから返ってくるmyDeckNameを直接表示 */}
+              <td className="border border-gray-300 px-4 py-2">{log.myDeckName ?? log.myDeckId}</td>
               {/* 【先攻後攻】: "先攻" or "後攻"を表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.turn}</td>
               {/* 【対戦結果】: "勝ち" or "負け"を表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.result}</td>
               {/* 【相手デッキ】: デッキ名を表示 🔵 */}
-              {/* 【TASK-0050対応】: getDeckName()でデッキ名に変換、見つからない場合はIDをフォールバック */}
+              {/* 【改善】: APIから返ってくるopponentDeckNameを直接表示 */}
               <td className="border border-gray-300 px-4 py-2">
-                {getDeckName(log.opponentDeckId)}
+                {log.opponentDeckName ?? log.opponentDeckId}
               </td>
               {/* 【アクション】: 詳細・削除ボタンを表示 🔵 */}
               {/* 【TC-LIST-004、TC-LIST-005、TC-A11Y-002対応】: ボタンのクリックとaria-label */}
@@ -195,7 +180,7 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
                 {/* 【使用デッキ】: 2行目 */}
                 <div className="text-sm">
                   <span className="text-gray-500">使用デッキ:</span>
-                  <span className="ml-2 text-gray-700">{log.myDeckId}</span>
+                  <span className="ml-2 text-gray-700">{log.myDeckName ?? log.myDeckId}</span>
                 </div>
 
                 {/* 【先攻後攻】: 3行目 */}
@@ -205,10 +190,10 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
                 </div>
 
                 {/* 【相手デッキ】: 4行目 */}
-                {/* 【TASK-0050対応】: getDeckName()でデッキ名に変換 */}
+                {/* 【改善】: APIから返ってくるopponentDeckNameを直接表示 */}
                 <div className="text-sm">
                   <span className="text-gray-500">相手デッキ:</span>
-                  <span className="ml-2 text-gray-700">{getDeckName(log.opponentDeckId)}</span>
+                  <span className="ml-2 text-gray-700">{log.opponentDeckName ?? log.opponentDeckId}</span>
                 </div>
               </div>
 

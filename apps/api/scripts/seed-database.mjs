@@ -17,7 +17,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const PROJECT_ROOT = dirname(__dirname);
-const DATA_DIR = join(PROJECT_ROOT, '..', 'data', 'json');
+const DATA_DIR = join(PROJECT_ROOT, '..', '..', 'data', 'json');
 
 // D1ローカルデータベースのパスを探す
 const WRANGLER_STATE_DIR = join(PROJECT_ROOT, '.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
@@ -117,8 +117,8 @@ function seedBattleLogs(db, data, clearFirst) {
   }
 
   const insert = db.prepare(`
-    INSERT OR REPLACE INTO battle_logs (id, user_id, date, battle_type, rank, group_name, my_deck_id, turn, result, opponent_deck_id, created_at, updated_at)
-    VALUES (@id, @userId, @date, @battleType, @rank, @groupName, @myDeckId, @turn, @result, @opponentDeckId, datetime('now'), datetime('now'))
+    INSERT OR REPLACE INTO battle_logs (id, user_id, date, battle_type, rank, group_name, my_deck_id, turn, result, opponent_deck_id, season, created_at, updated_at)
+    VALUES (@id, @userId, @date, @battleType, @rank, @groupName, @myDeckId, @turn, @result, @opponentDeckId, @season, datetime('now'), datetime('now'))
   `);
 
   const insertMany = db.transaction((items) => {
@@ -134,6 +134,7 @@ function seedBattleLogs(db, data, clearFirst) {
         turn: item.turn,
         result: item.result,
         opponentDeckId: item.opponentDeckId,
+        season: item.season ?? null,
       });
     }
   });

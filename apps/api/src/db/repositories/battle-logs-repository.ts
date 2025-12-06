@@ -12,7 +12,17 @@ import {
   type NewBattleLog,
   battleLogs,
 } from '../schema/battle-logs';
+import { deckMaster } from '../schema/deck-master';
+import { myDecks } from '../schema/my-decks';
 import type { BaseRepository, PaginationOptions } from './base-repository';
+
+/**
+ * デッキ名を含む対戦履歴の型
+ */
+export type BattleLogWithDeckNames = BattleLog & {
+  myDeckName: string | null;
+  opponentDeckName: string | null;
+};
 
 /**
  * 対戦履歴リポジトリ
@@ -48,14 +58,35 @@ export class BattleLogsRepository
   /**
    * すべての対戦履歴を取得（ページネーション対応）
    * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
+   * デッキ名をJOINで取得
    */
-  async findAll(limit = 50, offset = 0): Promise<BattleLog[]> {
-    return await this.db
-      .select()
+  async findAll(limit = 50, offset = 0): Promise<BattleLogWithDeckNames[]> {
+    const results = await this.db
+      .select({
+        id: battleLogs.id,
+        userId: battleLogs.userId,
+        date: battleLogs.date,
+        battleType: battleLogs.battleType,
+        rank: battleLogs.rank,
+        groupName: battleLogs.groupName,
+        myDeckId: battleLogs.myDeckId,
+        turn: battleLogs.turn,
+        result: battleLogs.result,
+        opponentDeckId: battleLogs.opponentDeckId,
+        season: battleLogs.season,
+        createdAt: battleLogs.createdAt,
+        updatedAt: battleLogs.updatedAt,
+        myDeckName: myDecks.deckName,
+        opponentDeckName: deckMaster.deckName,
+      })
       .from(battleLogs)
+      .leftJoin(myDecks, eq(battleLogs.myDeckId, myDecks.id))
+      .leftJoin(deckMaster, eq(battleLogs.opponentDeckId, deckMaster.id))
       .orderBy(desc(battleLogs.date), desc(battleLogs.createdAt))
       .limit(limit)
       .offset(offset);
+
+    return results;
   }
 
   /**
