@@ -40,6 +40,7 @@ export function StatisticsDashboardPage() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [season, setSeason] = useState<number | undefined>(undefined); // シーズンフィルタ
+  const [isSeasonInitialized, setIsSeasonInitialized] = useState<boolean>(false); // シーズン初期化完了フラグ
   const [statistics, setStatistics] = useState<StatisticsResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,22 +53,35 @@ export function StatisticsDashboardPage() {
    * 【実装詳細】:
    *   - 日付範囲は空のまま（全期間を対象）
    *   - 最新シーズン番号をAPIから取得して設定
+   *   - 初期化完了フラグを設定して、統計取得のタイミングを制御
    */
   useEffect(() => {
+    let isMounted = true;
+
     const fetchLatestSeason = async () => {
       try {
         const data = await apiClient.get<{ latestSeason: number | null }>(
           '/battle-logs/latest-season'
         );
-        if (data.latestSeason) {
-          setSeason(data.latestSeason);
+        if (isMounted) {
+          if (data.latestSeason) {
+            setSeason(data.latestSeason);
+          }
+          setIsSeasonInitialized(true);
         }
       } catch (err) {
         // 最新シーズン取得に失敗してもエラーとしない（undefinedのまま全シーズン表示）
         console.warn('Failed to fetch latest season:', err);
+        if (isMounted) {
+          setIsSeasonInitialized(true);
+        }
       }
     };
     fetchLatestSeason();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   /**
@@ -123,20 +137,21 @@ export function StatisticsDashboardPage() {
    *   - フィルタ条件を変更すると即座に統計が更新される
    *   - 日付範囲が空でもシーズンが設定されていれば取得可能
    * 【実装詳細】:
+   *   - シーズン初期化完了後にのみ統計を取得（二重呼び出し防止）
    *   - シーズンが設定されているか、日付範囲が設定されている場合に API 呼び出し
    *   - fetchStatistics 関数は useCallback でメモ化されているため、依存配列に含めても問題なし
    * 【パフォーマンス考慮】:
    *   - 🟡 将来的にデバウンス処理の追加を検討
    */
   useEffect(() => {
-    // 【API呼び出し条件】: シーズンまたは日付範囲が設定されている場合に実行
-    // 初期表示時は最新シーズンが設定されているため、すぐに取得される
-    const hasDateRange = startDate && endDate;
-    const hasSeason = season !== undefined;
-    if (hasDateRange || hasSeason) {
-      fetchStatistics();
-    }
-  }, [startDate, endDate, season, fetchStatistics]);
+    // 【初期化待機】: シーズンの初期化が完了するまで統計取得をスキップ
+    // これにより、StrictModeでの二重呼び出しや初期化前の無駄なAPI呼び出しを防止
+    if (!isSeasonInitialized) return;
+
+    // 【API呼び出し】: シーズン初期化完了後は必ず統計を取得
+    // シーズンがnullの場合（データがない場合）でも全期間の統計を表示
+    fetchStatistics();
+  }, [startDate, endDate, season, fetchStatistics, isSeasonInitialized]);
 
   /**
    * 【検索ボタンクリックハンドラ】: 期間選択フォームの「検索」ボタン処理

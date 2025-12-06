@@ -84,6 +84,24 @@ battleLogs.post("/", async (c) => {
 });
 
 /**
+ * GET /api/battle-logs/latest-season
+ * 最新シーズン番号を取得する
+ */
+battleLogs.get("/latest-season", async (c) => {
+  const service = new BattleLogService(c.env.DB);
+  const latestSeason = await service.getLatestSeason();
+
+  return c.json({
+    success: true,
+    data: { latestSeason },
+    meta: {
+      timestamp: new Date().toISOString(),
+      requestId: crypto.randomUUID(),
+    },
+  });
+});
+
+/**
  * DELETE /api/battle-logs/:id
  * 対戦履歴を削除する
  */

@@ -125,4 +125,16 @@ export class BattleLogService {
 
     return (result.meta.changes ?? 0) > 0;
   }
+
+  /**
+   * 最新シーズン番号を取得する
+   * @returns 最新のシーズン番号、データがない場合はnull
+   */
+  async getLatestSeason(): Promise<number | null> {
+    const result = await this.db
+      .prepare("SELECT MAX(season) as max_season FROM battle_logs")
+      .first<{ max_season: number | null }>();
+
+    return result?.max_season ?? null;
+  }
 }
