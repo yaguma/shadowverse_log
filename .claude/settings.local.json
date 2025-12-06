@@ -32,7 +32,15 @@
       "Bash(pnpm run build:*)",
       "Bash(pnpm exec playwright test:*)",
       "Bash(pnpm run db:seed:generate:*)",
-      "Bash(rm:*)"
+      "Bash(timeout 60 pnpm test:*)",
+      "Bash(timeout 120 pnpm test:*)",
+      "Bash(sqlite3:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(pnpm --filter frontend lint:*)",
+      "Bash(pnpm --filter backend lint:*)",
+      "Bash(pnpm --filter frontend run type-check)",
+      "Bash(timeout 120 pnpm --filter frontend test)"
     ],
     "deny": [],
     "ask": []

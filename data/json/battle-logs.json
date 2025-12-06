@@ -593,5 +593,19 @@
 {"id":"592",	"date":"2025-12-05",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"9",	"season":6},
 {"id":"593",	"date":"2025-12-05",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"4",	"season":6},
 {"id":"594",	"date":"2025-12-05",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"34",	"season":6},
-{"id":"595",	"date":"2025-12-05",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"33",	"season":6}
+{"id":"595",	"date":"2025-12-05",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"33",	"season":6},
+{"id":"596",	"date":"2025-12-06",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"5",	"season":6},
+{"id":"597",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"24",	"season":6},
+{"id":"598",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"33",	"season":6},
+{"id":"599",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"23",	"season":6},
+{"id":"600",	"date":"2025-12-06",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"6",	"season":6},
+{"id":"601",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"21",	"season":6},
+{"id":"602",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"11",	"season":6},
+{"id":"603",	"date":"2025-12-06",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"5",	"season":6},
+{"id":"604",	"date":"2025-12-06",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"23",	"season":6},
+{"id":"605",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"20",	"season":6},
+{"id":"606",	"date":"2025-12-06",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"34",	"season":6},
+{"id":"607",	"date":"2025-12-06",	"battleType":"1",	"rank":"-",	"group":"GrandMaster0",	"turn":"後攻",	"result":"LOSE",	"myDeckId":"2",	"opponentDeckId":"9",	"season":6},
+{"id":"608",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"11",	"season":6},
+{"id":"609",	"date":"2025-12-06",	"battleType":"0",	"rank":"-",	"group":"GrandMaster0",	"turn":"先行",	"result":"WIN",	"myDeckId":"2",	"opponentDeckId":"20",	"season":6}
 ]
