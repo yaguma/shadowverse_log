@@ -3,7 +3,7 @@ name: D1 Database Migration
 on:
   push:
     paths:
-      - 'backend/src/db/migrations/**'
+      - 'apps/api/src/db/migrations/**'
     branches: [main]
   workflow_dispatch:
     inputs:
@@ -38,15 +38,15 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             if [ "${{ inputs.apply_all }}" == "true" ]; then
               # Get all migration files
-              files=$(ls backend/src/db/migrations/*.sql 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+              files=$(ls apps/api/src/db/migrations/*.sql 2>/dev/null | tr '\n' ',' | sed 's/,$//')
             elif [ -n "${{ inputs.migration_file }}" ]; then
-              files="backend/src/db/migrations/${{ inputs.migration_file }}"
+              files="apps/api/src/db/migrations/${{ inputs.migration_file }}"
             else
               files=""
             fi
           else
             # Get changed migration files in the push
-            files=$(git diff --name-only HEAD~1 HEAD -- 'backend/src/db/migrations/*.sql' | tr '\n' ',' | sed 's/,$//')
+            files=$(git diff --name-only HEAD~1 HEAD -- 'apps/api/src/db/migrations/*.sql' | tr '\n' ',' | sed 's/,$//')
           fi
 
           echo "files=$files" >> $GITHUB_OUTPUT
@@ -97,14 +97,14 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: backend/pnpm-lock.yaml
+          cache-dependency-path: apps/api/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./backend
+        working-directory: ./apps/api
         run: pnpm install --frozen-lockfile
 
       - name: Apply migrations to staging
-        working-directory: ./backend
+        working-directory: ./apps/api
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -146,14 +146,14 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: backend/pnpm-lock.yaml
+          cache-dependency-path: apps/api/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./backend
+        working-directory: ./apps/api
         run: pnpm install --frozen-lockfile
 
       - name: Apply migrations to production
-        working-directory: ./backend
+        working-directory: ./apps/api
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
