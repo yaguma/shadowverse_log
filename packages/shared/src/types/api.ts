@@ -106,3 +106,43 @@ export interface StatisticsResponse {
     endDate: string;
   };
 }
+
+/**
+ * バリデーションエラー
+ */
+export interface ValidationError {
+  /** エラーコード */
+  code: 'VALIDATION_ERROR';
+  /** エラーメッセージ */
+  message: string;
+  /** バリデーション詳細 */
+  details: {
+    /** フィールド名 */
+    field: string;
+    /** 制約名 */
+    constraint: string;
+    /** 入力値 */
+    value: unknown;
+  }[];
+}
+
+/**
+ * 削除制約エラー
+ */
+export interface DeleteConstraintError {
+  /** エラーコード */
+  code: 'DELETE_CONSTRAINT_ERROR';
+  /** エラーメッセージ */
+  message: string;
+  /** 制約詳細 */
+  details: {
+    /** エンティティタイプ */
+    entityType: 'deckMaster' | 'myDeck';
+    /** エンティティID */
+    entityId: string;
+    /** 参照元 */
+    referencedBy: 'battleLogs';
+    /** 参照数 */
+    referenceCount: number;
+  };
+}

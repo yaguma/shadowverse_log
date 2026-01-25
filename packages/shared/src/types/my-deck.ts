@@ -31,3 +31,15 @@ export interface CreateMyDeckRequest {
   /** 使用中フラグ（省略時はtrue） */
   isActive?: boolean;
 }
+
+/**
+ * マイデッキ作成リクエスト型（新規）
+ */
+export interface MyDeckCreateRequest {
+  /** デッキマスターID */
+  deckId: string;
+  /** デッキ名 */
+  deckName: string;
+  /** デッキコード（省略可能） */
+  deckCode?: string;
+}
