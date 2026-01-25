@@ -2,9 +2,9 @@ name: D1 Database Migration
 
 on:
   push:
-    paths:
-      - 'apps/api/src/db/migrations/**'
-    branches: [main]
+    # paths:
+    #   - 'apps/api/src/db/migrations/**'
+    # branches: [main]
   workflow_dispatch:
     inputs:
       migration_file:
