@@ -7,11 +7,7 @@
  */
 import { and, desc, eq, gte, lte, max } from 'drizzle-orm';
 import type { Database } from '../index';
-import {
-  type BattleLog,
-  type NewBattleLog,
-  battleLogs,
-} from '../schema/battle-logs';
+import { type BattleLog, type NewBattleLog, battleLogs } from '../schema/battle-logs';
 import { deckMaster } from '../schema/deck-master';
 import { myDecks } from '../schema/my-decks';
 import type { BaseRepository, PaginationOptions } from './base-repository';
@@ -27,9 +23,7 @@ export type BattleLogWithDeckNames = BattleLog & {
 /**
  * 対戦履歴リポジトリ
  */
-export class BattleLogsRepository
-  implements BaseRepository<BattleLog, NewBattleLog>
-{
+export class BattleLogsRepository implements BaseRepository<BattleLog, NewBattleLog> {
   constructor(private db: Database) {}
 
   /**
@@ -47,11 +41,7 @@ export class BattleLogsRepository
    * IDで対戦履歴を検索
    */
   async findById(id: string): Promise<BattleLog | null> {
-    const result = await this.db
-      .select()
-      .from(battleLogs)
-      .where(eq(battleLogs.id, id))
-      .limit(1);
+    const result = await this.db.select().from(battleLogs).where(eq(battleLogs.id, id)).limit(1);
     return result[0] || null;
   }
 
@@ -125,10 +115,7 @@ export class BattleLogsRepository
    * 対戦履歴を更新
    * 日付フォーマットが含まれる場合はYYYY/MM/DD形式に正規化される
    */
-  async update(
-    id: string,
-    data: Partial<NewBattleLog>
-  ): Promise<BattleLog | null> {
+  async update(id: string, data: Partial<NewBattleLog>): Promise<BattleLog | null> {
     const existing = await this.findById(id);
     if (!existing) return null;
 
@@ -159,10 +146,7 @@ export class BattleLogsRepository
    * ユーザーIDで対戦履歴を検索
    * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
    */
-  async findByUserId(
-    userId: string,
-    options?: PaginationOptions
-  ): Promise<BattleLog[]> {
+  async findByUserId(userId: string, options?: PaginationOptions): Promise<BattleLog[]> {
     const limit = options?.limit ?? 50;
     const offset = options?.offset ?? 0;
 
@@ -179,15 +163,8 @@ export class BattleLogsRepository
    * 日付範囲で対戦履歴を検索
    * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
    */
-  async findByDateRange(
-    startDate: string,
-    endDate: string,
-    userId?: string
-  ): Promise<BattleLog[]> {
-    const conditions = [
-      gte(battleLogs.date, startDate),
-      lte(battleLogs.date, endDate),
-    ];
+  async findByDateRange(startDate: string, endDate: string, userId?: string): Promise<BattleLog[]> {
+    const conditions = [gte(battleLogs.date, startDate), lte(battleLogs.date, endDate)];
 
     if (userId) {
       conditions.push(eq(battleLogs.userId, userId));
@@ -204,10 +181,7 @@ export class BattleLogsRepository
    * デッキIDで対戦履歴を検索
    * 日付の降順でソート、同じ日付の場合はcreatedAtの降順でソート
    */
-  async findByMyDeckId(
-    myDeckId: string,
-    options?: PaginationOptions
-  ): Promise<BattleLog[]> {
+  async findByMyDeckId(myDeckId: string, options?: PaginationOptions): Promise<BattleLog[]> {
     const limit = options?.limit ?? 50;
     const offset = options?.offset ?? 0;
 
@@ -223,10 +197,7 @@ export class BattleLogsRepository
   /**
    * 勝敗別の対戦数をカウント
    */
-  async countByResult(
-    result: 'win' | 'lose',
-    userId?: string
-  ): Promise<number> {
+  async countByResult(result: 'win' | 'lose', userId?: string): Promise<number> {
     const conditions = [eq(battleLogs.result, result)];
 
     if (userId) {
@@ -263,9 +234,7 @@ export class BattleLogsRepository
    * @returns 最新のシーズン番号、データがない場合はnull
    */
   async getLatestSeason(): Promise<number | null> {
-    const result = await this.db
-      .select({ maxSeason: max(battleLogs.season) })
-      .from(battleLogs);
+    const result = await this.db.select({ maxSeason: max(battleLogs.season) }).from(battleLogs);
     return result[0]?.maxSeason ?? null;
   }
 }

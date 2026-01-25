@@ -20,11 +20,7 @@ export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
    * IDでマイデッキを検索
    */
   async findById(id: string): Promise<MyDeck | null> {
-    const result = await this.db
-      .select()
-      .from(myDecks)
-      .where(eq(myDecks.id, id))
-      .limit(1);
+    const result = await this.db.select().from(myDecks).where(eq(myDecks.id, id)).limit(1);
     return result[0] || null;
   }
 
@@ -94,10 +90,7 @@ export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
   /**
    * ユーザーIDでマイデッキを検索
    */
-  async findByUserId(
-    userId: string,
-    options?: PaginationOptions
-  ): Promise<MyDeck[]> {
+  async findByUserId(userId: string, options?: PaginationOptions): Promise<MyDeck[]> {
     const limit = options?.limit ?? 50;
     const offset = options?.offset ?? 0;
 
@@ -124,10 +117,7 @@ export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
       return allDecks.filter((d) => d.isActive === true);
     }
 
-    const allDecks = await this.db
-      .select()
-      .from(myDecks)
-      .orderBy(desc(myDecks.createdAt));
+    const allDecks = await this.db.select().from(myDecks).orderBy(desc(myDecks.createdAt));
 
     return allDecks.filter((d) => d.isActive === true);
   }

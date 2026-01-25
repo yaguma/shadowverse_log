@@ -97,12 +97,7 @@ export async function migrateJsonToD1(
   options: MigrationOptions = {}
 ): Promise<MigrationResult> {
   const startTime = Date.now();
-  const {
-    dryRun = false,
-    userId,
-    batchSize = 100,
-    onProgress = console.log,
-  } = options;
+  const { dryRun = false, userId, batchSize = 100, onProgress = console.log } = options;
 
   const result: MigrationResult = {
     deckMaster: { imported: 0, skipped: 0, errors: [] },
@@ -116,13 +111,7 @@ export async function migrateJsonToD1(
     // 1. デッキマスターのマイグレーション
     onProgress('Migrating deck_master...');
     const deckMasterData = await loadDeckMasterData(dataSource);
-    result.deckMaster = await migrateDeckMaster(
-      ctx,
-      deckMasterData,
-      dryRun,
-      batchSize,
-      onProgress
-    );
+    result.deckMaster = await migrateDeckMaster(ctx, deckMasterData, dryRun, batchSize, onProgress);
     onProgress(
       `deck_master: ${result.deckMaster.imported} imported, ${result.deckMaster.skipped} skipped`
     );
@@ -145,17 +134,8 @@ export async function migrateJsonToD1(
     // 3. マイデッキのマイグレーション
     onProgress('Migrating my_decks...');
     const myDecksData = await loadMyDecksData(dataSource);
-    result.myDecks = await migrateMyDecks(
-      ctx,
-      myDecksData,
-      userId,
-      dryRun,
-      batchSize,
-      onProgress
-    );
-    onProgress(
-      `my_decks: ${result.myDecks.imported} imported, ${result.myDecks.skipped} skipped`
-    );
+    result.myDecks = await migrateMyDecks(ctx, myDecksData, userId, dryRun, batchSize, onProgress);
+    onProgress(`my_decks: ${result.myDecks.imported} imported, ${result.myDecks.skipped} skipped`);
   } catch (error) {
     onProgress(`Migration failed: ${String(error)}`);
     throw error;
@@ -175,9 +155,7 @@ export async function migrateJsonToD1(
 /**
  * デッキマスターデータを読み込む
  */
-async function loadDeckMasterData(
-  dataSource: JsonDataSource
-): Promise<unknown[]> {
+async function loadDeckMasterData(dataSource: JsonDataSource): Promise<unknown[]> {
   if (dataSource.localData?.deckMaster) {
     return dataSource.localData.deckMaster;
   }
@@ -195,9 +173,7 @@ async function loadDeckMasterData(
 /**
  * 対戦履歴データを読み込む
  */
-async function loadBattleLogsData(
-  dataSource: JsonDataSource
-): Promise<unknown[]> {
+async function loadBattleLogsData(dataSource: JsonDataSource): Promise<unknown[]> {
   if (dataSource.localData?.battleLogs) {
     return dataSource.localData.battleLogs;
   }
@@ -257,9 +233,7 @@ async function migrateDeckMaster(
       try {
         if (!validateLegacyDeckMaster(item)) {
           result.skipped++;
-          result.errors.push(
-            `Invalid deck master data: ${JSON.stringify(item)}`
-          );
+          result.errors.push(`Invalid deck master data: ${JSON.stringify(item)}`);
           continue;
         }
 

@@ -7,30 +7,20 @@
  */
 import { asc, eq } from 'drizzle-orm';
 import type { Database } from '../index';
-import {
-  type DeckMaster,
-  type NewDeckMaster,
-  deckMaster,
-} from '../schema/deck-master';
+import { type DeckMaster, type NewDeckMaster, deckMaster } from '../schema/deck-master';
 import type { BaseRepository } from './base-repository';
 
 /**
  * デッキマスターリポジトリ
  */
-export class DeckMasterRepository
-  implements BaseRepository<DeckMaster, NewDeckMaster>
-{
+export class DeckMasterRepository implements BaseRepository<DeckMaster, NewDeckMaster> {
   constructor(private db: Database) {}
 
   /**
    * IDでデッキマスターを検索
    */
   async findById(id: string): Promise<DeckMaster | null> {
-    const result = await this.db
-      .select()
-      .from(deckMaster)
-      .where(eq(deckMaster.id, id))
-      .limit(1);
+    const result = await this.db.select().from(deckMaster).where(eq(deckMaster.id, id)).limit(1);
     return result[0] || null;
   }
 
@@ -74,10 +64,7 @@ export class DeckMasterRepository
   /**
    * デッキマスターを更新
    */
-  async update(
-    id: string,
-    data: Partial<NewDeckMaster>
-  ): Promise<DeckMaster | null> {
+  async update(id: string, data: Partial<NewDeckMaster>): Promise<DeckMaster | null> {
     const existing = await this.findById(id);
     if (!existing) return null;
 
@@ -121,10 +108,7 @@ export class DeckMasterRepository
   /**
    * クラス名とデッキ名で検索（ユニーク検索用）
    */
-  async findByClassAndDeckName(
-    className: string,
-    deckName: string
-  ): Promise<DeckMaster | null> {
+  async findByClassAndDeckName(className: string, deckName: string): Promise<DeckMaster | null> {
     const result = await this.db
       .select()
       .from(deckMaster)

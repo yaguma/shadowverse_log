@@ -164,10 +164,12 @@ migration.post('/execute', async (c) => {
  */
 migration.post('/rollback', async (c) => {
   try {
-    const body = await c.req.json<{
-      confirmRollback?: boolean;
-      tables?: ('battle_logs' | 'deck_master' | 'my_decks')[];
-    }>().catch(() => ({ confirmRollback: false, tables: undefined }));
+    const body = await c.req
+      .json<{
+        confirmRollback?: boolean;
+        tables?: ('battle_logs' | 'deck_master' | 'my_decks')[];
+      }>()
+      .catch(() => ({ confirmRollback: false, tables: undefined }));
 
     // 安全のため、確認フラグが必要
     if (!body.confirmRollback) {
@@ -185,9 +187,10 @@ migration.post('/rollback', async (c) => {
     }
 
     // 特定のテーブルのみロールバックする場合
-    const result = body.tables && body.tables.length > 0
-      ? await rollbackTables(c.env.DB, body.tables)
-      : await rollbackMigration(c.env.DB);
+    const result =
+      body.tables && body.tables.length > 0
+        ? await rollbackTables(c.env.DB, body.tables)
+        : await rollbackMigration(c.env.DB);
 
     if (!result.success) {
       return c.json(

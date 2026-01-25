@@ -39,7 +39,11 @@ const ERROR_MESSAGES = {
 /**
  * フォーマットのエラーメッセージパターン
  */
-const FORMAT_ERROR_PATTERNS = ['JSON形式が不正です', '必須ヘッダーが不足しています', 'CSVデータが空です'];
+const FORMAT_ERROR_PATTERNS = [
+  'JSON形式が不正です',
+  '必須ヘッダーが不足しています',
+  'CSVデータが空です',
+];
 
 /**
  * リクエストバリデーションスキーマ
@@ -105,9 +109,7 @@ importRoutes.post('/', async (c) => {
       const issues = validation.error.issues || [];
       const firstError = issues[0];
       const errorCode =
-        firstError?.path[0] === 'format'
-          ? ERROR_CODES.INVALID_FORMAT
-          : ERROR_CODES.INVALID_REQUEST;
+        firstError?.path[0] === 'format' ? ERROR_CODES.INVALID_FORMAT : ERROR_CODES.INVALID_REQUEST;
 
       return c.json(
         {
@@ -143,9 +145,7 @@ importRoutes.post('/', async (c) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     // フォーマットエラーかどうか判定
-    const isFormatError = FORMAT_ERROR_PATTERNS.some((pattern) =>
-      errorMessage.includes(pattern)
-    );
+    const isFormatError = FORMAT_ERROR_PATTERNS.some((pattern) => errorMessage.includes(pattern));
 
     if (isFormatError) {
       return c.json(

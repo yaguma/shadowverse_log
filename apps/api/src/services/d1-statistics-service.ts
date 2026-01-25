@@ -117,12 +117,7 @@ export class D1StatisticsService {
     const startDate = params.startDate || getDateBeforeDays(endDate, 7);
 
     // 対戦履歴を取得
-    const logs = await this.fetchBattleLogs(
-      startDate,
-      endDate,
-      params.battleType,
-      params.season
-    );
+    const logs = await this.fetchBattleLogs(startDate, endDate, params.battleType, params.season);
 
     // デッキ名のマッピングを取得
     const myDeckNameMap = await this.fetchMyDeckNames(logs);
@@ -156,10 +151,7 @@ export class D1StatisticsService {
     battleType?: string,
     season?: number
   ) {
-    const conditions = [
-      gte(battleLogs.date, startDate),
-      lte(battleLogs.date, endDate),
-    ];
+    const conditions = [gte(battleLogs.date, startDate), lte(battleLogs.date, endDate)];
 
     if (battleType) {
       conditions.push(eq(battleLogs.battleType, battleType));
@@ -178,9 +170,7 @@ export class D1StatisticsService {
   /**
    * マイデッキのデッキ名マッピングを取得
    */
-  private async fetchMyDeckNames(
-    logs: Array<{ myDeckId: string }>
-  ): Promise<Map<string, string>> {
+  private async fetchMyDeckNames(logs: Array<{ myDeckId: string }>): Promise<Map<string, string>> {
     const deckIds = [...new Set(logs.map((log) => log.myDeckId))];
     if (deckIds.length === 0) {
       return new Map();
@@ -235,9 +225,7 @@ export class D1StatisticsService {
   /**
    * 全体統計を計算
    */
-  private calculateOverall(
-    logs: Array<{ result: string }>
-  ): OverallStatistics {
+  private calculateOverall(logs: Array<{ result: string }>): OverallStatistics {
     const totalGames = logs.length;
 
     if (totalGames === 0) {
@@ -298,10 +286,7 @@ export class D1StatisticsService {
         }
         return acc;
       },
-      {} as Record<
-        string,
-        Omit<DeckStatistics, 'winRate'>
-      >
+      {} as Record<string, Omit<DeckStatistics, 'winRate'>>
     );
 
     return Object.values(grouped)
@@ -362,10 +347,7 @@ export class D1StatisticsService {
         }
         return acc;
       },
-      {} as Record<
-        string,
-        Omit<ClassStatistics, 'winRate'>
-      >
+      {} as Record<string, Omit<ClassStatistics, 'winRate'>>
     );
 
     return Object.values(grouped)
@@ -461,17 +443,11 @@ export class D1StatisticsService {
     return {
       先攻: {
         ...stats.first,
-        winRate: this.calculateWinRate(
-          stats.first.wins,
-          stats.first.totalGames
-        ),
+        winRate: this.calculateWinRate(stats.first.wins, stats.first.totalGames),
       },
       後攻: {
         ...stats.second,
-        winRate: this.calculateWinRate(
-          stats.second.wins,
-          stats.second.totalGames
-        ),
+        winRate: this.calculateWinRate(stats.second.wins, stats.second.totalGames),
       },
     };
   }
@@ -485,5 +461,4 @@ export class D1StatisticsService {
     }
     return Math.round((wins / totalGames) * 1000) / 10;
   }
-
 }

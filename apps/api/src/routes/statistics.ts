@@ -88,21 +88,18 @@ statistics.get('/', async (c) => {
     // バリデーション: 日付範囲チェック
     if (startDate && endDate && startDate > endDate) {
       return c.json(
-        createErrorResponse(
-          'INVALID_DATE_RANGE',
-          '開始日は終了日より前の日付を指定してください。'
-        ),
+        createErrorResponse('INVALID_DATE_RANGE', '開始日は終了日より前の日付を指定してください。'),
         400
       );
     }
 
     // バリデーション: シーズンチェック
-    if (season && (Number.isNaN(Number(season)) || Number(season) < 1 || !Number.isInteger(Number(season)))) {
+    if (
+      season &&
+      (Number.isNaN(Number(season)) || Number(season) < 1 || !Number.isInteger(Number(season)))
+    ) {
       return c.json(
-        createErrorResponse(
-          'INVALID_SEASON',
-          'シーズンは1以上の整数で指定してください。'
-        ),
+        createErrorResponse('INVALID_SEASON', 'シーズンは1以上の整数で指定してください。'),
         400
       );
     }
@@ -128,10 +125,7 @@ statistics.get('/', async (c) => {
     console.error('Statistics API error:', error);
 
     return c.json(
-      createErrorResponse(
-        'DATABASE_ERROR',
-        '統計データの取得中にエラーが発生しました。'
-      ),
+      createErrorResponse('DATABASE_ERROR', '統計データの取得中にエラーが発生しました。'),
       500
     );
   }

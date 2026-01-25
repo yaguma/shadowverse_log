@@ -100,10 +100,7 @@ export function convertDateFormat(legacyDate: string): string {
  * @param userId - ユーザーID（Phase 2対応、オプショナル）
  * @returns D1スキーマ形式の対戦履歴データ
  */
-export function mapLegacyBattleLogToNew(
-  legacy: LegacyBattleLog,
-  userId?: string
-): NewBattleLog {
+export function mapLegacyBattleLogToNew(legacy: LegacyBattleLog, userId?: string): NewBattleLog {
   return {
     id: legacy.id,
     userId: userId ?? null,
@@ -138,10 +135,7 @@ export function mapLegacyDeckMasterToNew(legacy: LegacyDeckMaster): NewDeckMaste
  * @param userId - ユーザーID（Phase 2対応、オプショナル）
  * @returns D1スキーマ形式のマイデッキデータ
  */
-export function mapLegacyMyDeckToNew(
-  legacy: LegacyMyDeck,
-  userId?: string
-): NewMyDeck {
+export function mapLegacyMyDeckToNew(legacy: LegacyMyDeck, userId?: string): NewMyDeck {
   return {
     id: legacy.id,
     userId: userId ?? null,
