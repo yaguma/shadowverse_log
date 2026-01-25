@@ -1,5 +1,6 @@
 ---
 description: 分割されたタスクを順番に、またはユーザが指定したタスクを実装します。既存のTDDコマンドを活用して品質の高い実装を行います。
+argument-hint: [要件名（省略可）] [TASK-ID (TASK-00001)] [--hil]
 ---
 あなたは実装担当者です。残タスクを調べて 指定されたコマンドを駆使して実装をしてください
 
@@ -9,6 +10,10 @@ description: 分割されたタスクを順番に、またはユーザが指定�
 
 分割されたタスクを順番に、またはユーザが指定したタスクを実装する。既存のTDDコマンドを活用して品質の高い実装を行う。
 
+## オプション
+
+- `--hil` (Human-in-the-Loop): テストケース作成後にユーザーの確認を求め、承認後にtdd-red以降のフェーズを実行する
+
 ## 前提条件
 
 - `docs/tasks/{要件名}-tasks.md` にタスク一覧が存在する
@@ -16,14 +21,6 @@ description: 分割されたタスクを順番に、またはユーザが指定�
 - 既存のTDDコマンドが利用可能である
 - 実装用のワークスペースが設定されている
 - task_id は　`TASK-{4桁の数字}` (例 TASK-0001 ) である
-
-## 入力パラメータ
-
-- **task_id** (オプション): 実装するタスクID（例: `TASK-0001`）
-- **issue_number** (オプション): GitHub Issue番号（例: `123`）
-  - Issue番号が指定された場合、そのIssueを使用
-  - Issue番号が指定されていない場合、タスクファイルから取得を試みる
-  - どちらも取得できない場合はエラーを表示
 
 ## 実行内容
 
@@ -35,27 +32,20 @@ description: 分割されたタスクを順番に、またはユーザが指定�
 - 🔴 **赤信号**: EARS要件定義書・設計文書にない推測の場合
 
 1. **追加ルールの読み込み**
-   - `docs/rule` ディレクトリが存在する場合は読み込み
-   - `docs/rule/kairo` ディレクトリが存在する場合は読み込み  
-   - `docs/rule/kairo/implement` ディレクトリが存在する場合は読み込み
-   - 各ディレクトリ内のすべてのファイルを読み込み、追加ルールとして適用
+   - `docs/spec/{要件名}/note.md` が存在する場合は読み込み
 
-2. **技術スタック定義の読み込み**
-   - `docs/tech-stack.md` が存在する場合は読み込み
-   - 存在しない場合は `CLAUDE.md` から技術スタックセクションを読み込み  
-   - どちらも存在しない場合は `.claude/commands/tech-stack.md` のデフォルト定義を使用
+2. **プロジェクト文書の読み込み**
 
-3. **タスクの選択とIssue番号の取得**
-   - ユーザが指定したタスクID（task_id）を確認
-   - ユーザが指定したIssue番号（issue_number）を確認
-   - Issue番号の取得優先順位:
-     1. ユーザが指定したIssue番号（最優先）
-     2. タスクファイルから取得（`<!-- GitHub Issue: #123 -->`の形式）
-     3. タスクIDからIssueを検索（`gh issue list --search "TASK-0001"`）
+   - **タスク関連文書の読み込み**:
+     - `docs/tasks/{要件名}/overview.md` or `docs/tasks/{要件名}-overview.md` - タスク全体概要
+     - `docs/tasks/{要件名}/TASK-{task_id}.md` or `docs/tasks/{要件名}-tasks.md` - 対象タスクファイル
+     - 依存タスクのファイルも読み込み、実装の順序と関連性を理解
+
+3. **タスクの選択**
    - @agent-symbol-searcher で指定されたタスクID(TASK-0000形式)を検索し、見つかったタスクファイルをReadツールで読み込み
+   - ユーザが指定したタスクIDを確認
    - 指定がない場合は、依存関係に基づいて次のタスクを自動選択
    - 選択したタスクの詳細を表示
-   - 取得したIssue番号を記録（後続のGitHub連携で使用）
    - 読み込んだ技術スタック定義に基づいて実装方針を決定
 
 4. **依存関係の確認**
@@ -75,63 +65,108 @@ description: 分割されたタスクを順番に、またはユーザが指定�
 
    ### A. **TDDプロセス**（コード実装タスク用）
 
-   a. **要件定義** - `@task general-purpose /tsumiki:tdd-requirements`
+   a. **コンテキスト準備** - `@task general-purpose /tdd-tasknote`
+   ```
+   Task実行: TDDコンテキスト準備フェーズ
+   目的: タスクノートを生成し、開発に必要なコンテキスト情報を収集する
+   収集内容:
+   - 技術スタック（使用技術・フレームワーク・アーキテクチャパターン）
+   - 開発ルール（コーディング規約・型チェック・テスト要件）
+   - 関連実装（既存の実装パターン・参考コード）
+   - 設計文書（データモデル・ディレクトリ構造）
+   - 注意事項（技術的制約・セキュリティ要件・パフォーマンス要件）
+   コマンド: /tdd-tasknote {要件名} {TASK-ID}
+   実行方式: 個別Task実行
+   出力ファイル: docs/implements/{要件名}/{TASK-ID}/note.md
+   ```
+
+   b. **要件定義** - `@task general-purpose /tdd-requirements`
    ```
    Task実行: TDD要件定義フェーズ
    目的: タスクの詳細要件を記述し、受け入れ基準を明確化する
-   コマンド: /tsumiki:tdd-requirements
+   前提条件: タスクノート（note.md）が存在すること
+   コマンド: /tdd-requirements {要件名} {TASK-ID}
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issueにコメント追加（`✅ tdd-requirements完了`）
 
-   b. **テストケース作成** - `@task general-purpose /tsumiki:tdd-testcases`
+   c. **テストケース作成** - `@task general-purpose /tdd-testcases`
    ```
    Task実行: TDDテストケース作成フェーズ
    目的: 単体テストケースを作成し、エッジケースを考慮する
-   コマンド: /tsumiki:tdd-testcases
+   コマンド: /tdd-testcases
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issueにコメント追加（`✅ tdd-testcases完了`）
 
-   c. **テスト実装** - `@task general-purpose /tsumiki:tdd-red`
+   c-1. **ユーザー確認** (--hilオプション指定時のみ)
+   ```
+   テストケース確認フェーズ:
+   - 作成されたテストケース一覧を表示
+   - テストケースの妥当性をユーザーに確認
+   - ユーザーからのフィードバックを受け取る
+   - 必要に応じてテストケースを修正
+   - 承認後、d. tdd-red以降のフェーズを実行
+
+   確認内容:
+   - テストケースが要件を満たしているか
+   - エッジケース・エラーケースが十分か
+   - テストケースの数と粒度が適切か
+   - 追加・修正が必要なテストケースはないか
+   ```
+
+   d. **テスト実装** - `@task general-purpose /tdd-red`
    ```
    Task実行: TDDレッドフェーズ
    目的: 失敗するテストを実装し、テストが失敗することを確認する
-   コマンド: /tsumiki:tdd-red
+   コマンド: /tdd-red
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issueにコメント追加（`✅ tdd-red完了`）
 
-   d. **最小実装** - `@task general-purpose /tsumiki:tdd-green`
+   e. **最小実装** - `@task general-purpose /tdd-green`
    ```
    Task実行: TDDグリーンフェーズ
    目的: テストが通る最小限の実装を行い、過度な実装を避ける
-   コマンド: /tsumiki:tdd-green
+   コマンド: /tdd-green
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issueにコメント追加（`✅ tdd-green完了`）
 
-   e. **リファクタリング** - `@task general-purpose /tsumiki:tdd-refactor`
+   f. **リファクタリング** - `@task general-purpose /tdd-refactor`
    ```
    Task実行: TDDリファクタリングフェーズ
    目的: コードの品質向上と保守性の改善を行う
-   コマンド: /tsumiki:tdd-refactor
+   コマンド: /tdd-refactor
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issueにコメント追加（`✅ tdd-refactor完了`）
 
-   f. **品質確認** - `@task general-purpose /tsumiki:tdd-verify-complete`
+   g. **品質確認** - `@task general-purpose /tdd-verify-complete`
    ```
    Task実行: TDD品質確認フェーズ
-   目的: 実装の完成度を確認し、不足があればc-fを繰り返す
-   コマンド: /tsumiki:tdd-verify-complete
+   目的: 実装の完成度とテストケースの充足度を確認する
+   確認項目:
+   - すべてのテストケースが実装されているか
+   - すべてのテストケースが成功しているか
+   - テストカバレッジが要求水準を満たしているか
+   - エッジケースがすべてカバーされているか
+
+   判定基準:
+   - テストケースが不足している場合: d(tdd-red)から繰り返す
+   - テストケースは十分だが実装が不足している場合: e(tdd-green)から繰り返す
+   - 実装・テストともに十分な場合: 次のステップ（h. タスク完了処理）へ
+
+   コマンド: /tdd-verify-complete
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issue/Project更新は`tdd-verify-complete`コマンド内で実行
+
+   h. **タスク完了処理**
+   ```
+   品質確認が成功した後の処理:
+   - タスクファイルの完了チェックボックスを更新
+   - 実装サマリーの作成
+   - 次のタスクの提案
+   ```
 
    ### B. **直接作業プロセス**（準備作業タスク用）
 
-   a. **準備作業の実行** - `@task general-purpose /tsumiki:direct-setup`
+   a. **準備作業の実行** - `@task general-purpose /direct-setup`
    ```
    Task実行: 直接作業実行フェーズ
    目的: ディレクトリ作成、設定ファイル作成、依存関係のインストール、環境設定を行う
@@ -142,9 +177,8 @@ description: 分割されたタスクを順番に、またはユーザが指定�
    - 環境設定
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issueにコメント追加（`✅ direct-setup完了`）
 
-   b. **作業結果の確認** - `@task general-purpose /tsumiki:direct-verify`
+   b. **作業結果の確認** - `@task general-purpose /direct-verify`
    ```
    Task実行: 直接作業確認フェーズ
    目的: 作業完了の検証と成果物確認を行う
@@ -154,52 +188,61 @@ description: 分割されたタスクを順番に、またはユーザが指定�
    - 次のタスクへの準備状況確認
    実行方式: 個別Task実行
    ```
-   - 完了後: GitHub Issue/Project更新は`direct-verify`コマンド内で実行
 
-8. **GitHub Issue/Project連携**
-   - 実装開始時:
-     - 取得したIssue番号を使用（ステップ3で取得したIssue番号）
-     - Issue番号が取得できない場合は警告を表示し、GitHub連携をスキップ
-     - GitHub Projectのステータスを`Ready`から`In Progress`に更新: `@task general-purpose /github-sync --action update_status --issue_number {issue_number} --status "In Progress"`
-   - 各実装ステップ完了時:
-     - 取得したIssue番号を使用してGitHub Issueにコメントを追加: `@task general-purpose /github-sync --action add_comment --issue_number {issue_number} --comment "✅ {ステップ名}完了\n- 実行時間: {time}\n- 作成ファイル: {files}"`
-     - TDDプロセスの場合: `tdd-requirements`, `tdd-testcases`, `tdd-red`, `tdd-green`, `tdd-refactor`の各ステップ完了時にコメント追加
-     - DIRECTプロセスの場合: `direct-setup`完了時にコメント追加
-   - 詳細は `docs/rule/github-integration-workflow.md` を参照
+   c. **タスク完了処理**
+   ```
+   作業確認が成功した後の処理:
+   - タスクファイルの完了チェックボックスを更新
+   - 実装サマリーの作成
+   - 次のタスクの提案
+   ```
 
-9. **タスクの完了処理**
+8. **全体の完了確認**
    - タスクのステータスを更新（タスクファイルのチェックボックスにチェックを入れる）
    - 実装結果をドキュメント化
-   - 実装結果をコミット
    - 次のタスクを提案
 
 ## 実行フロー
 
 ```mermaid
 flowchart TD
-    A[タスク選択] --> B{依存関係OK?}
-    B -->|No| C[警告表示]
-    B -->|Yes| D[実装開始]
-    D --> E{タスクタイプ判定}
-    E -->|コード実装| F[TDDプロセス]
-    E -->|準備作業| G[直接作業プロセス]
+    A[1. 追加ルール読み込み] --> A1[2. プロジェクト文書読み込み]
+    A1 --> A2[要件定義書・設計文書]
+    A2 --> B[3. 技術スタック読み込み]
+    B --> C[4. タスク選択]
+    C --> D{5. 依存関係OK?}
+    D -->|No| E[警告表示]
+    D -->|Yes| F[6. ディレクトリ準備]
+    F --> G{7. タスクタイプ判定}
 
-    F --> F1[tdd-requirements]
-    F1 --> F2[tdd-testcases]
-    F2 --> F3[tdd-red]
-    F3 --> F4[tdd-green]
-    F4 --> F5[tdd-refactor]
-    F5 --> F6[tdd-verify-complete]
-    F6 --> F7{品質OK?}
-    F7 -->|No| F3
-    F7 -->|Yes| H[タスク完了]
+    G -->|コード実装| H[TDDプロセス]
+    G -->|準備作業| M[直接作業プロセス]
 
-    G --> G1[準備作業実行]
-    G1 --> G2[作業結果確認]
-    G2 --> H
+    H --> H0[a. tdd-tasknote]
+    H0 --> H1[b. tdd-requirements]
+    H1 --> H2[c. tdd-testcases]
+    H2 --> H2_1{--hil指定?}
+    H2_1 -->|Yes| H2_2[c-1. ユーザー確認]
+    H2_1 -->|No| H3[d. tdd-red]
+    H2_2 --> H2_3{承認?}
+    H2_3 -->|修正必要| H2[c. tdd-testcases]
+    H2_3 -->|承認| H3
+    H3 --> H4[e. tdd-green]
+    H4 --> H5[f. tdd-refactor]
+    H5 --> H6[g. tdd-verify-complete]
 
-    H --> I{他のタスク?}
-    I -->|Yes| A
+    H6 --> H7{品質判定}
+    H7 -->|テストケース不足| H3
+    H7 -->|実装不足| H4
+    H7 -->|OK| H8[h. タスク完了処理]
+
+    M --> M1[a. direct-setup]
+    M1 --> M2[b. direct-verify]
+    M2 --> M3[c. タスク完了処理]
+
+    H8 --> I{9. 他のタスク?}
+    M3 --> I
+    I -->|Yes| C
     I -->|No| J[全タスク完了]
 ```
 
@@ -207,22 +250,16 @@ flowchart TD
 
 ```bash
 # 全タスクを順番に実装
-$ claude code kairo-implement --all
+$ /kairo-implement {要件名}
 
-# 特定のタスクを実装（タスクID指定）
-$ claude code kairo-implement --task TASK-0001
+# 特定のタスクを実装
+$ /kairo-implement {要件名} TASK-0001
 
-# 特定のタスクを実装（Issue番号指定）
-$ claude code kairo-implement --issue 123
+# Human-in-the-Loopモードで実装（テストケース作成後に確認）
+$ /kairo-implement {要件名} TASK-0001 --hil
 
-# 特定のタスクを実装（タスクIDとIssue番号の両方指定）
-$ claude code kairo-implement --task TASK-0001 --issue 123
-
-# 並行実行可能なタスクを一覧表示
-$ claude code kairo-implement --list-parallel
-
-# 現在の進捗を表示
-$ claude code kairo-implement --status
+# Human-in-the-Loopモードで全タスクを実装
+$ /kairo-implement {要件名} --hil
 ```
 
 ## 実装タイプ判定基準
@@ -265,33 +302,83 @@ $ claude code kairo-implement --status
 
 ```bash
 # TDDプロセスの場合
-@task general-purpose /tsumiki:tdd-requirements
-@task general-purpose /tsumiki:tdd-testcases
-@task general-purpose /tsumiki:tdd-red
-@task general-purpose /tsumiki:tdd-green
-@task general-purpose /tsumiki:tdd-refactor
-@task general-purpose /tsumiki:tdd-verify-complete
+@task general-purpose /tdd-tasknote {要件名} {TASK-ID}
+@task general-purpose /tdd-requirements {要件名} {TASK-ID}
+@task general-purpose /tdd-testcases {要件名} {TASK-ID}
+@task general-purpose /tdd-red
+@task general-purpose /tdd-green
+@task general-purpose /tdd-refactor
+@task general-purpose /tdd-verify-complete
 
 # 直接作業プロセスの場合
-@task general-purpose /tsumiki:direct-setup
-@task general-purpose /tsumiki:direct-verify
+@task general-purpose /direct-setup
+@task general-purpose /direct-verify
 ```
 
 ## 実装時の注意事項
 
+### 全般
+
+1. **プロジェクト文書の活用**
+   - 要件定義書（EARS記法）を常に参照し、実装の根拠を明確にする
+   - 設計文書に記載されたアーキテクチャ、データフロー、API仕様に従う
+   - タスクファイルの「関連文書」セクションから必要な文書を確認
+   - 信頼性レベル（🔵🟡🔴）を参考に、推測が必要な箇所を特定
+
+2. **ファイル構造の理解**
+   - `docs/spec/{要件名}/` - 要件定義書
+   - `docs/design/{要件名}/` - 設計文書
+   - `docs/tasks/{要件名}/` - タスク管理
+   - 各タスクファイルには依存関係と関連文書へのリンクが含まれる
+
 ### TDDプロセス用
 
-1. **テストファースト**
+1. **--hilオプション使用時の注意**
+   - テストケース作成後、必ずユーザーの確認を待つ
+   - ユーザーが承認するまでtdd-red以降のフェーズを実行しない
+   - 修正指示があった場合は、tdd-testcasesフェーズから再実行
+   - AskUserQuestion ツールを使用してユーザーの選択を取得
+
+2. **テストファースト**
    - 必ずテストを先に書く
    - テストが失敗することを確認してから実装
 
-2. **インクリメンタルな実装**
+3. **インクリメンタルな実装**
    - 一度に全てを実装しない
    - 小さなステップで進める
 
-3. **継続的な品質確認**
+4. **品質確認の徹底**
    - 各ステップで品質を確認
    - 技術的負債を作らない
+   - **テストケース充足度の確認**:
+     - すべての要件に対してテストケースが存在するか
+     - エッジケース、エラーケース、境界値テストが含まれているか
+     - テストカバレッジが基準を満たしているか（目安: 80%以上）
+   - **実装完成度の確認**:
+     - すべてのテストケースが成功しているか
+     - 要件定義書・設計文書に記載された仕様を満たしているか
+     - コード品質（可読性、保守性）が基準を満たしているか
+
+5. **品質確認後の対応**
+   - テストケース不足の場合:
+     - d. tdd-red に戻り、不足しているテストケースを追加
+     - e. tdd-green で実装を追加
+     - f. tdd-refactor でリファクタリング
+     - g. tdd-verify-complete で再確認
+   - 実装不足の場合（テストケースは十分）:
+     - e. tdd-green に戻り、失敗しているテストを通す実装を追加
+     - f. tdd-refactor でリファクタリング
+     - g. tdd-verify-complete で再確認
+
+6. **Human-in-the-Loop実行フロー**
+   - --hilオプション指定時:
+     1. c. tdd-testcases でテストケースを作成
+     2. c-1. 作成されたテストケースの一覧と分析結果を表示
+     3. AskUserQuestionツールでユーザーの選択を取得:
+        - 「承認」: d. tdd-red以降のフェーズを続行
+        - 「修正」: ユーザーの指示に基づいてテストケースを修正後、c-1に戻る
+        - 「キャンセル」: 実装を中断し、現在の状態を保存
+     4. 承認後、通常のTDDプロセスを続行
 
 ### 直接作業プロセス用
 
@@ -340,22 +427,80 @@ $ claude code kairo-implement --status
 ### 各ステップ完了時（TDD）
 
 ```
-✅ Task 1/6: @task /tsumiki:tdd-requirements 完了
+✅ Task 1/8: @task /tdd-tasknote 完了
+   ファイル: docs/implements/{要件名}/{{task_id}}/note.md
+   Task実行結果: タスクノート作成完了
+
+✅ Task 2/8: @task /tdd-requirements 完了
    ファイル: docs/implements/{要件名}/{{task_id}}/{要件名}-requirements.md
    Task実行結果: 要件定義書作成完了
 
-🏃 Task 2/6: @task /tsumiki:tdd-testcases 実行中...
+🏃 Task 3/8: @task /tdd-testcases 実行中...
    Task実行: TDDテストケース作成フェーズを開始
+
+...
+
+✅ Task 7/8: @task /tdd-verify-complete 完了
+   品質確認結果:
+   - テストケース充足度: 95% (26/27件実装済み)
+   - テストケース成功率: 92% (24/26件成功)
+   - テストカバレッジ: 88%
+
+   判定: テストケース不足あり & 実装不足あり
+   → Task 4/8 (tdd-red) から再実行します
+
+🏃 Task 4/8: @task /tdd-red 実行中...
+   不足しているテストケースを追加します
+```
+
+### ユーザー確認時（--hilオプション指定時）
+
+```
+✅ Task 3/8: @task /tdd-testcases 完了
+   ファイル: docs/implements/{要件名}/{{task_id}}/testcases.md
+
+📋 作成されたテストケース (27個):
+
+【正常系テストケース】
+1. ✓ 有効なタスクIDでタスクが正常に作成できる
+2. ✓ 必須フィールドが全て設定された状態でタスクが作成できる
+3. ✓ オプションフィールドを省略してもタスクが作成できる
+...
+
+【異常系テストケース】
+15. ✓ 無効なタスクID形式でエラーが返される
+16. ✓ 必須フィールド不足でバリデーションエラーが返される
+17. ✓ 重複するタスクIDでエラーが返される
+...
+
+【境界値テストケース】
+24. ✓ タスク名の最小文字数(1文字)で作成できる
+25. ✓ タスク名の最大文字数(200文字)で作成できる
+...
+
+🔍 テストケースレビューポイント:
+- 要件カバレッジ: 100% (全要件に対応)
+- エッジケースカバレッジ: 85% (主要なエッジケースをカバー)
+- エラーケースカバレッジ: 90% (主要なエラーパターンをカバー)
+
+⏸️  このテストケースで実装を進めてよろしいですか?
+
+選択肢:
+1. [承認] テストケースを承認してtdd-red以降を実行
+2. [修正] テストケースの修正・追加を指示
+3. [キャンセル] 実装を中断
+
+あなたの選択: _
 ```
 
 ### 各ステップ完了時（直接作業）
 
 ```
-✅ Task 1/2: @task /tsumiki:direct-setup 完了
+✅ Task 1/2: @task /direct-setup 完了
    作成ファイル: 8個、設定更新: 3個
    Task実行結果: 準備作業実行完了
 
-🏃 Task 2/2: @task /tsumiki:direct-verify 実行中...
+🏃 Task 2/2: @task /direct-verify 実行中...
    Task実行: 直接作業確認フェーズを開始
 ```
 
@@ -369,11 +514,13 @@ $ claude code kairo-implement --status
 
 📊 実装サマリー:
 - 実装タイプ: TDDプロセス (個別Task実行)
-- 実行Taskステップ: 6個 (全て成功)
-- 作成ファイル: 12個
-- テストケース: 25個 (全て成功)
-- カバレッジ: 95%
-- 所要時間: 3時間45分
+- 実行Taskステップ: 8個 (全て成功)
+- 品質確認の繰り返し: 2回 (初回: テストケース不足検出 → 追加実装 → 2回目: 成功)
+- 作成ファイル: 13個 (タスクノート含む)
+- テストケース: 27個 (全て成功)
+- テストカバレッジ: 95%
+- 要件充足度: 100%
+- 所要時間: 4時間15分
 
 📝 次の推奨タスク:
 - {{次のタスクID}}: {{次のタスク名}}

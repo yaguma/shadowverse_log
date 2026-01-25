@@ -1,8 +1,7 @@
 ---
-description: >-
-  既存のコードベースから包括的なテストケースと仕様書を逆生成します。実装されたビジネスロジック、API動作、UI
-  コンポーネントの動作を分析し、不足しているテストケースを特定・生成し、仕様書として文書化します。
+description: 既存のコードベースから包括的なテストケースと仕様書を逆生成します。実装されたビジネスロジック、API動作、UI コンポーネントの動作を分析し、不足しているテストケースを特定・生成し、仕様書として文書化します。
 ---
+
 # rev-specs
 
 ## 目的
@@ -13,7 +12,7 @@ description: >-
 
 - 分析対象のコードベースが存在する
 - `docs/reverse/` ディレクトリが存在する（なければ作成）
-- 可能であれば事前に `/tsumiki:rev-requirements`, `/tsumiki:rev-design` を実行済み
+- 可能であれば事前に `/rev-requirements`, `/rev-design` を実行済み
 
 ## 実行内容
 
@@ -136,7 +135,7 @@ describe('POST /auth/login', () => {
       .send(validCredentials);
     
     const token = response.body.data.token;
-    expect(token).toMatch(/^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+$/);
+    expect(token).toMatch(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
   });
 });
 ```
@@ -620,4 +619,4 @@ claude code rev-specs --priority high
 - 生成されたテストケース数と推定実装工数を表示
 - 優先順位付けされた実装推奨リストを提示
 - テスト環境の設定要件と推奨ツールを提案
-- CI/CD パイプラインへの統合案を提示
+- CI/CD パイプラインへの統合案を提示 

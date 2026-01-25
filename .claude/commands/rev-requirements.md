@@ -1,8 +1,7 @@
 ---
-description: >-
-  既存のコードベースから要件定義書を逆生成します。実装された機能を分析し、EARS（Easy Approach to Requirements
-  Syntax）記法を用いて機能要件、非機能要件、ユーザーストーリーを抽出・文書化します。
+description: 既存のコードベースから要件定義書を逆生成します。実装された機能を分析し、EARS（Easy Approach to Requirements Syntax）記法を用いて機能要件、非機能要件、ユーザーストーリーを抽出・文書化します。
 ---
+
 # rev-requirements
 
 ## 目的
@@ -13,7 +12,7 @@ description: >-
 
 - 分析対象のコードベースが存在する
 - `docs/reverse/` ディレクトリが存在する（なければ作成）
-- 可能であれば事前に `/tsumiki:rev-tasks` および `/tsumiki:rev-design` を実行済み
+- 可能であれば事前に `/rev-tasks` および `/rev-design` を実行済み
 
 ## 実行内容
 
@@ -387,4 +386,4 @@ claude code rev-requirements --format markdown,json
 - 分析の信頼度と根拠の強さを報告
 - 推定が困難な要件や確認が必要な項目を提示
 - ステークホルダー確認のための質問リストを生成
-- 次の推奨アクション（テスト追加、ドキュメント整備等）を提案
+- 次の推奨アクション（テスト追加、ドキュメント整備等）を提案 

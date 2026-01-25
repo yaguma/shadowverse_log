@@ -1,7 +1,7 @@
 ---
-description: >-
-  既存のコードベースから技術設計文書を逆生成します。実装されたアーキテクチャ、データフロー、API仕様、データベーススキーマ、TypeScriptインターフェースを分析し、設計書として文書化します。
+description: 既存のコードベースから技術設計文書を逆生成します。実装されたアーキテクチャ、データフロー、API仕様、データベーススキーマ、TypeScriptインターフェースを分析し、設計書として文書化します。
 ---
+
 # rev-design
 
 ## 目的
@@ -12,7 +12,7 @@ description: >-
 
 - 分析対象のコードベースが存在する
 - `docs/reverse/` ディレクトリが存在する（なければ作成）
-- 可能であれば事前に `/tsumiki:rev-tasks` を実行済み
+- 可能であれば事前に `/rev-tasks` を実行済み
 
 ## 実行内容
 
@@ -151,7 +151,7 @@ description: >-
 ## ユーザーインタラクションフロー
 
 ### 認証フロー
-``````mermaid
+\`\`\`mermaid
 sequenceDiagram
     participant U as ユーザー
     participant F as フロントエンド
@@ -164,10 +164,10 @@ sequenceDiagram
     D-->>B: ユーザー情報
     B-->>F: JWTトークン
     F-->>U: ログイン完了
-``````
+\`\`\`
 
 ### データ取得フロー
-``````mermaid
+\`\`\`mermaid
 flowchart TD
     A[ユーザーアクション] --> B[Reactコンポーネント]
     B --> C[useQueryフック]
@@ -185,29 +185,29 @@ flowchart TD
     D --> C
     C --> B
     B --> J[UI更新]
-``````
+\`\`\`
 
 ## 状態管理フロー
 
 ### {使用されている状態管理ライブラリ} フロー
-``````mermaid
+\`\`\`mermaid
 flowchart LR
     A[コンポーネント] --> B[Action Dispatch]
     B --> C[Reducer/Store]
     C --> D[State更新]
     D --> A
-``````
+\`\`\`
 
 ## エラーハンドリングフロー
 
-``````mermaid
+\`\`\`mermaid
 flowchart TD
     A[エラー発生] --> B{エラー種別}
     B -->|認証エラー| C[リダイレクト to ログイン]
     B -->|ネットワークエラー| D[リトライ機能]
     B -->|バリデーションエラー| E[フォームエラー表示]
     B -->|サーバーエラー| F[エラートースト表示]
-``````
+\`\`\`
 ```
 
 ### api-specs.md
@@ -216,7 +216,7 @@ flowchart TD
 # API仕様書（逆生成）
 
 ## ベースURL
-``{発見されたベースURL}``
+\`{発見されたベースURL}\`
 
 ## 認証方式
 {発見された認証方式の詳細}
@@ -229,15 +229,15 @@ flowchart TD
 **説明**: ユーザーログイン
 
 **リクエスト**:
-``````typescript
+\`\`\`typescript
 {
   email: string;
   password: string;
 }
-``````
+\`\`\`
 
 **レスポンス**:
-``````typescript
+\`\`\`typescript
 {
   success: boolean;
   data: {
@@ -249,10 +249,10 @@ flowchart TD
     }
   };
 }
-``````
+\`\`\`
 
 **エラーレスポンス**:
-``````typescript
+\`\`\`typescript
 {
   success: false;
   error: {
@@ -260,15 +260,15 @@ flowchart TD
     message: string;
   }
 }
-``````
+\`\`\`
 
 #### POST /auth/logout
 **説明**: ユーザーログアウト
 
 **ヘッダー**:
-``````
+\`\`\`
 Authorization: Bearer {token}
-``````
+\`\`\`
 
 ### {その他のエンドポイント}
 
@@ -283,15 +283,15 @@ Authorization: Bearer {token}
 ## レスポンス共通形式
 
 ### 成功レスポンス
-``````typescript
+\`\`\`typescript
 {
   success: true;
   data: T; // 型は endpoint によって変動
 }
-``````
+\`\`\`
 
 ### エラーレスポンス
-``````typescript
+\`\`\`typescript
 {
   success: false;
   error: {
@@ -300,7 +300,7 @@ Authorization: Bearer {token}
     details?: any;
   }
 }
-``````
+\`\`\`
 ```
 
 ### database.md
@@ -314,7 +314,7 @@ Authorization: Bearer {token}
 {発見されたテーブル一覧}
 
 ### ER図
-``````mermaid
+\`\`\`mermaid
 erDiagram
     USERS {
         uuid id PK
@@ -334,22 +334,22 @@ erDiagram
     }
     
     USERS ||--o{ POSTS : creates
-``````
+\`\`\`
 
 ## テーブル詳細
 
 ### users テーブル
-``````sql
+\`\`\`sql
 {実際のCREATE TABLE文}
-``````
+\`\`\`
 
 **カラム説明**:
-- `id`: {説明}
-- `email`: {説明}
-- `name`: {説明}
+- \`id\`: {説明}
+- \`email\`: {説明}
+- \`name\`: {説明}
 
 **インデックス**:
-- `idx_users_email`: email カラムの検索用
+- \`idx_users_email\`: email カラムの検索用
 
 ### {その他のテーブル}
 
@@ -494,4 +494,4 @@ claude code rev-design --format markdown,openapi
 - 生成された設計書ファイルの一覧を表示
 - 抽出されたAPI数、テーブル数、型定義数等の統計情報を表示
 - 不足している設計要素や推奨改善点を提示
-- 次のリバースエンジニアリングステップ（要件定義生成等）を提案
+- 次のリバースエンジニアリングステップ（要件定義生成等）を提案 
