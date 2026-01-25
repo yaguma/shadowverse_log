@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { BattleLog, DeckMaster } from '../../types';
+import type { BattleLogWithDeckNames, DeckMaster } from '../../types';
 import { BattleLogList } from './BattleLogList';
 
 // 【テストファイル概要】: Battle Log一覧表示コンポーネントの単体テスト
@@ -19,7 +19,7 @@ describe('BattleLogList', () => {
 
       // 【テストデータ準備】: 3件の対戦履歴モックデータを作成 🔵
       // 【初期条件設定】: 日付降順でソートされたデータを用意
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -27,9 +27,11 @@ describe('BattleLogList', () => {
           rank: 'ダイアモンド',
           groupName: 'AAA',
           myDeckId: 'deck-001',
+          myDeckName: 'マイデッキ1',
           turn: '先攻',
           result: '勝ち',
           opponentDeckId: 'deck-master-001',
+          opponentDeckName: 'エルフデッキ',
         },
         {
           id: 'log_20251107_001',
@@ -38,9 +40,11 @@ describe('BattleLogList', () => {
           rank: 'ダイアモンド',
           groupName: 'AA',
           myDeckId: 'deck-002',
+          myDeckName: 'マイデッキ2',
           turn: '後攻',
           result: '負け',
           opponentDeckId: 'deck-master-002',
+          opponentDeckName: 'ロイヤルデッキ',
         },
         {
           id: 'log_20251106_001',
@@ -49,9 +53,11 @@ describe('BattleLogList', () => {
           rank: '-',
           groupName: '-',
           myDeckId: 'deck-001',
+          myDeckName: 'マイデッキ1',
           turn: '先攻',
           result: '勝ち',
           opponentDeckId: 'deck-master-003',
+          opponentDeckName: 'ウィッチデッキ',
         },
       ];
 
@@ -91,7 +97,7 @@ describe('BattleLogList', () => {
 
       // 【テストデータ準備】: 日付がバラバラの3件のモックデータ 🔵
       // 【初期条件設定】: Backend APIから日付降順で返される前提
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -147,7 +153,7 @@ describe('BattleLogList', () => {
       // 🔵 信頼性レベル: 要件定義書REQ-010に基づく
 
       // 【テストデータ準備】: 1件の対戦履歴モックデータ 🔵
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -182,7 +188,7 @@ describe('BattleLogList', () => {
       // 🔵 信頼性レベル: 要件定義書REQ-011に基づく
 
       // 【テストデータ準備】: 1件の対戦履歴モックデータ 🔵
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -221,7 +227,7 @@ describe('BattleLogList', () => {
       // 🔵 信頼性レベル: EDGE-204（空データ）に基づく
 
       // 【テストデータ準備】: 空の配列を用意 🔵
-      const mockBattleLogs: BattleLog[] = [];
+      const mockBattleLogs: BattleLogWithDeckNames[] = [];
 
       const onDelete = vi.fn();
       const onDetail = vi.fn();
@@ -245,7 +251,7 @@ describe('BattleLogList', () => {
       // 🟡 信頼性レベル: 境界値テストの一般的なパターンから推測
 
       // 【テストデータ準備】: 1件の対戦履歴モックデータ 🟡
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -288,7 +294,7 @@ describe('BattleLogList', () => {
       // 🔵 信頼性レベル: REQ-034、REQ-603に基づく
 
       // 【テストデータ準備】: 1件の対戦履歴モックデータ 🔵
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -321,7 +327,7 @@ describe('BattleLogList', () => {
       // 🟡 信頼性レベル: アクセシビリティ要件から推測
 
       // 【テストデータ準備】: 1件の対戦履歴モックデータ 🟡
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -354,7 +360,7 @@ describe('BattleLogList', () => {
       // 🟡 信頼性レベル: アクセシビリティ要件から推測
 
       // 【テストデータ準備】: 1件の対戦履歴モックデータ 🟡
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -399,7 +405,7 @@ describe('BattleLogList', () => {
       // 【期待される動作】: 「相手デッキ」列に「エルフデッキ」が表示される 🔵
       // 🔵 信頼性レベル: FR-001に基づく
 
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -407,9 +413,11 @@ describe('BattleLogList', () => {
           rank: 'ダイアモンド',
           groupName: 'AAA',
           myDeckId: 'deck-001',
+          myDeckName: 'マイデッキ1',
           turn: '先攻',
           result: '勝ち',
           opponentDeckId: 'deck-master-001',
+          opponentDeckName: 'エルフデッキ',
         },
       ];
 
@@ -436,7 +444,7 @@ describe('BattleLogList', () => {
       // 【期待される動作】: 「相手デッキ」列に「deck-master-001」が表示される 🔵
       // 🔵 信頼性レベル: FR-001に基づく
 
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -473,7 +481,7 @@ describe('BattleLogList', () => {
       // 【期待される動作】: 「相手デッキ」列に「unknown-deck」が表示される 🔵
       // 🔵 信頼性レベル: FR-001に基づく
 
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -510,7 +518,7 @@ describe('BattleLogList', () => {
       // 【期待される動作】: 各行に対応するデッキ名が表示される 🔵
       // 🔵 信頼性レベル: FR-001に基づく
 
-      const mockBattleLogs: BattleLog[] = [
+      const mockBattleLogs: BattleLogWithDeckNames[] = [
         {
           id: 'log_20251108_001',
           date: '2025/11/08',
@@ -518,9 +526,11 @@ describe('BattleLogList', () => {
           rank: 'ダイアモンド',
           groupName: 'AAA',
           myDeckId: 'deck-001',
+          myDeckName: 'マイデッキ1',
           turn: '先攻',
           result: '勝ち',
           opponentDeckId: 'deck-master-001',
+          opponentDeckName: 'エルフデッキ',
         },
         {
           id: 'log_20251107_001',
@@ -529,9 +539,11 @@ describe('BattleLogList', () => {
           rank: 'ダイアモンド',
           groupName: 'AA',
           myDeckId: 'deck-002',
+          myDeckName: 'マイデッキ2',
           turn: '後攻',
           result: '負け',
           opponentDeckId: 'deck-master-002',
+          opponentDeckName: 'ロイヤルデッキ',
         },
         {
           id: 'log_20251106_001',
@@ -540,9 +552,11 @@ describe('BattleLogList', () => {
           rank: '-',
           groupName: '-',
           myDeckId: 'deck-001',
+          myDeckName: 'マイデッキ1',
           turn: '先攻',
           result: '勝ち',
           opponentDeckId: 'deck-master-003',
+          opponentDeckName: 'ウィッチデッキ',
         },
       ];
 

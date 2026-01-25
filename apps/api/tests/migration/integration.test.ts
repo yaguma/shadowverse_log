@@ -13,8 +13,8 @@ import {
 } from '../../src/migration/migrate-json-to-d1';
 
 describe('Migration Integration Test (Dry Run Verification)', () => {
-  // 実際のJSONファイルパス
-  const dataDir = join(__dirname, '../../../data/json');
+  // 実際のJSONファイルパス（プロジェクトルート/data/json）
+  const dataDir = join(__dirname, '../../../../data/json');
 
   const createMockRepositories = () => ({
     deckMaster: {

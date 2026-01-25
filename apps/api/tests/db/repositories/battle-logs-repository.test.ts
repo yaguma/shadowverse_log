@@ -28,6 +28,7 @@ describe('BattleLogsRepository', () => {
     turn: 'first',
     result: 'win',
     opponentDeckId: 'opponent-deck-1',
+    season: null,
     createdAt: '2025-11-26T00:00:00Z',
     updatedAt: '2025-11-26T00:00:00Z',
   };
@@ -90,13 +91,21 @@ describe('BattleLogsRepository', () => {
 
   describe('findAll', () => {
     it('should return all battle logs with default pagination', async () => {
-      const mockData = [mockBattleLog];
+      const mockDataWithDeckNames = [{
+        ...mockBattleLog,
+        myDeckName: 'My Deck',
+        opponentDeckName: 'Opponent Deck',
+      }];
       const chainMock = {
         select: vi.fn().mockReturnValue({
           from: vi.fn().mockReturnValue({
-            orderBy: vi.fn().mockReturnValue({
-              limit: vi.fn().mockReturnValue({
-                offset: vi.fn().mockResolvedValue(mockData),
+            leftJoin: vi.fn().mockReturnValue({
+              leftJoin: vi.fn().mockReturnValue({
+                orderBy: vi.fn().mockReturnValue({
+                  limit: vi.fn().mockReturnValue({
+                    offset: vi.fn().mockResolvedValue(mockDataWithDeckNames),
+                  }),
+                }),
               }),
             }),
           }),
@@ -106,7 +115,7 @@ describe('BattleLogsRepository', () => {
       const repo = new BattleLogsRepository(db);
 
       const result = await repo.findAll();
-      expect(result).toEqual(mockData);
+      expect(result).toEqual(mockDataWithDeckNames);
     });
 
     it('should respect custom limit and offset', async () => {
@@ -116,8 +125,12 @@ describe('BattleLogsRepository', () => {
       const chainMock = {
         select: vi.fn().mockReturnValue({
           from: vi.fn().mockReturnValue({
-            orderBy: vi.fn().mockReturnValue({
-              limit: mockLimitFn,
+            leftJoin: vi.fn().mockReturnValue({
+              leftJoin: vi.fn().mockReturnValue({
+                orderBy: vi.fn().mockReturnValue({
+                  limit: mockLimitFn,
+                }),
+              }),
             }),
           }),
         }),
@@ -133,6 +146,7 @@ describe('BattleLogsRepository', () => {
   describe('create', () => {
     it('should create a new battle log', async () => {
       const newBattleLogData = {
+        id: 'test-uuid-1234',
         userId: 'user-1',
         date: '2025-11-26',
         battleType: 'ranked',
@@ -155,7 +169,7 @@ describe('BattleLogsRepository', () => {
                 return Promise.resolve([
                   {
                     ...newBattleLogData,
-                    id: 'test-uuid-1234',
+                    season: null,
                     createdAt: '2025-11-26T00:00:00Z',
                     updatedAt: '2025-11-26T00:00:00Z',
                   },
