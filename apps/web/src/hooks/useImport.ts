@@ -357,8 +357,9 @@ export function useImport(): UseImportReturn {
 
       // 【API送信】: POST /api/importにデータを送信 🔵
       // 【テスト対応】: TC-IMPORT-001〜TC-IMPORT-007（正常系）
+      // 【注意】: バックエンドはdata を文字列として期待するため、元のファイル内容を送信
       const result = await apiClient.post<ImportResult>('/import', {
-        data: parsedData,
+        data: fileContent,
         format: isJSON ? 'json' : 'csv',
       });
 
