@@ -56,3 +56,4 @@ drizzle/
 # Build outputs
 backend/dist/
 backend/.wrangler/
+.claude/settings.local.json
