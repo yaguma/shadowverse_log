@@ -4,17 +4,6 @@ import { apiClient } from '../api/client';
 import type { StatisticsResponse } from '../types';
 import { StatisticsDashboardPage } from './StatisticsDashboardPage';
 
-// 【ヘルパー関数】: 最新シーズン取得のモックレスポンスを設定
-const mockLatestSeasonResponse = (latestSeason: number | null = 1) => {
-  vi.mocked(apiClient.get).mockImplementation((url: string) => {
-    if (url === '/battle-logs/latest-season') {
-      return Promise.resolve({ latestSeason });
-    }
-    // 統計APIのモックはテストケース内で設定する
-    return Promise.reject(new Error(`Unexpected API call: ${url}`));
-  });
-};
-
 // 【テストファイル概要】: Statistics Dashboardページコンポーネントの単体テスト
 // 【テスト目的】: StatisticsDashboardPageコンポーネントの全機能（正常系・異常系・境界値・UI/UX）を検証する
 // 【テスト範囲】: 統計表示、期間選択、ローディング、エラーハンドリング、レスポンシブデザイン
@@ -412,13 +401,11 @@ describe('StatisticsDashboardPage', () => {
       };
 
       // 【修正】: 最新シーズン取得と統計API呼び出しをモック 🟡
-      let callCount = 0;
       vi.mocked(apiClient.get).mockImplementation((url: string) => {
         if (url === '/battle-logs/latest-season') {
           return Promise.resolve({ latestSeason: 1 });
         }
         if (url.startsWith('/statistics')) {
-          callCount++;
           // 日付変更後の呼び出しでは updatedStatistics を返す
           if (url.includes('startDate=2025-01-01') && url.includes('endDate=2025-01-31')) {
             return Promise.resolve(updatedStatistics);

@@ -29,11 +29,7 @@ interface BattleLogListProps {
  * 【テスト対応】: TC-LIST-001〜TC-A11Y-002の全10ケースを通すための実装
  * 🔵 信頼性レベル: 要件定義書のBattleLogList仕様に準拠
  */
-export const BattleLogList: React.FC<BattleLogListProps> = ({
-  battleLogs,
-  onDelete,
-  onDetail,
-}) => {
+export const BattleLogList: React.FC<BattleLogListProps> = ({ battleLogs, onDelete, onDetail }) => {
   // 【境界値処理】: 対戦履歴が0件の場合、空データメッセージを表示 🔵
   // 【TC-BND-001対応】: battleLogs = [] の場合の表示
   if (battleLogs.length === 0) {
@@ -193,7 +189,9 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({
                 {/* 【改善】: APIから返ってくるopponentDeckNameを直接表示 */}
                 <div className="text-sm">
                   <span className="text-gray-500">相手デッキ:</span>
-                  <span className="ml-2 text-gray-700">{log.opponentDeckName ?? log.opponentDeckId}</span>
+                  <span className="ml-2 text-gray-700">
+                    {log.opponentDeckName ?? log.opponentDeckId}
+                  </span>
                 </div>
               </div>
 

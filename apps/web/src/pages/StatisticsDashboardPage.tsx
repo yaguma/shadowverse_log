@@ -151,7 +151,7 @@ export function StatisticsDashboardPage() {
     // 【API呼び出し】: シーズン初期化完了後は必ず統計を取得
     // シーズンがnullの場合（データがない場合）でも全期間の統計を表示
     fetchStatistics();
-  }, [startDate, endDate, season, fetchStatistics, isSeasonInitialized]);
+  }, [fetchStatistics, isSeasonInitialized]);
 
   /**
    * 【検索ボタンクリックハンドラ】: 期間選択フォームの「検索」ボタン処理
