@@ -48,6 +48,10 @@
     ]
   },
   "model": "opus",
+  "enabledPlugins": {
+    "ralph-loop@claude-plugins-official": false,
+    "tsumiki@tsumiki": true
+  },
   "enableAllProjectMcpServers": false,
   "hooks": {
     "PreToolUse": [

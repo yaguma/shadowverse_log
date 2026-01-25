@@ -6,6 +6,9 @@ build/
 .env.local
 .env.*.local
 
+# TypeScript build info
+*.tsbuildinfo
+
 # IDE
 .vscode/
 .idea/
