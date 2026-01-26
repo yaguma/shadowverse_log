@@ -21,7 +21,7 @@ export interface MyDeck {
 }
 
 /**
- * マイデッキ登録リクエスト型
+ * マイデッキ登録リクエスト型（既存互換）
  */
 export interface CreateMyDeckRequest {
   /** デッキコード */
@@ -30,4 +30,17 @@ export interface CreateMyDeckRequest {
   deckName: string;
   /** 使用中フラグ（省略時はtrue） */
   isActive?: boolean;
+}
+
+/**
+ * 使用デッキ追加リクエスト
+ * REQ-EXT-101 ~ REQ-EXT-107 対応
+ */
+export interface MyDeckCreateRequest {
+  /** デッキ種別ID（DeckMasterのid） */
+  deckId: string;
+  /** デッキ名（自由入力） */
+  deckName: string;
+  /** デッキコード（任意、バリデーションなし） */
+  deckCode?: string;
 }
