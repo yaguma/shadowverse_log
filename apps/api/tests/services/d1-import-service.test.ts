@@ -532,8 +532,8 @@ ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,d
 
       const result = await service.importFromJson(jsonData);
 
-      // 600件を500件ずつ処理するので、2回のバッチクエリが実行される
-      expect(whereCallCount.count).toBe(2);
+      // 600件を100件ずつ処理するので、6回のバッチクエリが実行される
+      expect(whereCallCount.count).toBe(6);
       expect(result.imported).toBe(600);
     });
   });
