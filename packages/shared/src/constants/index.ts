@@ -50,3 +50,15 @@ export const CLASS_NAMES = [
 ] as const;
 
 export type ClassName = (typeof CLASS_NAMES)[number];
+
+/**
+ * APIエラーコード定数
+ */
+export const API_ERROR_CODES = {
+  VALIDATION_ERROR: 'VALIDATION_ERROR',
+  DELETE_CONSTRAINT_ERROR: 'DELETE_CONSTRAINT_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+} as const;
+
+export type ApiErrorCode = (typeof API_ERROR_CODES)[keyof typeof API_ERROR_CODES];
