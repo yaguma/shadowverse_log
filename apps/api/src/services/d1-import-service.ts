@@ -173,7 +173,15 @@ export class D1ImportService {
   }
 
   /**
+   * SQLiteのプレースホルダー制限を考慮したバッチサイズ
+   * D1/SQLiteでは999が安全な上限
+   */
+  private readonly BATCH_SIZE = 500;
+
+  /**
    * 既存のIDを取得
+   * SQLiteのプレースホルダー制限（SQLITE_MAX_VARIABLE_NUMBER）を回避するため
+   * バッチ処理で取得する
    *
    * @param data - チェック対象データ
    * @returns 既存IDのSet
@@ -185,12 +193,23 @@ export class D1ImportService {
       return new Set();
     }
 
-    const existingRecords = await this.db
-      .select({ id: battleLogs.id })
-      .from(battleLogs)
-      .where(inArray(battleLogs.id, inputIds));
+    const existingIds = new Set<string>();
 
-    return new Set(existingRecords.map((r) => r.id));
+    // バッチ処理でIDをチェック
+    for (let i = 0; i < inputIds.length; i += this.BATCH_SIZE) {
+      const batchIds = inputIds.slice(i, i + this.BATCH_SIZE);
+
+      const existingRecords = await this.db
+        .select({ id: battleLogs.id })
+        .from(battleLogs)
+        .where(inArray(battleLogs.id, batchIds));
+
+      for (const record of existingRecords) {
+        existingIds.add(record.id);
+      }
+    }
+
+    return existingIds;
   }
 
   /**
