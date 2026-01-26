@@ -118,4 +118,16 @@ export class DeckMasterRepository implements BaseRepository<DeckMaster, NewDeckM
     const found = result.find((d) => d.deckName === deckName);
     return found || null;
   }
+
+  /**
+   * 最大sortOrderを取得
+   * TASK-0006: POST実装用
+   */
+  async getMaxSortOrder(): Promise<number> {
+    const rows = await this.db.select().from(deckMaster);
+    if (rows.length === 0) {
+      return 0;
+    }
+    return Math.max(...rows.map((row) => row.sortOrder));
+  }
 }
