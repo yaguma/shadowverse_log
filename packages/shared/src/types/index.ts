@@ -26,4 +26,6 @@ export type {
   RankStats,
   TurnStats,
   DeckDistribution,
+  ValidationError,
+  DeleteConstraintError,
 } from './api.js';

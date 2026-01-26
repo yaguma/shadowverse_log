@@ -106,3 +106,32 @@ export interface StatisticsResponse {
     endDate: string;
   };
 }
+
+/**
+ * バリデーションエラー
+ * REQ-EXT-403 対応
+ */
+export interface ValidationError {
+  code: 'VALIDATION_ERROR';
+  message: string;
+  details: {
+    field: string;
+    constraint: string;
+    value: unknown;
+  }[];
+}
+
+/**
+ * 削除制約エラー
+ * REQ-EXT-401, REQ-EXT-402 対応
+ */
+export interface DeleteConstraintError {
+  code: 'DELETE_CONSTRAINT_ERROR';
+  message: string;
+  details: {
+    entityType: 'deckMaster' | 'myDeck';
+    entityId: string;
+    referencedBy: 'battleLogs';
+    referenceCount: number;
+  };
+}
