@@ -10,9 +10,9 @@
 
 import type { D1Database } from '@cloudflare/workers-types';
 import { Hono } from 'hono';
+import { CLASS_NAMES } from '@shadowverse-log/shared';
 import { createDb } from '../db';
 import { DeckMasterRepository } from '../db/repositories/deck-master-repository';
-// ClassNameSchema は VALID_CLASS_NAMES と重複するため、将来のリファクタリングで統合可能
 
 /** 環境バインディング型 */
 type Bindings = {
@@ -42,20 +42,6 @@ function createErrorResponse(code: string, message: string, details?: unknown[])
   };
 }
 
-/**
- * 有効なクラス名一覧
- * TASK-0006: POST /api/deck-master 用
- */
-const VALID_CLASS_NAMES = [
-  'エルフ',
-  'ロイヤル',
-  'ウィッチ',
-  'ドラゴン',
-  'ネクロマンサー',
-  'ヴァンパイア',
-  'ビショップ',
-  'ネメシス',
-] as const;
 
 /**
  * GET /api/deck-master
@@ -104,7 +90,7 @@ deckMaster.get('/', async (c) => {
  *
  * リクエストボディ:
  * - className: クラス名（必須、有効なクラス名のみ）
- * - deckName: デッキ名（必須、1〜50文字）
+ * - deckName: デッキ名（必須、1〜100文字）
  *
  * レスポンス:
  * - 201 Created: 正常登録
@@ -148,8 +134,8 @@ deckMaster.post('/', async (c) => {
       );
     }
 
-    // バリデーション: className有効値チェック
-    if (!VALID_CLASS_NAMES.includes(className as (typeof VALID_CLASS_NAMES)[number])) {
+    // バリデーション: className有効値チェック（sharedパッケージのCLASS_NAMESを使用）
+    if (!CLASS_NAMES.includes(className as (typeof CLASS_NAMES)[number])) {
       return c.json(
         createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
           { field: 'className', constraint: 'enum', value: className },
@@ -168,8 +154,8 @@ deckMaster.post('/', async (c) => {
       );
     }
 
-    // バリデーション: deckName長さチェック（タスク要件では1〜50文字）
-    if (deckName.length > 50) {
+    // バリデーション: deckName長さチェック（sharedパッケージのDeckNameSchemaと一貫して100文字）
+    if (deckName.length > 100) {
       return c.json(
         createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
           { field: 'deckName', constraint: 'maxLength', value: deckName },

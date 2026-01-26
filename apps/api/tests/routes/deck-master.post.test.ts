@@ -132,7 +132,7 @@ describe('POST /api/deck-master', () => {
           }, 400);
         }
 
-        if (deckName.length > 50) {
+        if (deckName.length > 100) {
           return c.json({
             success: false,
             error: {
@@ -367,13 +367,13 @@ describe('POST /api/deck-master', () => {
     });
   });
 
-  // TC-0006-005: deckName51文字でValidationError
-  describe('TC-0006-005: deckName51文字でValidationError', () => {
-    it('deckNameが51文字以上の場合、400 Bad Requestを返す', async () => {
+  // TC-0006-005: deckName101文字でValidationError（100文字制限）
+  describe('TC-0006-005: deckName101文字でValidationError', () => {
+    it('deckNameが101文字以上の場合、400 Bad Requestを返す', async () => {
       const app = createTestApp();
       const requestBody = {
         className: 'ウィッチ',
-        deckName: 'a'.repeat(51),
+        deckName: 'a'.repeat(101),
       };
 
       const res = await app.request('/api/deck-master', {
@@ -385,11 +385,11 @@ describe('POST /api/deck-master', () => {
       expect(res.status).toBe(400);
     });
 
-    it('deckNameが50文字の場合、201 Createdを返す', async () => {
+    it('deckNameが100文字の場合、201 Createdを返す', async () => {
       const app = createTestApp();
       const requestBody = {
         className: 'ウィッチ',
-        deckName: 'a'.repeat(50),
+        deckName: 'a'.repeat(100),
       };
 
       const res = await app.request('/api/deck-master', {

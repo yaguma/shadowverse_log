@@ -5,7 +5,7 @@
  * @description デッキマスターテーブル用のリポジトリ実装
  * 相手のデッキ情報を管理するマスターデータ用
  */
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, max } from 'drizzle-orm';
 import type { Database } from '../index';
 import { type DeckMaster, type NewDeckMaster, deckMaster } from '../schema/deck-master';
 import type { BaseRepository } from './base-repository';
@@ -122,12 +122,12 @@ export class DeckMasterRepository implements BaseRepository<DeckMaster, NewDeckM
   /**
    * 最大sortOrderを取得
    * TASK-0006: POST実装用
+   * SQLのMAX()を使用してパフォーマンスを最適化
    */
   async getMaxSortOrder(): Promise<number> {
-    const rows = await this.db.select().from(deckMaster);
-    if (rows.length === 0) {
-      return 0;
-    }
-    return Math.max(...rows.map((row) => row.sortOrder));
+    const result = await this.db
+      .select({ maxSortOrder: max(deckMaster.sortOrder) })
+      .from(deckMaster);
+    return result[0]?.maxSortOrder ?? 0;
   }
 }
