@@ -2,6 +2,7 @@
  * DeckMaster リポジトリ
  * TASK-0024-4: DeckMaster リポジトリ実装
  * TASK-0005: DeckMaster API - GET（使用履歴付き）実装
+ * TASK-0008: DeckMaster API - DELETE 実装
  *
  * @description デッキマスターテーブル用のリポジトリ実装
  * 相手のデッキ情報を管理するマスターデータ用
@@ -127,6 +128,28 @@ export class DeckMasterRepository implements BaseRepository<DeckMaster, NewDeckM
     // SQLiteにはANDでの複合条件が使いにくいので、フィルタリング
     const found = result.find((d) => d.deckName === deckName);
     return found || null;
+  }
+
+  /**
+   * デッキマスターが対戦履歴で参照されている回数をカウント
+   * TASK-0008: DeckMaster API - DELETE 実装
+   *
+   * @description
+   * battle_logsテーブルのopponent_deck_idで参照されている件数を取得
+   * 削除前の参照チェックに使用
+   *
+   * @param id - デッキマスターID
+   * @returns 参照されている件数
+   */
+  async countReferences(id: string): Promise<number> {
+    const result = await this.db
+      .select({
+        count: sql<number>`COUNT(*)`.as('count'),
+      })
+      .from(battleLogs)
+      .where(eq(battleLogs.opponentDeckId, id));
+
+    return result[0]?.count ?? 0;
   }
 
   /**

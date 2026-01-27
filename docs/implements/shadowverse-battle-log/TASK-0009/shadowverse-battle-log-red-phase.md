@@ -193,7 +193,7 @@ mockBlobClient = {
 const mockDeckMasters: DeckMaster[] = [
   { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
   { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-  { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+  { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
 ];
 ```
 

@@ -74,8 +74,8 @@ describe('D1StatisticsService', () => {
   // デッキマスターデータ
   const mockDeckMasters = [
     { id: 'opp-1', deckName: '回復ビショップ', sortOrder: 1 },
-    { id: 'opp-2', deckName: 'アグロヴァンパイア', sortOrder: 2 },
-    { id: 'opp-3', deckName: 'コントロールネクロ', sortOrder: 3 },
+    { id: 'opp-2', deckName: 'アグロナイトメア', sortOrder: 2 },
+    { id: 'opp-3', deckName: 'コントロールナイトメア', sortOrder: 3 },
   ];
 
   /**

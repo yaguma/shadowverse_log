@@ -10,6 +10,8 @@
       "Write(./src/**)",
       "Write(./docs/**)",
       "Write(./.tmp/**)",
+      "Bash(git pr view:*)",
+      "Bash(git pr comment:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
@@ -32,7 +34,12 @@
       "Bash(osascript -e:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
-      "mcp__voicevox__speak"
+      "mcp__voicevox__speak",
+      "Skill(start-task)",
+      "Skill(start-task:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr comment:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -48,10 +55,6 @@
     ]
   },
   "model": "opus",
-  "enabledPlugins": {
-    "ralph-loop@claude-plugins-official": false,
-    "tsumiki@tsumiki": true
-  },
   "enableAllProjectMcpServers": false,
   "hooks": {
     "PreToolUse": [
@@ -87,6 +90,9 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "ralph-loop@claude-plugins-official": false,
+    "tsumiki@tsumiki": true
   }
 }
-
