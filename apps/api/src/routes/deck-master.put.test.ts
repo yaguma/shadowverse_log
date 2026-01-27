@@ -179,11 +179,11 @@ describe('DeckMaster PUT API', () => {
       expect(data.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('deckName51文字でValidationErrorを返すこと', async () => {
+    it('deckName101文字でValidationErrorを返すこと', async () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMaster);
 
-      const longDeckName = 'a'.repeat(51);
+      const longDeckName = 'a'.repeat(101);
       const response = await app.request(
         `/api/deck-master/${sampleDeckMaster.id}`,
         {
