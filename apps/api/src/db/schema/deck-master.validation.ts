@@ -36,3 +36,23 @@ export type NewDeckMasterInput = z.infer<typeof NewDeckMasterSchema>;
 export const UpdateDeckMasterSchema = NewDeckMasterSchema.partial().omit({ id: true });
 
 export type UpdateDeckMasterInput = z.infer<typeof UpdateDeckMasterSchema>;
+
+/**
+ * PUT用デッキマスター更新スキーマ
+ * TASK-0007: deckNameのみ更新可能、classNameは無視
+ */
+export const PutDeckMasterSchema = z.object({
+  deckName: z
+    .string()
+    .min(1, 'デッキ名は必須です')
+    .max(50, 'デッキ名は50文字以内で入力してください'),
+});
+
+export type PutDeckMasterInput = z.infer<typeof PutDeckMasterSchema>;
+
+/**
+ * UUID形式のIDスキーマ
+ */
+export const DeckMasterIdSchema = z.string().uuid('無効なID形式です');
+
+export type DeckMasterId = z.infer<typeof DeckMasterIdSchema>;
