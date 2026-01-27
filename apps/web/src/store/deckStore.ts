@@ -179,14 +179,24 @@ export const useDeckStore = create<DeckState>((set, get) => ({
    * 🔵 信頼性レベル: TASK-0009仕様に準拠
    */
   addDeckMaster: async (data: DeckMasterCreateRequest): Promise<DeckMasterWithUsage> => {
-    // 【API呼び出し】: API ClientのPOSTメソッドでデッキマスターを追加 🔵
-    const newDeck = await apiClient.post<DeckMasterWithUsage>('/deck-masters', data);
+    // 【エラークリア】: 操作開始時にエラーをクリア 🔵
+    set({ deckMasterError: null });
 
-    // 【状態更新】: deckMastersWithUsageに新しいデッキを追加 🔵
-    const currentDecks = get().deckMastersWithUsage;
-    set({ deckMastersWithUsage: [...currentDecks, newDeck] });
+    try {
+      // 【API呼び出し】: API ClientのPOSTメソッドでデッキマスターを追加 🔵
+      const newDeck = await apiClient.post<DeckMasterWithUsage>('/deck-masters', data);
 
-    return newDeck;
+      // 【状態更新】: deckMastersWithUsageに新しいデッキを追加 🔵
+      const currentDecks = get().deckMastersWithUsage;
+      set({ deckMastersWithUsage: [...currentDecks, newDeck] });
+
+      return newDeck;
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定して再throw 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({ deckMasterError: errorMessage });
+      throw error;
+    }
   },
 
   /**
@@ -199,15 +209,25 @@ export const useDeckStore = create<DeckState>((set, get) => ({
     id: string,
     data: DeckMasterUpdateRequest
   ): Promise<DeckMasterWithUsage> => {
-    // 【API呼び出し】: API ClientのPUTメソッドでデッキマスターを更新 🔵
-    const updatedDeck = await apiClient.put<DeckMasterWithUsage>(`/deck-masters/${id}`, data);
+    // 【エラークリア】: 操作開始時にエラーをクリア 🔵
+    set({ deckMasterError: null });
 
-    // 【状態更新】: deckMastersWithUsage配列内の該当アイテムを更新 🔵
-    const currentDecks = get().deckMastersWithUsage;
-    const updatedDecks = currentDecks.map((deck) => (deck.id === id ? updatedDeck : deck));
-    set({ deckMastersWithUsage: updatedDecks });
+    try {
+      // 【API呼び出し】: API ClientのPUTメソッドでデッキマスターを更新 🔵
+      const updatedDeck = await apiClient.put<DeckMasterWithUsage>(`/deck-masters/${id}`, data);
 
-    return updatedDeck;
+      // 【状態更新】: deckMastersWithUsage配列内の該当アイテムを更新 🔵
+      const currentDecks = get().deckMastersWithUsage;
+      const updatedDecks = currentDecks.map((deck) => (deck.id === id ? updatedDeck : deck));
+      set({ deckMastersWithUsage: updatedDecks });
+
+      return updatedDeck;
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定して再throw 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({ deckMasterError: errorMessage });
+      throw error;
+    }
   },
 
   /**
@@ -217,13 +237,23 @@ export const useDeckStore = create<DeckState>((set, get) => ({
    * 🔵 信頼性レベル: TASK-0009仕様に準拠
    */
   deleteDeckMaster: async (id: string): Promise<void> => {
-    // 【API呼び出し】: API ClientのDELETEメソッドでデッキマスターを削除 🔵
-    await apiClient.del<void>(`/deck-masters/${id}`);
+    // 【エラークリア】: 操作開始時にエラーをクリア 🔵
+    set({ deckMasterError: null });
 
-    // 【状態更新】: deckMastersWithUsage配列から削除 🔵
-    const currentDecks = get().deckMastersWithUsage;
-    const filteredDecks = currentDecks.filter((deck) => deck.id !== id);
-    set({ deckMastersWithUsage: filteredDecks });
+    try {
+      // 【API呼び出し】: API ClientのDELETEメソッドでデッキマスターを削除 🔵
+      await apiClient.del<void>(`/deck-masters/${id}`);
+
+      // 【状態更新】: deckMastersWithUsage配列から削除 🔵
+      const currentDecks = get().deckMastersWithUsage;
+      const filteredDecks = currentDecks.filter((deck) => deck.id !== id);
+      set({ deckMastersWithUsage: filteredDecks });
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定して再throw 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({ deckMasterError: errorMessage });
+      throw error;
+    }
   },
 
   /**

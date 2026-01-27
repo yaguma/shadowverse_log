@@ -147,8 +147,8 @@ describe('DeckStore - DeckMaster CRUD', () => {
       });
     });
 
-    it('TC-STORE-DMU-005: 追加エラー時にエラーがthrowされる', async () => {
-      // 【テスト目的】: エラー時に例外が投げられることを確認
+    it('TC-STORE-DMU-005: 追加エラー時にエラーがthrowされ、deckMasterErrorが設定される', async () => {
+      // 【テスト目的】: エラー時に例外が投げられ、かつdeckMasterErrorが設定されることを確認
       const mockError = new Error('追加に失敗しました');
       vi.mocked(apiClient.apiClient.post).mockRejectedValueOnce(mockError);
 
@@ -158,6 +158,9 @@ describe('DeckStore - DeckMaster CRUD', () => {
           deckName: 'エルフデッキ',
         })
       ).rejects.toThrow('追加に失敗しました');
+
+      // エラー状態も設定されることを確認（fetchDeckMastersWithUsageとの一貫性）
+      expect(useDeckStore.getState().deckMasterError).toBe('追加に失敗しました');
     });
   });
 
@@ -197,8 +200,8 @@ describe('DeckStore - DeckMaster CRUD', () => {
       });
     });
 
-    it('TC-STORE-DMU-007: 更新エラー時にエラーがthrowされる', async () => {
-      // 【テスト目的】: エラー時に例外が投げられることを確認
+    it('TC-STORE-DMU-007: 更新エラー時にエラーがthrowされ、deckMasterErrorが設定される', async () => {
+      // 【テスト目的】: エラー時に例外が投げられ、かつdeckMasterErrorが設定されることを確認
       const mockError = new Error('更新に失敗しました');
       vi.mocked(apiClient.apiClient.put).mockRejectedValueOnce(mockError);
 
@@ -207,6 +210,9 @@ describe('DeckStore - DeckMaster CRUD', () => {
           deckName: 'エルフデッキ改',
         })
       ).rejects.toThrow('更新に失敗しました');
+
+      // エラー状態も設定されることを確認（fetchDeckMastersWithUsageとの一貫性）
+      expect(useDeckStore.getState().deckMasterError).toBe('更新に失敗しました');
     });
   });
 
@@ -248,14 +254,17 @@ describe('DeckStore - DeckMaster CRUD', () => {
       expect(apiClient.apiClient.del).toHaveBeenCalledWith('/deck-masters/deck-001');
     });
 
-    it('TC-STORE-DMU-009: 削除エラー時にエラーがthrowされる', async () => {
-      // 【テスト目的】: エラー時に例外が投げられることを確認
+    it('TC-STORE-DMU-009: 削除エラー時にエラーがthrowされ、deckMasterErrorが設定される', async () => {
+      // 【テスト目的】: エラー時に例外が投げられ、かつdeckMasterErrorが設定されることを確認
       const mockError = new Error('削除に失敗しました');
       vi.mocked(apiClient.apiClient.del).mockRejectedValueOnce(mockError);
 
       await expect(useDeckStore.getState().deleteDeckMaster('deck-001')).rejects.toThrow(
         '削除に失敗しました'
       );
+
+      // エラー状態も設定されることを確認（fetchDeckMastersWithUsageとの一貫性）
+      expect(useDeckStore.getState().deckMasterError).toBe('削除に失敗しました');
     });
   });
 
