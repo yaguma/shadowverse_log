@@ -252,4 +252,154 @@ describe('API Integration Tests', () => {
       expect(data.error).toHaveProperty('message');
     });
   });
+
+  describe('Large Data Import - SQLite Placeholder Limit', () => {
+    /**
+     * SQLite SQLITE_MAX_VARIABLE_NUMBER制限テスト
+     * D1/SQLiteではプレースホルダー数に制限があるため、
+     * 大量データをバッチ処理で処理する必要がある
+     *
+     * 注: IDありのデータはDBのinArrayクエリが必要なため、
+     * 完全なモックが必要。詳細なバッチ処理テストは
+     * d1-import-service.test.ts で実施済み。
+     */
+
+    it('POST /api/import - IDなしの600件データでも正常に処理される', async () => {
+      // IDなしの600件データ（バッチサイズ500を超える、ID自動生成のテスト）
+      // IDがない場合はgetExistingIdsでDBクエリが発生しない
+      const records = Array.from({ length: 600 }, () => ({
+        date: '2025-01-24',
+        battleType: 'ランクマッチ',
+        rank: 'ダイアモンド',
+        group: 'AAA',
+        myDeckId: 'deck_001',
+        turn: '先攻',
+        result: '勝ち',
+        opponentDeckId: 'deck_master_001',
+      }));
+
+      const env = createMinimalMockEnv();
+      const request = new Request('http://localhost/api/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          format: 'json',
+          data: JSON.stringify(records),
+        }),
+      });
+
+      const response = await app.fetch(request, env);
+
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data.imported).toBe(600);
+    });
+
+    it('POST /api/import - IDなしの1000件超データでもタイムアウトしない', async () => {
+      // IDなしの1100件のテストデータを生成（複数バッチに分割される）
+      const records = Array.from({ length: 1100 }, (_, i) => ({
+        date: '2025-01-24',
+        battleType: 'ランクマッチ',
+        rank: 'ダイアモンド',
+        group: 'AAA',
+        myDeckId: 'deck_001',
+        turn: i % 2 === 0 ? '先攻' : '後攻',
+        result: i % 3 === 0 ? '勝ち' : '負け',
+        opponentDeckId: `deck_master_${i % 10}`,
+      }));
+
+      const env = createMinimalMockEnv();
+      const request = new Request('http://localhost/api/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          format: 'json',
+          data: JSON.stringify(records),
+        }),
+      });
+
+      const startTime = Date.now();
+      const response = await app.fetch(request, env);
+      const elapsedTime = Date.now() - startTime;
+
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data.imported).toBe(1100);
+
+      // 処理時間が妥当な範囲内であることを確認（5秒以内）
+      expect(elapsedTime).toBeLessThan(5000);
+    });
+
+    it('POST /api/import - CSV形式のIDなし大量データでも正常に処理される', async () => {
+      // CSVヘッダー（IDなし）
+      let csvData =
+        'date,battleType,rank,group,myDeckId,turn,result,opponentDeckId\n';
+
+      // 600行のCSVデータを生成（IDなし）
+      for (let i = 0; i < 600; i++) {
+        csvData += `2025-01-24,ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,deck_master_001\n`;
+      }
+
+      const env = createMinimalMockEnv();
+      const request = new Request('http://localhost/api/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          format: 'csv',
+          data: csvData,
+        }),
+      });
+
+      const response = await app.fetch(request, env);
+
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data.success).toBe(true);
+      expect(data.data.imported).toBe(600);
+    });
+
+    it('POST /api/import - 大量データでもレスポンス形式が正しい', async () => {
+      // 500件のデータ
+      const records = Array.from({ length: 500 }, () => ({
+        date: '2025-01-24',
+        battleType: 'ランクマッチ',
+        rank: 'ダイアモンド',
+        group: 'AAA',
+        myDeckId: 'deck_001',
+        turn: '先攻',
+        result: '勝ち',
+        opponentDeckId: 'deck_master_001',
+      }));
+
+      const env = createMinimalMockEnv();
+      const request = new Request('http://localhost/api/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          format: 'json',
+          data: JSON.stringify(records),
+        }),
+      });
+
+      const response = await app.fetch(request, env);
+
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      // レスポンス形式の検証
+      expect(data).toHaveProperty('success', true);
+      expect(data).toHaveProperty('data');
+      expect(data.data).toHaveProperty('imported');
+      expect(data.data).toHaveProperty('skipped');
+      expect(data.data).toHaveProperty('errors');
+      expect(data).toHaveProperty('meta');
+      expect(data.meta).toHaveProperty('timestamp');
+      expect(data.meta).toHaveProperty('requestId');
+    });
+  });
 });

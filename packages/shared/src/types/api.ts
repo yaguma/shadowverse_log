@@ -108,6 +108,15 @@ export interface StatisticsResponse {
 }
 
 /**
+ * APIエラー基底型
+ */
+export interface ApiError {
+  code: string;
+  message: string;
+  details?: Record<string, unknown>;
+}
+
+/**
  * バリデーションエラー
  * REQ-EXT-403 対応
  */

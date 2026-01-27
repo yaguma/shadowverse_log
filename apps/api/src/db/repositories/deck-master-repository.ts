@@ -1,14 +1,24 @@
 /**
  * DeckMaster リポジトリ
  * TASK-0024-4: DeckMaster リポジトリ実装
+ * TASK-0005: DeckMaster API - GET（使用履歴付き）実装
  *
  * @description デッキマスターテーブル用のリポジトリ実装
  * 相手のデッキ情報を管理するマスターデータ用
  */
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import type { Database } from '../index';
 import { type DeckMaster, type NewDeckMaster, deckMaster } from '../schema/deck-master';
+import { battleLogs } from '../schema/battle-logs';
 import type { BaseRepository } from './base-repository';
+
+/**
+ * デッキマスター + 使用履歴の型
+ */
+export type DeckMasterWithUsage = DeckMaster & {
+  usageCount: number;
+  lastUsedDate: string | null;
+};
 
 /**
  * デッキマスターリポジトリ
@@ -117,5 +127,40 @@ export class DeckMasterRepository implements BaseRepository<DeckMaster, NewDeckM
     // SQLiteにはANDでの複合条件が使いにくいので、フィルタリング
     const found = result.find((d) => d.deckName === deckName);
     return found || null;
+  }
+
+  /**
+   * 使用履歴付きで全デッキマスターを取得
+   * TASK-0005: DeckMaster API - GET（使用履歴付き）実装
+   *
+   * @description
+   * opponent_deck_idを基準に対戦履歴から使用回数と最終使用日を集計
+   * lastUsedDate降順でソート（nullは末尾）、nullの場合はsortOrder昇順
+   */
+  async findAllWithUsage(): Promise<DeckMasterWithUsage[]> {
+    const result = await this.db
+      .select({
+        id: deckMaster.id,
+        className: deckMaster.className,
+        deckName: deckMaster.deckName,
+        sortOrder: deckMaster.sortOrder,
+        createdAt: deckMaster.createdAt,
+        updatedAt: deckMaster.updatedAt,
+        usageCount: sql<number>`COALESCE(COUNT(${battleLogs.id}), 0)`.as('usage_count'),
+        lastUsedDate: sql<string | null>`MAX(${battleLogs.date})`.as('last_used_date'),
+      })
+      .from(deckMaster)
+      .leftJoin(battleLogs, eq(deckMaster.id, battleLogs.opponentDeckId))
+      .groupBy(deckMaster.id)
+      .orderBy(
+        // lastUsedDateがnullのものは末尾
+        sql`CASE WHEN MAX(${battleLogs.date}) IS NULL THEN 1 ELSE 0 END`,
+        // lastUsedDateの降順（新しいものが先）
+        sql`MAX(${battleLogs.date}) DESC`,
+        // sortOrderの昇順
+        asc(deckMaster.sortOrder)
+      );
+
+    return result;
   }
 }

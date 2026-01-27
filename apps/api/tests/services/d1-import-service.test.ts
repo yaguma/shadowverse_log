@@ -487,4 +487,54 @@ ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,d
       expect(result.details?.errorDetails?.[0].field).toBe('date');
     });
   });
+
+  // ===========================================
+  // TC-025: 正常系: 大量のIDでもバッチ処理で重複チェックできる
+  // ===========================================
+  describe('TC-025: 正常系: 大量のIDでもバッチ処理で重複チェックできる', () => {
+    it('1000件以上のデータでもバッチ処理で重複チェックが行われる', async () => {
+      // バッチサイズ(500)を超えるデータでバッチ処理が正しく動作することを確認
+      const whereCallCount = { count: 0 };
+
+      const mockInsert = vi.fn().mockReturnValue({
+        values: vi.fn().mockReturnValue({
+          onConflictDoNothing: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([{ id: 'log_1' }]),
+          }),
+        }),
+      });
+      mockDb = {
+        insert: mockInsert,
+        select: vi.fn().mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            where: vi.fn().mockImplementation(() => {
+              whereCallCount.count++;
+              return Promise.resolve([]);
+            }),
+          }),
+        }),
+      } as unknown as Database;
+      service = new D1ImportService(mockDb);
+
+      // 600件のデータ（バッチサイズ500を超える）を生成
+      const records = Array.from({ length: 600 }, (_, i) => ({
+        id: `log_${i}`,
+        date: '2025-01-24',
+        battleType: 'ランクマッチ',
+        rank: 'ダイアモンド',
+        group: 'AAA',
+        myDeckId: 'deck_001',
+        turn: '先攻',
+        result: '勝ち',
+        opponentDeckId: 'deck_master_001',
+      }));
+      const jsonData = JSON.stringify(records);
+
+      const result = await service.importFromJson(jsonData);
+
+      // 600件を100件ずつ処理するので、6回のバッチクエリが実行される
+      expect(whereCallCount.count).toBe(6);
+      expect(result.imported).toBe(600);
+    });
+  });
 });
