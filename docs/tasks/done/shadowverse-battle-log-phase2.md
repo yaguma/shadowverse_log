@@ -874,7 +874,7 @@ describe('BattleLogService - getBattleLogsWithDeckNames', () => {
       { id: 'log_20250124_001', date: '2025-01-24', battleType: 'ランクマッチ', rank: 'ダイアモンド', group: 'AAA', myDeckId: 'deck_001', turn: '先攻', result: '勝ち', opponentDeckId: 'deck_master_002' },
     ];
     const mockDeckMasters = [
-      { id: 'deck_master_002', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+      { id: 'deck_master_002', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
     ];
     const mockMyDecks = [
       { id: 'deck_001', deckId: '1', deckCode: '3.1.3.1...', deckName: '秘術オデンスペル', isActive: true, createdAt: '2024-01-01T00:00:00.000Z' },
@@ -887,7 +887,7 @@ describe('BattleLogService - getBattleLogsWithDeckNames', () => {
     const result = await service.getBattleLogsWithDeckNames({});
 
     expect(result.battleLogs[0].myDeckName).toBe('秘術オデンスペル');
-    expect(result.battleLogs[0].opponentDeckName).toBe('進化ネクロ');
+    expect(result.battleLogs[0].opponentDeckName).toBe('進化ナイトメア');
   });
 
   it('存在しないデッキIDの場合「不明なデッキ」と表示される', async () => {
@@ -1110,7 +1110,7 @@ describe('DeckMasterService', () => {
     const mockDeckMasters: DeckMaster[] = [
       { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
       { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-      { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+      { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
     ];
 
     it('デッキマスター一覧が取得できる', async () => {
@@ -1571,7 +1571,7 @@ describe('StatisticsService', () => {
   ];
 
   const mockDeckMasters = [
-    { id: 'deck_master_002', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+    { id: 'deck_master_002', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
     { id: 'deck_master_003', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 3 },
   ];
 
@@ -1831,7 +1831,7 @@ describe('StatisticsService - opponentDeckDistribution', () => {
 
     mockBlobClient.getBattleLogs.mockResolvedValue(logs);
     mockBlobClient.getDeckMasters.mockResolvedValue([
-      { id: 'deck_master_002', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+      { id: 'deck_master_002', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
       { id: 'deck_master_003', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 3 },
       { id: 'deck_master_004', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 4 },
     ]);

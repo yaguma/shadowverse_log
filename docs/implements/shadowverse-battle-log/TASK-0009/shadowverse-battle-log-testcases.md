@@ -81,7 +81,7 @@ it('デッキマスター一覧が取得できる', async () => {
   const mockData = [
     { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
     { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-    { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+    { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
   ];
   mockBlobClient.getDeckMasters.mockResolvedValue(mockData);
 
@@ -137,7 +137,7 @@ it('sortOrder=ascでソートされる', async () => {
   const mockData = [
     { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
     { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-    { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+    { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
   ];
   mockBlobClient.getDeckMasters.mockResolvedValue(mockData);
 
@@ -193,7 +193,7 @@ it('sortOrder=descでソートされる', async () => {
   const mockData = [
     { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
     { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-    { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+    { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
   ];
   mockBlobClient.getDeckMasters.mockResolvedValue(mockData);
 
@@ -251,7 +251,7 @@ it('キャッシュが5分間有効', async () => {
   const mockData = [
     { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
     { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-    { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+    { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
   ];
   mockBlobClient.getDeckMasters.mockResolvedValue(mockData);
 
@@ -308,7 +308,7 @@ it('キャッシュクリア後は再取得される', async () => {
   const mockData = [
     { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
     { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-    { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+    { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
   ];
   mockBlobClient.getDeckMasters.mockResolvedValue(mockData);
 
@@ -449,7 +449,7 @@ describe('DeckMasterService', () => {
 const mockDeckMasters: DeckMaster[] = [
   { id: '1', className: 'ウィッチ', deckName: '土スペルウィッチ', sortOrder: 3 },
   { id: '2', className: 'ロイヤル', deckName: 'ミッドレンジロイヤル', sortOrder: 1 },
-  { id: '3', className: 'ネクロマンサー', deckName: '進化ネクロ', sortOrder: 2 },
+  { id: '3', className: 'ナイトメア', deckName: '進化ナイトメア', sortOrder: 2 },
 ];
 ```
 

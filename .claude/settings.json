@@ -38,7 +38,8 @@
       "Skill(start-task)",
       "Skill(start-task:*)",
       "Bash(gh pr view:*)",
-      "Bash(gh pr diff:*)"
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr comment:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
