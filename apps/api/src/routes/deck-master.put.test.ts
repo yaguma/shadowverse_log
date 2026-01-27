@@ -264,5 +264,29 @@ describe('DeckMaster PUT API', () => {
       expect(data.success).toBe(false);
       expect(data.error.code).toBe('VALIDATION_ERROR');
     });
+
+    it('リポジトリ更新失敗時に500 DATABASE_ERRORを返すこと', async () => {
+      // updateがnullを返す場合（更新失敗）
+      mockUpdate.mockResolvedValue(null);
+
+      const app = new Hono();
+      app.route('/api/deck-master', deckMaster);
+
+      const response = await app.request(
+        `/api/deck-master/${sampleDeckMaster.id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deckName: '新しいデッキ名' }),
+        },
+        mockEnv
+      );
+
+      expect(response.status).toBe(500);
+      const data = await response.json();
+      expect(data.success).toBe(false);
+      expect(data.error.code).toBe('DATABASE_ERROR');
+      expect(data.error.message).toBe('更新に失敗しました');
+    });
   });
 });
