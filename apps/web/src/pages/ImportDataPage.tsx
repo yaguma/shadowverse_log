@@ -204,7 +204,7 @@ export function ImportDataPage() {
               {`[
   {
     "id": "log_001",
-    "date": "2025/10/23",
+    "date": "2025-10-23",
     "battleType": "ランクマッチ",
     "rank": "ダイアモンド",
     "group": "A",
@@ -224,7 +224,7 @@ export function ImportDataPage() {
           <div className="bg-white rounded p-4 overflow-x-auto">
             <pre className="text-sm text-gray-800">
               {`id,date,battleType,rank,group,myDeckId,turn,result,opponentDeckId
-log_001,2025/10/23,ランクマッチ,ダイアモンド,A,my_deck_001,先攻,勝ち,deck_001`}
+log_001,2025-10-23,ランクマッチ,ダイアモンド,A,my_deck_001,先攻,勝ち,deck_001`}
             </pre>
           </div>
         </div>
@@ -234,10 +234,10 @@ log_001,2025/10/23,ランクマッチ,ダイアモンド,A,my_deck_001,先攻,�
           <h3 className="text-lg font-medium mb-2">必須フィールド</h3>
           <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
             <li>
-              <code className="bg-gray-100 px-2 py-1 rounded">id</code>: 対戦ログID
+              <code className="bg-gray-100 px-2 py-1 rounded">id</code>: 対戦ログID（省略可、自動生成）
             </li>
             <li>
-              <code className="bg-gray-100 px-2 py-1 rounded">date</code>: 日付（YYYY/MM/DD形式）
+              <code className="bg-gray-100 px-2 py-1 rounded">date</code>: 日付（YYYY-MM-DD形式）
             </li>
             <li>
               <code className="bg-gray-100 px-2 py-1 rounded">battleType</code>:

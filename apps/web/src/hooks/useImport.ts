@@ -40,10 +40,10 @@ export interface UseImportReturn {
 /**
  * 【定数定義】: 必須フィールドのリスト
  * 【目的】: BattleLogの必須フィールドを定義し、バリデーションで使用
+ * 【注意】: idは省略可能（バックエンドで自動生成される）
  * 🔵 信頼性レベル: import-data-requirements.md L108より
  */
 const REQUIRED_FIELDS = [
-  'id',
   'date',
   'battleType',
   'rank',
@@ -209,7 +209,7 @@ export function useImport(): UseImportReturn {
 
   /**
    * 【機能概要】: 日付形式の検証
-   * 【実装方針】: YYYY/MM/DD形式であることを正規表現で確認
+   * 【実装方針】: YYYY-MM-DD形式であることを正規表現で確認
    * 【テスト対応】: TC-IMPORT-006（正常パース）、TC-IMPORT-013（日付形式エラー）
    * 🔵 信頼性レベル: import-data-requirements.md REQ-303より
    *
@@ -218,10 +218,10 @@ export function useImport(): UseImportReturn {
    * @throws Error - 日付形式が不正な場合
    */
   const validateDateFormat = (dateValue: string, rowNumber: number): void => {
-    const datePattern = /^\d{4}\/\d{2}\/\d{2}$/;
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/;
     if (!datePattern.test(dateValue)) {
       throw new Error(
-        `日付形式が不正です。YYYY/MM/DD形式で入力してください（例: 2025/10/23）（行番号: ${rowNumber}）`
+        `日付形式が不正です。YYYY-MM-DD形式で入力してください（例: 2025-10-23）（行番号: ${rowNumber}）`
       );
     }
   };
