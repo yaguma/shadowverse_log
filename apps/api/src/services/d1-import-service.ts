@@ -176,7 +176,7 @@ export class D1ImportService {
    * SQLiteのプレースホルダー制限を考慮したバッチサイズ
    * D1/SQLiteでは999が安全な上限
    */
-  private readonly BATCH_SIZE = 500;
+  private readonly BATCH_SIZE = 100;
 
   /**
    * 既存のIDを取得
