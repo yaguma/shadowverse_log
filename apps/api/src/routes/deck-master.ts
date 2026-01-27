@@ -2,16 +2,20 @@
  * デッキマスターAPI ルート
  * TASK-0044: deck-master ルート実装
  * TASK-0005: DeckMaster API - GET（使用履歴付き）実装
+ * TASK-0006: POST /api/deck-master 実装追加
+ * TASK-0007: PUT エンドポイント追加
  * TASK-0008: DeckMaster API - DELETE 実装
  *
- * @description GET, DELETE /api/deck-master エンドポイントの実装
- * 🔵 信頼性レベル: 青信号（api-endpoints.md 2.1, 2.4より）
+ * @description GET/POST/PUT/DELETE /api/deck-master エンドポイントの実装
+ * 🔵 信頼性レベル: 青信号（api-endpoints.md 2.1, 2.2, 2.4より）
  */
 
 import type { D1Database } from '@cloudflare/workers-types';
 import { Hono } from 'hono';
+import { CLASS_NAMES } from '@shadowverse-log/shared';
 import { createDb } from '../db';
 import { DeckMasterRepository } from '../db/repositories/deck-master-repository';
+import { DeckMasterIdSchema, PutDeckMasterSchema } from '../db/schema/deck-master.validation';
 
 /** 環境バインディング型 */
 type Bindings = {
@@ -34,17 +38,18 @@ function createMeta(count?: number) {
 /**
  * エラーレスポンスを生成
  */
-function createErrorResponse(code: string, message: string, details?: Record<string, unknown>) {
+function createErrorResponse(code: string, message: string, details?: unknown) {
   return {
     success: false as const,
     error: {
       code,
       message,
-      ...(details && { details }),
+      ...(details !== undefined && { details }),
     },
     meta: createMeta(),
   };
 }
+
 
 /**
  * UUIDの形式を検証
@@ -100,6 +105,194 @@ deckMaster.get('/', async (c) => {
 
     return c.json(
       createErrorResponse('DATABASE_ERROR', 'デッキマスターの取得中にエラーが発生しました。'),
+      500
+    );
+  }
+});
+
+/**
+ * POST /api/deck-master
+ *
+ * デッキマスターを新規登録
+ * TASK-0006: DeckMaster API - POST 実装
+ *
+ * 🔵 信頼性レベル: 青信号（api-endpoints.md 2.2より、REQ-EXT-001〜005）
+ *
+ * リクエストボディ:
+ * - className: クラス名（必須、有効なクラス名のみ）
+ * - deckName: デッキ名（必須、1〜100文字）
+ *
+ * レスポンス:
+ * - 201 Created: 正常登録
+ * - 400 Bad Request: バリデーションエラー
+ * - 500 Internal Server Error: データベースエラー
+ */
+deckMaster.post('/', async (c) => {
+  try {
+    // リクエストボディの取得
+    let body: { className?: string; deckName?: string };
+    try {
+      body = await c.req.json();
+    } catch {
+      return c.json(
+        createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
+          { field: 'body', constraint: 'required', value: null },
+        ]),
+        400
+      );
+    }
+
+    // バリデーション: リクエストボディの存在チェック
+    if (!body || typeof body !== 'object') {
+      return c.json(
+        createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
+          { field: 'body', constraint: 'required', value: body },
+        ]),
+        400
+      );
+    }
+
+    const { className, deckName } = body;
+
+    // バリデーション: className必須チェック
+    if (!className || className === '') {
+      return c.json(
+        createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
+          { field: 'className', constraint: 'required', value: className },
+        ]),
+        400
+      );
+    }
+
+    // バリデーション: className有効値チェック（sharedパッケージのCLASS_NAMESを使用）
+    if (!CLASS_NAMES.includes(className as (typeof CLASS_NAMES)[number])) {
+      return c.json(
+        createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
+          { field: 'className', constraint: 'enum', value: className },
+        ]),
+        400
+      );
+    }
+
+    // バリデーション: deckName必須チェック
+    if (!deckName || deckName === '') {
+      return c.json(
+        createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
+          { field: 'deckName', constraint: 'required', value: deckName },
+        ]),
+        400
+      );
+    }
+
+    // バリデーション: deckName長さチェック（sharedパッケージのDeckNameSchemaと一貫して100文字）
+    if (deckName.length > 100) {
+      return c.json(
+        createErrorResponse('VALIDATION_ERROR', '入力値が不正です', [
+          { field: 'deckName', constraint: 'maxLength', value: deckName },
+        ]),
+        400
+      );
+    }
+
+    // データベース接続とリポジトリ初期化
+    const db = createDb(c.env.DB);
+    const repository = new DeckMasterRepository(db);
+
+    // sortOrderの自動採番（max + 1）
+    const maxSortOrder = await repository.getMaxSortOrder();
+    const newSortOrder = maxSortOrder + 1;
+
+    // デッキマスター作成
+    const newDeckMaster = await repository.create({
+      className,
+      deckName,
+      sortOrder: newSortOrder,
+    });
+
+    return c.json(
+      {
+        success: true,
+        data: newDeckMaster,
+        meta: createMeta(),
+      },
+      201
+    );
+  } catch (error) {
+    console.error('Deck Master POST API error:', error);
+
+    return c.json(
+      createErrorResponse('DATABASE_ERROR', 'デッキマスターの登録中にエラーが発生しました。'),
+      500
+    );
+  }
+});
+
+/**
+ * PUT /api/deck-master/:id
+ * TASK-0007: DeckMaster API - PUT 実装
+ *
+ * デッキマスターを更新
+ *
+ * - deckNameのみ更新可能
+ * - classNameはリクエストに含まれていても無視（変更不可）
+ * - updated_atは現在時刻で自動更新
+ */
+deckMaster.put('/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+
+    // IDのバリデーション
+    const idValidation = DeckMasterIdSchema.safeParse(id);
+    if (!idValidation.success) {
+      return c.json(createErrorResponse('VALIDATION_ERROR', '無効なID形式です'), 400);
+    }
+
+    // リクエストボディの取得とバリデーション
+    let body: unknown;
+    try {
+      body = await c.req.json();
+    } catch {
+      return c.json(createErrorResponse('VALIDATION_ERROR', 'リクエストボディが必要です'), 400);
+    }
+
+    // deckNameのバリデーション
+    const bodyValidation = PutDeckMasterSchema.safeParse(body);
+    if (!bodyValidation.success) {
+      const issues = bodyValidation.error.issues;
+      const errorMessages = issues.map((issue) => issue.message).join(', ');
+      return c.json(createErrorResponse('VALIDATION_ERROR', errorMessages), 400);
+    }
+
+    // データベース接続とリポジトリ初期化
+    const db = createDb(c.env.DB);
+    const repository = new DeckMasterRepository(db);
+
+    // 既存レコードの存在確認
+    const existing = await repository.findById(id);
+    if (!existing) {
+      return c.json(createErrorResponse('NOT_FOUND', '指定されたデッキ種別が見つかりません'), 404);
+    }
+
+    // deckNameのみ更新（classNameは無視）
+    // updated_atはリポジトリで自動更新される
+    const updated = await repository.update(id, {
+      deckName: bodyValidation.data.deckName,
+    });
+
+    if (!updated) {
+      return c.json(createErrorResponse('DATABASE_ERROR', '更新に失敗しました'), 500);
+    }
+
+    return c.json({
+      success: true,
+      data: updated,
+      meta: createMeta(),
+    });
+  } catch (error) {
+    console.error('Deck Master PUT API error:', error);
+
+    return c.json(
+      createErrorResponse('DATABASE_ERROR', 'デッキマスターの更新中にエラーが発生しました。'),
       500
     );
   }

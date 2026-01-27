@@ -1,0 +1,32 @@
+[
+  {
+    "date": "2025-01-24",
+    "battleType": "ランクマッチ",
+    "rank": "ダイアモンド",
+    "group": "AAA",
+    "myDeckId": "deck_001",
+    "turn": "先攻",
+    "result": "勝ち",
+    "opponentDeckId": "deck_master_001"
+  },
+  {
+    "date": "2025-01-24",
+    "battleType": "ランクマッチ",
+    "rank": "ダイアモンド",
+    "group": "AAA",
+    "myDeckId": "deck_001",
+    "turn": "後攻",
+    "result": "負け",
+    "opponentDeckId": "deck_master_002"
+  },
+  {
+    "date": "2025-01-25",
+    "battleType": "対戦台",
+    "rank": "-",
+    "group": "-",
+    "myDeckId": "deck_002",
+    "turn": "先攻",
+    "result": "勝ち",
+    "opponentDeckId": "deck_master_003"
+  }
+]
