@@ -35,10 +35,12 @@ const INITIAL_RETRY_DELAY_MS = 1000; // 1秒
 
 // 【キャッシュ設定】: エンドポイントごとのキャッシュTTL（ミリ秒） 🔵
 // デッキマスター: 1時間、統計データ: 5分、対戦履歴: キャッシュなし
+// 【TASK-0004】: シーズン一覧エンドポイントを追加
 const CACHE_TTL: Record<string, number> = {
   '/deck-masters': 60 * 60 * 1000, // 1時間
   '/my-decks': 60 * 60 * 1000, // 1時間
   '/statistics': 5 * 60 * 1000, // 5分
+  '/statistics/seasons': 5 * 60 * 1000, // 5分（シーズン一覧）
 };
 
 // 【キャッシュストア】: メモリ内キャッシュ 🔵
@@ -306,6 +308,25 @@ class ApiClient {
     // 【ボディJSON化】: JSON.stringify()でボディをJSON形式に変換
     return this.request<T>(endpoint, {
       method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  /**
+   * 【機能概要】: PUTリクエストを送信
+   * 【実装方針】: requestメソッドを呼び出し、HTTPメソッドをPUTに指定、bodyをJSON化
+   * 【TASK-0004】: デッキ種別更新用にPUTメソッドを追加
+   * 🔵 信頼性レベル: 既存POSTメソッドパターンに基づいた実装
+   *
+   * @param endpoint - APIエンドポイント（例: /deck-masters/:id）
+   * @param body - リクエストボディ（JSON化される）
+   * @returns Promise<T> - レスポンスデータ
+   */
+  async put<T>(endpoint: string, body: unknown): Promise<T> {
+    // 【PUTリクエスト実行】: requestメソッドにmethod: 'PUT'とbodyを渡す 🔵
+    // 【ボディJSON化】: JSON.stringify()でボディをJSON形式に変換
+    return this.request<T>(endpoint, {
+      method: 'PUT',
       body: JSON.stringify(body),
     });
   }

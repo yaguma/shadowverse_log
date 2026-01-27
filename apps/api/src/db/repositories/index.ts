@@ -10,7 +10,7 @@ export * from './base-repository';
 
 // 各リポジトリクラスのエクスポート
 export { BattleLogsRepository } from './battle-logs-repository';
-export { DeckMasterRepository } from './deck-master-repository';
+export { DeckMasterRepository, type DeckMasterWithUsage } from './deck-master-repository';
 export { MyDecksRepository } from './my-decks-repository';
 
 // リポジトリファクトリ
