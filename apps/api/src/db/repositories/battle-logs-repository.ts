@@ -27,17 +27,6 @@ export class BattleLogsRepository implements BaseRepository<BattleLog, NewBattle
   constructor(private db: Database) {}
 
   /**
-   * 日付フォーマットを正規化（ハイフン形式をスラッシュ形式に変換）
-   * 既存データとの互換性を維持するため、YYYY/MM/DD形式に統一
-   * @param dateStr - 日付文字列（YYYY-MM-DD または YYYY/MM/DD）
-   * @returns YYYY/MM/DD形式の日付文字列
-   */
-  private normalizeDateFormat(dateStr: string): string {
-    // YYYY-MM-DD形式の場合、YYYY/MM/DD形式に変換
-    return dateStr.replace(/-/g, '/');
-  }
-
-  /**
    * IDで対戦履歴を検索
    */
   async findById(id: string): Promise<BattleLog | null> {
@@ -82,7 +71,7 @@ export class BattleLogsRepository implements BaseRepository<BattleLog, NewBattle
   /**
    * 対戦履歴を作成
    * @param data - 作成するデータ（idが含まれている場合はそれを使用）
-   * 日付フォーマットはYYYY/MM/DD形式に正規化される
+   * 日付フォーマットはYYYY-MM-DD形式で保存される
    */
   async create(data: NewBattleLog): Promise<BattleLog> {
     // データにIDが含まれている場合はそれを使用、なければ生成
@@ -91,7 +80,7 @@ export class BattleLogsRepository implements BaseRepository<BattleLog, NewBattle
     const newBattleLog = {
       id,
       userId: data.userId,
-      date: this.normalizeDateFormat(data.date), // 日付フォーマットを正規化
+      date: data.date,
       battleType: data.battleType,
       rank: data.rank,
       groupName: data.groupName,
@@ -113,18 +102,13 @@ export class BattleLogsRepository implements BaseRepository<BattleLog, NewBattle
 
   /**
    * 対戦履歴を更新
-   * 日付フォーマットが含まれる場合はYYYY/MM/DD形式に正規化される
+   * 日付フォーマットはYYYY-MM-DD形式で保存される
    */
   async update(id: string, data: Partial<NewBattleLog>): Promise<BattleLog | null> {
     const existing = await this.findById(id);
     if (!existing) return null;
 
-    // 日付が含まれる場合は正規化
-    const normalizedData = data.date
-      ? { ...data, date: this.normalizeDateFormat(data.date) }
-      : data;
-
-    await this.db.update(battleLogs).set(normalizedData).where(eq(battleLogs.id, id));
+    await this.db.update(battleLogs).set(data).where(eq(battleLogs.id, id));
 
     return await this.findById(id);
   }

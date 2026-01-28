@@ -271,7 +271,7 @@ describe('API Integration Tests', () => {
         date: '2025-01-24',
         battleType: 'ランクマッチ',
         rank: 'ダイアモンド',
-        group: 'AAA',
+        groupName: 'AAA',
         myDeckId: 'deck_001',
         turn: '先攻',
         result: '勝ち',
@@ -303,7 +303,7 @@ describe('API Integration Tests', () => {
         date: '2025-01-24',
         battleType: 'ランクマッチ',
         rank: 'ダイアモンド',
-        group: 'AAA',
+        groupName: 'AAA',
         myDeckId: 'deck_001',
         turn: i % 2 === 0 ? '先攻' : '後攻',
         result: i % 3 === 0 ? '勝ち' : '負け',
@@ -337,7 +337,7 @@ describe('API Integration Tests', () => {
     it('POST /api/import - CSV形式のIDなし大量データでも正常に処理される', async () => {
       // CSVヘッダー（IDなし）
       let csvData =
-        'date,battleType,rank,group,myDeckId,turn,result,opponentDeckId\n';
+        'date,battleType,rank,groupName,myDeckId,turn,result,opponentDeckId\n';
 
       // 600行のCSVデータを生成（IDなし）
       for (let i = 0; i < 600; i++) {
@@ -369,7 +369,7 @@ describe('API Integration Tests', () => {
         date: '2025-01-24',
         battleType: 'ランクマッチ',
         rank: 'ダイアモンド',
-        group: 'AAA',
+        groupName: 'AAA',
         myDeckId: 'deck_001',
         turn: '先攻',
         result: '勝ち',

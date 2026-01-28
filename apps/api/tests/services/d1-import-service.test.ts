@@ -44,7 +44,7 @@ describe('D1ImportService', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -54,7 +54,7 @@ describe('D1ImportService', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '後攻',
           result: '負け',
@@ -64,7 +64,7 @@ describe('D1ImportService', () => {
           date: '2025-01-25',
           battleType: '対戦台',
           rank: '-',
-          group: '-',
+          groupName: '-',
           myDeckId: 'deck_002',
           turn: '先攻',
           result: '勝ち',
@@ -112,7 +112,7 @@ describe('D1ImportService', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -123,7 +123,7 @@ describe('D1ImportService', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '後攻',
           result: '負け',
@@ -134,7 +134,7 @@ describe('D1ImportService', () => {
           date: '2025-01-25',
           battleType: '対戦台',
           rank: '-',
-          group: '-',
+          groupName: '-',
           myDeckId: 'deck_002',
           turn: '先攻',
           result: '勝ち',
@@ -176,7 +176,7 @@ describe('D1ImportService', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -210,7 +210,7 @@ describe('D1ImportService', () => {
           date: '2025-01-24',
           battleType: '不正な対戦タイプ', // 不正値
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -271,7 +271,7 @@ describe('D1ImportService', () => {
       } as unknown as Database;
       service = new D1ImportService(mockDb);
 
-      const csvData = `date,battleType,rank,group,myDeckId,turn,result,opponentDeckId
+      const csvData = `date,battleType,rank,groupName,myDeckId,turn,result,opponentDeckId
 2025-01-24,ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,deck_master_001
 2025-01-24,ランクマッチ,ダイアモンド,AAA,deck_001,後攻,負け,deck_master_002
 2025-01-25,対戦台,-,-,deck_002,先攻,勝ち,deck_master_003`;
@@ -306,7 +306,7 @@ describe('D1ImportService', () => {
       } as unknown as Database;
       service = new D1ImportService(mockDb);
 
-      const csvData = `id,date,battleType,rank,group,myDeckId,turn,result,opponentDeckId
+      const csvData = `id,date,battleType,rank,groupName,myDeckId,turn,result,opponentDeckId
 log_1,2025-01-24,ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,deck_master_001
 existing_id,2025-01-24,ランクマッチ,ダイアモンド,AAA,deck_001,後攻,負け,deck_master_002
 log_3,2025-01-25,対戦台,-,-,deck_002,先攻,勝ち,deck_master_003`;
@@ -334,7 +334,7 @@ log_3,2025-01-25,対戦台,-,-,deck_002,先攻,勝ち,deck_master_003`;
       service = new D1ImportService(mockDb);
 
       const futureDate = '2099-12-31';
-      const csvData = `date,battleType,rank,group,myDeckId,turn,result,opponentDeckId
+      const csvData = `date,battleType,rank,groupName,myDeckId,turn,result,opponentDeckId
 ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,deck_master_001`;
 
       const result = await service.importFromCsv(csvData);
@@ -364,7 +364,7 @@ ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,d
           date: futureDate,
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -400,7 +400,7 @@ ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,d
           date: '2025-01-24',
           battleType: '不正な対戦タイプ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -436,7 +436,7 @@ ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,d
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           // myDeckId省略
           turn: '先攻',
           result: '勝ち',
@@ -472,7 +472,7 @@ ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,d
           date: '2025/01/24', // 不正な形式
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -522,7 +522,7 @@ ${futureDate},ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,d
         date: '2025-01-24',
         battleType: 'ランクマッチ',
         rank: 'ダイアモンド',
-        group: 'AAA',
+        groupName: 'AAA',
         myDeckId: 'deck_001',
         turn: '先攻',
         result: '勝ち',

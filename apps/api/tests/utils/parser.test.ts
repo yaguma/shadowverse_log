@@ -19,7 +19,7 @@ describe('parseJSON', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -45,7 +45,7 @@ describe('parseJSON', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '先攻',
           result: '勝ち',
@@ -55,7 +55,7 @@ describe('parseJSON', () => {
           date: '2025-01-24',
           battleType: 'ランクマッチ',
           rank: 'ダイアモンド',
-          group: 'AAA',
+          groupName: 'AAA',
           myDeckId: 'deck_001',
           turn: '後攻',
           result: '負け',
@@ -65,7 +65,7 @@ describe('parseJSON', () => {
           date: '2025-01-25',
           battleType: '対戦台',
           rank: '-',
-          group: '-',
+          groupName: '-',
           myDeckId: 'deck_002',
           turn: '先攻',
           result: '勝ち',
@@ -134,7 +134,7 @@ describe('parseJSON', () => {
 describe('parseCSV', () => {
   // CSV ヘッダー
   const validHeader =
-    'date,battleType,rank,group,myDeckId,turn,result,opponentDeckId';
+    'date,battleType,rank,groupName,myDeckId,turn,result,opponentDeckId';
 
   // ===========================================
   // TC-007: 正常系: 有効なCSVをパースできる

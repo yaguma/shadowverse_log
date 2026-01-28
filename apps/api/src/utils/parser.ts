@@ -23,7 +23,7 @@ const REQUIRED_CSV_HEADERS = [
   'date',
   'battleType',
   'rank',
-  'group',
+  'groupName',
   'myDeckId',
   'turn',
   'result',

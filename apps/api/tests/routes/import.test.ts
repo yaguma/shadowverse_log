@@ -137,7 +137,7 @@ describe('POST /api/import', () => {
                 date: '2025-01-24',
                 battleType: 'ランクマッチ',
                 rank: 'ダイアモンド',
-                group: 'AAA',
+                groupName: 'AAA',
                 myDeckId: 'deck_001',
                 turn: '先攻',
                 result: '勝ち',
@@ -161,7 +161,7 @@ describe('POST /api/import', () => {
   // ===========================================
   describe('TC-029: 正常系: format=csvで成功', () => {
     it('format: "csv"と有効データで200, success: trueを返す', async () => {
-      const csvData = `date,battleType,rank,group,myDeckId,turn,result,opponentDeckId
+      const csvData = `date,battleType,rank,groupName,myDeckId,turn,result,opponentDeckId
 2025-01-24,ランクマッチ,ダイアモンド,AAA,deck_001,先攻,勝ち,deck_master_001`;
 
       const res = await app.request(
