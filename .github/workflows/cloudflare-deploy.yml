@@ -31,11 +31,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./apps/web
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
 
       - name: Lint (Biome)
         working-directory: ./apps/web
@@ -64,11 +65,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: apps/api/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./apps/api
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
 
       - name: Lint (Biome)
         working-directory: ./apps/api
@@ -94,11 +96,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./apps/web
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
 
       - name: Run unit tests
         working-directory: ./apps/web
@@ -124,11 +127,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: apps/api/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./apps/api
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
 
       - name: Run unit tests
         working-directory: ./apps/api
@@ -158,11 +162,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./apps/web
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
 
       - name: Install Playwright browsers
         working-directory: ./apps/web
@@ -205,11 +210,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./apps/web
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
 
       - name: Build frontend
         working-directory: ./apps/web
@@ -248,11 +254,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: apps/api/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: ./apps/api
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm build:shared
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
