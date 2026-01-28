@@ -35,15 +35,18 @@ export interface ImportResponse {
 
 /**
  * インポート用対戦履歴入力
+ * ※ 登録用スキーマ（battle-logs.validation.ts）と一致させること
  */
 export interface ImportBattleLogInput {
   id?: string;
+  userId?: string;
   date: string;
   battleType: string;
   rank: string;
-  group: string;
+  groupName: string;
   myDeckId: string;
   turn: string;
   result: string;
   opponentDeckId: string;
+  season?: number;
 }

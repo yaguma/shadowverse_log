@@ -14,9 +14,11 @@ import { getNowInJST } from '../utils/date';
 
 /**
  * バリデーションスキーマ
+ * ※ 登録用スキーマ（battle-logs.validation.ts）と一致させること
  */
 const importBattleLogSchema = z.object({
   id: z.string().optional(),
+  userId: z.string().min(1).optional(), // Phase 2で必須化
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, '日付はYYYY-MM-DD形式で入力してください')
@@ -35,7 +37,7 @@ const importBattleLogSchema = z.object({
   rank: z.enum(['サファイア', 'ダイアモンド', 'ルビー', 'トパーズ', '-'], {
     error: 'ランクが不正です',
   }),
-  group: z.string().min(1, 'グループは必須です'),
+  groupName: z.string().min(1, 'グループ名は必須です'),
   myDeckId: z.string().min(1, 'マイデッキIDは必須です'),
   turn: z.enum(['先攻', '後攻'], {
     error: 'ターンが不正です',
@@ -44,6 +46,7 @@ const importBattleLogSchema = z.object({
     error: '対戦結果が不正です',
   }),
   opponentDeckId: z.string().min(1, '相手デッキIDは必須です'),
+  season: z.number().int().positive().optional(), // シーズン番号（任意、1以上の整数）
 });
 
 /**
@@ -147,14 +150,16 @@ export class D1ImportService {
       try {
         await this.db.insert(battleLogs).values({
           id,
+          userId: validatedData.userId,
           date: validatedData.date,
           battleType: validatedData.battleType,
           rank: validatedData.rank,
-          groupName: validatedData.group,
+          groupName: validatedData.groupName,
           myDeckId: validatedData.myDeckId,
           turn: validatedData.turn,
           result: validatedData.result,
           opponentDeckId: validatedData.opponentDeckId,
+          season: validatedData.season,
         });
         imported++;
         existingIds.add(id);
