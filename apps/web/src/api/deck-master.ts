@@ -5,14 +5,14 @@
  * 🔵 信頼性レベル: architecture.md API設計に基づく
  */
 
-import { apiClient } from './client';
 import type {
   DeckMaster,
-  DeckMasterWithUsage,
   DeckMasterCreateRequest,
-  DeckMasterUpdateRequest,
   DeckMasterQueryParams,
+  DeckMasterUpdateRequest,
+  DeckMasterWithUsage,
 } from '@shadowverse-log/shared';
+import { apiClient } from './client';
 
 /**
  * 【機能概要】: デッキ種別一覧を取得
@@ -22,9 +22,7 @@ import type {
  * @param params - クエリパラメータ（includeUsage: 使用履歴を含めるか）
  * @returns Promise<DeckMaster[]> - デッキ種別一覧
  */
-export async function fetchDeckMasters(
-  params?: DeckMasterQueryParams
-): Promise<DeckMaster[]> {
+export async function fetchDeckMasters(params?: DeckMasterQueryParams): Promise<DeckMaster[]> {
   const queryString = params?.includeUsage ? '?includeUsage=true' : '';
   return apiClient.get<DeckMaster[]>(`/deck-masters${queryString}`);
 }

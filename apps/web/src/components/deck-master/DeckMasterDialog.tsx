@@ -8,9 +8,9 @@
  * 🔵 信頼性レベル: TASK-0012仕様に基づく
  */
 
+import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 
 /**
  * 【定数定義】: クラス名選択肢
@@ -91,7 +91,7 @@ export const DeckMasterDialog: React.FC<DeckMasterDialogProps> = ({
     }
     // エラー状態をクリア
     setValidationErrors({});
-  }, [mode, initialData, isOpen]);
+  }, [mode, initialData]);
 
   /**
    * 【バリデーション】: フォームの入力値を検証

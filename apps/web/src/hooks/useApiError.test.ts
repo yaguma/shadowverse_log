@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import type { DeleteConstraintError, ValidationError } from '@shadowverse-log/shared';
+import { act, renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import { useApiError } from './useApiError';
-import type { ValidationError, DeleteConstraintError } from '@shadowverse-log/shared';
 
 describe('useApiError', () => {
   describe('初期状態', () => {
@@ -28,9 +28,7 @@ describe('useApiError', () => {
       const validationError: ValidationError = {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
-        details: [
-          { field: 'deckName', constraint: 'required', value: '' },
-        ],
+        details: [{ field: 'deckName', constraint: 'required', value: '' }],
       };
 
       act(() => {
@@ -141,9 +139,7 @@ describe('useApiError', () => {
       const validationError: ValidationError = {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
-        details: [
-          { field: 'deckName', constraint: 'required', value: '' },
-        ],
+        details: [{ field: 'deckName', constraint: 'required', value: '' }],
       };
 
       act(() => {

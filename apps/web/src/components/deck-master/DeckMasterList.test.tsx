@@ -6,9 +6,9 @@
  * 🔵 信頼性レベル: 要件定義書REQ-EXT-501に基づく
  */
 
+import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 import { DeckMasterList } from './DeckMasterList';
 
 describe('DeckMasterList', () => {

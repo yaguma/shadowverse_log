@@ -1,7 +1,7 @@
+import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as apiClient from '../api/client';
 import { useDeckStore } from './deckStore';
-import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 
 /**
  * 【テストファイル概要】: DeckStore DeckMaster CRUD機能の単体テスト

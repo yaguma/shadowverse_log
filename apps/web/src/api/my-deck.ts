@@ -5,8 +5,8 @@
  * 🔵 信頼性レベル: architecture.md API設計に基づく
  */
 
-import { apiClient } from './client';
 import type { MyDeck, MyDeckCreateRequest } from '@shadowverse-log/shared';
+import { apiClient } from './client';
 
 /**
  * 【機能概要】: 使用デッキ一覧を取得
