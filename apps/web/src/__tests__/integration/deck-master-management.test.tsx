@@ -720,10 +720,10 @@ describe('デッキ種別管理機能 統合テスト', () => {
       expect(deckStillExists).toBe(true);
     });
 
-    it('TC-INT-010: 削除ボタンが参照ありでdisabled', async () => {
+    it.skip('TC-INT-010: 削除ボタンが参照ありでdisabled', async () => {
       // 【テスト目的】: usageCount > 0 のデータの削除ボタンがdisabledであること 🔵
-      // 注意: この機能はDeckMasterItemコンポーネントで実装される必要がある
-      // 現在のDeckMasterListでは実装されていないため、一旦skipする
+      // 【スキップ理由】: DeckMasterItemコンポーネントとの統合が完了後に有効化
+      // TODO: TASK-0014完了後に統合テストで検証
 
       // 本来のテスト実装:
       // const mockDataWithUsage: DeckMasterWithUsage[] = [
@@ -735,9 +735,6 @@ describe('デッキ種別管理機能 統合テスト', () => {
       //
       // 使用中のアイテムの削除ボタンはdisabled
       // 未使用のアイテムの削除ボタンは有効
-
-      // 現時点では削除ボタンの disabled 属性は実装されていないため、
-      // テストがパスすることを確認するためのプレースホルダー
       expect(true).toBe(true);
     });
   });
