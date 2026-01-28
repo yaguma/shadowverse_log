@@ -7,14 +7,14 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-009, REQ-010, REQ-011, REQ-032, REQ-033）に基づく
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BattleLogDetailModal } from '../components/battle-log/BattleLogDetailModal';
 import { BattleLogForm } from '../components/battle-log/BattleLogForm';
 import { BattleLogList } from '../components/battle-log/BattleLogList';
 import { DeleteConfirmDialog } from '../components/battle-log/DeleteConfirmDialog';
 import { useBattleLogStore } from '../store/battleLogStore';
 import { useDeckStore } from '../store/deckStore';
-import type { BattleLog } from '../types';
+import type { BattleLog, BattleLogWithDeckNames } from '../types';
 
 /**
  * 【機能概要】: Battle Log一覧ページコンポーネント
@@ -49,6 +49,23 @@ export function BattleLogListPage() {
     // 【TASK-0050対応】: デッキマスター一覧も取得 🔵
     fetchDeckMasters();
   }, [fetchBattleLogs, fetchDeckMasters]);
+
+  /**
+   * 【データ変換】: BattleLogをBattleLogWithDeckNamesに変換
+   * 【実装方針】: deckMastersからデッキ名を解決してマージ
+   * 🔵 信頼性レベル: BattleLogList型定義に基づく
+   */
+  const battleLogsWithDeckNames: BattleLogWithDeckNames[] = useMemo(() => {
+    return battleLogs.map((log) => {
+      const myDeck = deckMasters.find((d) => d.id === log.myDeckId);
+      const opponentDeck = deckMasters.find((d) => d.id === log.opponentDeckId);
+      return {
+        ...log,
+        myDeckName: myDeck?.deckName ?? '不明',
+        opponentDeckName: opponentDeck?.deckName ?? '不明',
+      };
+    });
+  }, [battleLogs, deckMasters]);
 
   /**
    * 【新規登録ボタンハンドラー】: 新規登録フォームを表示
@@ -143,7 +160,7 @@ export function BattleLogListPage() {
    * 【リファクタリング実装】: REQ-011対応で詳細モーダルUIを実装
    * 🔵 信頼性レベル: 要件定義書REQ-011に基づく
    */
-  const handleDetail = (log: BattleLog) => {
+  const handleDetail = (log: BattleLogWithDeckNames) => {
     // 【詳細モーダル表示】: 詳細表示対象のlogを設定 🔵
     setDetailLog(log);
   };
@@ -217,7 +234,7 @@ export function BattleLogListPage() {
       {/* 【TASK-0050対応】: deckMastersを渡してデッキ名を表示 */}
       {!isLoading && (
         <BattleLogList
-          battleLogs={battleLogs}
+          battleLogs={battleLogsWithDeckNames}
           deckMasters={deckMasters}
           onDelete={handleDelete}
           onDetail={handleDetail}
