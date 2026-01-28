@@ -112,6 +112,18 @@ export interface DeckMaster {
 }
 
 /**
+ * 使用履歴付きデッキマスター
+ * 【型定義】: デッキ種別一覧表示で使用統計を含めた拡張型
+ * 🔵 信頼性レベル: docs/design/deck-management-extension/interfaces.ts に基づく
+ */
+export interface DeckMasterWithUsage extends DeckMaster {
+  /** 最後に対戦相手として使用された日付（ISO 8601形式、未使用の場合はnull） */
+  lastUsedDate: string | null;
+  /** 対戦相手として使用された回数 */
+  usageCount: number;
+}
+
+/**
  * マイデッキエンティティ
  */
 export interface MyDeck {
