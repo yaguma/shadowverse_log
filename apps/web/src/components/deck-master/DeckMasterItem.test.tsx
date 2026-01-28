@@ -5,7 +5,7 @@
  * 🔵 信頼性レベル: TASK-0011の要件に基づく
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { DeckMasterWithUsage } from '../../types';

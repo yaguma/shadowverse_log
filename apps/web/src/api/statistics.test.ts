@@ -4,14 +4,10 @@
  * 【テスト目的】: 統計データ取得APIの動作を検証する
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  fetchAvailableSeasons,
-  fetchStatistics,
-  fetchStatisticsBySeason,
-} from './statistics';
-import { clearCache } from './client';
 import type { SeasonStatistics } from '@shadowverse-log/shared';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { clearCache } from './client';
+import { fetchAvailableSeasons, fetchStatistics, fetchStatisticsBySeason } from './statistics';
 
 describe('Statistics API Client', () => {
   beforeEach(() => {

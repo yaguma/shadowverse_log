@@ -4,10 +4,10 @@
  * 【テスト目的】: MyDeckのCRUD操作を行うAPI関数の動作を検証する
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchMyDecks, createMyDeck, deleteMyDeck } from './my-deck';
-import { clearCache } from './client';
 import type { MyDeck } from '@shadowverse-log/shared';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { clearCache } from './client';
+import { createMyDeck, deleteMyDeck, fetchMyDecks } from './my-deck';
 
 describe('MyDeck API Client', () => {
   beforeEach(() => {
@@ -156,9 +156,7 @@ describe('MyDeck API Client', () => {
         error: {
           code: 'VALIDATION_ERROR',
           message: 'デッキ名は必須です',
-          details: [
-            { field: 'deckName', constraint: 'required', value: '' },
-          ],
+          details: [{ field: 'deckName', constraint: 'required', value: '' }],
         },
         meta: { timestamp: '2025-01-27T12:00:00Z', requestId: 'req-004' },
       };

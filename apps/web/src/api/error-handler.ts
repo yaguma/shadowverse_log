@@ -5,7 +5,7 @@
  * 🔵 信頼性レベル: TASK-0002のエラーハンドリング設計に基づく
  */
 
-import type { ValidationError, DeleteConstraintError } from '@shadowverse-log/shared';
+import type { DeleteConstraintError, ValidationError } from '@shadowverse-log/shared';
 
 /**
  * 【機能概要】: APIエラーレスポンスがValidationErrorかどうかを判定する

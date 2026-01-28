@@ -4,18 +4,18 @@
  * 【テスト目的】: ValidationError/DeleteConstraintErrorのパースと変換を検証する
  */
 
+import type { DeleteConstraintError, ValidationError } from '@shadowverse-log/shared';
 import { describe, expect, it } from 'vitest';
 import {
-  isValidationError,
-  isDeleteConstraintError,
-  translateValidationConstraint,
-  getValidationErrorMessages,
-  translateDeleteConstraintError,
-  translateApiError,
-  getReferenceCount,
   getEntityType,
+  getReferenceCount,
+  getValidationErrorMessages,
+  isDeleteConstraintError,
+  isValidationError,
+  translateApiError,
+  translateDeleteConstraintError,
+  translateValidationConstraint,
 } from './error-handler';
-import type { ValidationError, DeleteConstraintError } from '@shadowverse-log/shared';
 
 describe('Error Handler Utilities', () => {
   // ==================== isValidationError テスト ====================
@@ -163,9 +163,7 @@ describe('Error Handler Utilities', () => {
 
       const message = translateDeleteConstraintError(deleteConstraintError);
 
-      expect(message).toBe(
-        'このデッキ種別は5件の対戦履歴で使用されているため削除できません'
-      );
+      expect(message).toBe('このデッキ種別は5件の対戦履歴で使用されているため削除できません');
     });
 
     it('正常系: myDeckの削除制約エラーを日本語に変換できること', () => {
@@ -182,9 +180,7 @@ describe('Error Handler Utilities', () => {
 
       const message = translateDeleteConstraintError(deleteConstraintError);
 
-      expect(message).toBe(
-        'この使用デッキは3件の対戦履歴で使用されているため削除できません'
-      );
+      expect(message).toBe('この使用デッキは3件の対戦履歴で使用されているため削除できません');
     });
   });
 
@@ -195,9 +191,7 @@ describe('Error Handler Utilities', () => {
       const validationError: ValidationError = {
         code: 'VALIDATION_ERROR',
         message: 'Validation failed',
-        details: [
-          { field: 'deckName', constraint: 'required', value: '' },
-        ],
+        details: [{ field: 'deckName', constraint: 'required', value: '' }],
       };
 
       const message = translateApiError(validationError);
@@ -219,9 +213,7 @@ describe('Error Handler Utilities', () => {
 
       const message = translateApiError(deleteConstraintError);
 
-      expect(message).toBe(
-        'このデッキ種別は10件の対戦履歴で使用されているため削除できません'
-      );
+      expect(message).toBe('このデッキ種別は10件の対戦履歴で使用されているため削除できません');
     });
 
     it('正常系: messageプロパティを持つオブジェクトからメッセージを取得できること', () => {

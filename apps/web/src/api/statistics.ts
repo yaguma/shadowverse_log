@@ -5,8 +5,8 @@
  * 🔵 信頼性レベル: requirements.md REQ-EXT-203〜REQ-EXT-205対応
  */
 
-import { apiClient } from './client';
 import type { SeasonStatistics, StatisticsQueryParams } from '@shadowverse-log/shared';
+import { apiClient } from './client';
 
 /**
  * 【機能概要】: 利用可能なシーズン一覧を取得
@@ -27,9 +27,7 @@ export async function fetchAvailableSeasons(): Promise<number[]> {
  * @param params - クエリパラメータ（season: シーズン番号、省略時は最新シーズン）
  * @returns Promise<SeasonStatistics> - シーズン統計データ
  */
-export async function fetchStatistics(
-  params?: StatisticsQueryParams
-): Promise<SeasonStatistics> {
+export async function fetchStatistics(params?: StatisticsQueryParams): Promise<SeasonStatistics> {
   const queryString = params?.season ? `?season=${params.season}` : '';
   return apiClient.get<SeasonStatistics>(`/statistics${queryString}`);
 }

@@ -6,10 +6,10 @@
  * 🔵 信頼性レベル: TASK-0012仕様に基づく
  */
 
+import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
 import { DeckMasterDialog } from './DeckMasterDialog';
 
 // ==================== テスト用モックデータ ====================

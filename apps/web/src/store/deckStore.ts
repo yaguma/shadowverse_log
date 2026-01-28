@@ -1,11 +1,11 @@
+import type {
+  DeckMasterCreateRequest,
+  DeckMasterUpdateRequest,
+  DeckMasterWithUsage,
+} from '@shadowverse-log/shared';
 import { create } from 'zustand';
 import { apiClient, extractErrorMessage } from '../api/client';
 import type { DeckMaster, MyDeck } from '../types';
-import type {
-  DeckMasterWithUsage,
-  DeckMasterCreateRequest,
-  DeckMasterUpdateRequest,
-} from '@shadowverse-log/shared';
 
 /**
  * 【機能概要】: デッキマスターデータの状態管理を行うZustandストア

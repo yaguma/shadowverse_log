@@ -6,12 +6,12 @@
  * 🔵 信頼性レベル: dataflow.md 1.1〜1.3に基づく
  */
 
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
-import { useDeckStore } from '../../store/deckStore';
 import * as apiClient from '../../api/client';
+import { useDeckStore } from '../../store/deckStore';
 
 // 【モック設定】: API Clientをモック化してBackend APIへの実際の通信を回避
 vi.mock('../../api/client', () => {
@@ -38,7 +38,8 @@ vi.mock('../../api/client', () => {
  * DeckMasterList, DeckMasterDialog, DeckStoreを統合したコンポーネント
  * 実際のアプリケーションの動作をシミュレートする
  */
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { DeckMasterList } from '../../components/deck-master/DeckMasterList';
 
 /**
