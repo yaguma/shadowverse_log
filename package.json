@@ -26,13 +26,13 @@
   },
   "lint-staged": {
     "apps/web/**/*.{ts,tsx,js,jsx}": [
-      "pnpm exec biome check --write"
+      "pnpm exec biome check --write --config-path apps/web/biome.json"
     ],
     "apps/api/**/*.{ts,js}": [
-      "pnpm exec biome lint --write"
+      "pnpm exec biome lint --write --config-path apps/api/biome.json"
     ],
     "packages/shared/**/*.{ts,js}": [
-      "pnpm exec biome check --write"
+      "pnpm exec biome check --write --config-path apps/api/biome.json"
     ]
   }
 }
