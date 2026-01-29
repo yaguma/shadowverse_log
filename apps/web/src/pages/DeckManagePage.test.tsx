@@ -42,8 +42,8 @@ describe('DeckManagePage', () => {
       // 【実際の処理実行】: DeckManagePageコンポーネントをレンダリング
       render(<DeckManagePage />);
 
-      // 【結果検証】: デッキ種別タブがアクティブスタイルを持つことを確認
-      const deckMasterTab = screen.getByRole('button', { name: 'デッキ種別' });
+      // 【結果検証】: デッキ種別タブがアクティブスタイルを持つことを確認（WAI-ARIAに対応してrole="tab"で取得）
+      const deckMasterTab = screen.getByRole('tab', { name: 'デッキ種別' });
       expect(deckMasterTab).toHaveClass('border-blue-500');
     });
 
@@ -72,8 +72,8 @@ describe('DeckManagePage', () => {
       // 【実際の処理実行】: DeckManagePageコンポーネントをレンダリング
       render(<DeckManagePage />);
 
-      // 【タブ切り替え】: 使用デッキタブをクリック
-      const myDeckTab = screen.getByRole('button', { name: '使用デッキ' });
+      // 【タブ切り替え】: 使用デッキタブをクリック（WAI-ARIAに対応してrole="tab"で取得）
+      const myDeckTab = screen.getByRole('tab', { name: '使用デッキ' });
       fireEvent.click(myDeckTab);
 
       // 【結果検証】: MyDeckListが表示され、DeckMasterListが非表示であることを確認
@@ -89,11 +89,11 @@ describe('DeckManagePage', () => {
       // 【実際の処理実行】: DeckManagePageコンポーネントをレンダリング
       render(<DeckManagePage />);
 
-      // 【タブ切り替え】: 一度使用デッキタブに切り替え
-      fireEvent.click(screen.getByRole('button', { name: '使用デッキ' }));
+      // 【タブ切り替え】: 一度使用デッキタブに切り替え（WAI-ARIAに対応してrole="tab"で取得）
+      fireEvent.click(screen.getByRole('tab', { name: '使用デッキ' }));
 
-      // 【タブ切り替え】: デッキ種別タブに戻る
-      fireEvent.click(screen.getByRole('button', { name: 'デッキ種別' }));
+      // 【タブ切り替え】: デッキ種別タブに戻る（WAI-ARIAに対応してrole="tab"で取得）
+      fireEvent.click(screen.getByRole('tab', { name: 'デッキ種別' }));
 
       // 【結果検証】: DeckMasterListが表示され、MyDeckListが非表示であることを確認
       expect(screen.getByTestId('deck-master-list')).toBeInTheDocument();
@@ -108,8 +108,9 @@ describe('DeckManagePage', () => {
       // 【実際の処理実行】: DeckManagePageコンポーネントをレンダリング
       render(<DeckManagePage />);
 
-      const deckMasterTab = screen.getByRole('button', { name: 'デッキ種別' });
-      const myDeckTab = screen.getByRole('button', { name: '使用デッキ' });
+      // WAI-ARIAに対応してrole="tab"で取得
+      const deckMasterTab = screen.getByRole('tab', { name: 'デッキ種別' });
+      const myDeckTab = screen.getByRole('tab', { name: '使用デッキ' });
 
       // 【初期状態確認】: デッキ種別タブがアクティブ
       expect(deckMasterTab).toHaveClass('border-blue-500');

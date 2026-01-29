@@ -41,31 +41,45 @@ export interface TabsProps {
 export const Tabs = ({ tabs, activeTab, onTabChange, children }: TabsProps) => {
   return (
     <div>
-      {/* 【タブナビゲーション】 */}
+      {/* 【タブナビゲーション】: WAI-ARIAに準拠したタブリスト */}
       <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => onTabChange(tab.id)}
-              className={`
-                py-2 px-1 border-b-2 font-medium text-sm transition-colors
-                ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }
-              `}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <nav className="-mb-px flex space-x-8" role="tablist" aria-label="タブナビゲーション">
+          {tabs.map((tab) => {
+            const isSelected = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={isSelected}
+                aria-controls={`tabpanel-${tab.id}`}
+                tabIndex={isSelected ? 0 : -1}
+                onClick={() => onTabChange(tab.id)}
+                className={`
+                  py-2 px-1 border-b-2 font-medium text-sm transition-colors
+                  ${
+                    isSelected
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }
+                `}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </nav>
       </div>
 
-      {/* 【タブコンテンツ】 */}
-      <div>{children}</div>
+      {/* 【タブコンテンツ】: WAI-ARIAに準拠したタブパネル */}
+      <div
+        role="tabpanel"
+        id={`tabpanel-${activeTab}`}
+        aria-labelledby={`tab-${activeTab}`}
+      >
+        {children}
+      </div>
     </div>
   );
 };

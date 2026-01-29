@@ -5,7 +5,7 @@
  * 🔵 信頼性レベル: architecture.md 2.3に基づく
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { Tab } from '../components/common/Tabs';
 import { Tabs } from '../components/common/Tabs';
 import { DeckMasterList } from '../components/deck-master/DeckMasterList';
@@ -28,6 +28,12 @@ const DECK_MANAGE_TABS: Tab[] = [
 ];
 
 /**
+ * 【定数】: 有効なタブIDセット
+ * タブID検証に使用（W-002対応）
+ */
+const VALID_TAB_IDS = new Set<TabType>(DECK_MANAGE_TABS.map((tab) => tab.id as TabType));
+
+/**
  * 【機能概要】: デッキ管理ページコンポーネント
  * 【実装方針】: useState でタブ状態を管理し、汎用Tabsコンポーネントで表示を切り替え
  * 🔵 信頼性レベル: TASK-0022仕様に準拠
@@ -46,50 +52,50 @@ export const DeckManagePage = () => {
     myDecksError,
   } = useDeckStore();
 
-  // 【削除可能判定マップ】: マイデッキの削除可否を判定
+  // 【削除可能判定マップ】: マイデッキの削除可否を判定（useMemoでメモ化 I-004対応）
   // 使用履歴がないデッキは削除可能（TASK-0023で詳細実装予定）
-  const canDeleteMap: Record<string, boolean> = myDecks.reduce(
-    (acc, deck) => {
-      // TODO: 使用履歴に基づいた削除可否判定を実装（TASK-0023）
-      acc[deck.id] = true;
-      return acc;
-    },
-    {} as Record<string, boolean>
-  );
+  const canDeleteMap = useMemo<Record<string, boolean>>(() => {
+    return myDecks.reduce(
+      (acc, deck) => {
+        // TODO: 使用履歴に基づいた削除可否判定を実装（TASK-0023）
+        acc[deck.id] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
+  }, [myDecks]);
 
   // 【DeckMaster操作ハンドラ】: 新規追加
   const handleDeckMasterAdd = () => {
     // TODO: モーダル表示処理を追加（TASK-0023で実装予定）
-    console.log('DeckMaster add clicked');
   };
 
   // 【DeckMaster操作ハンドラ】: 編集
   const handleDeckMasterEdit = () => {
     // TODO: モーダル表示処理を追加（TASK-0023で実装予定）
-    console.log('DeckMaster edit clicked');
   };
 
   // 【DeckMaster操作ハンドラ】: 削除
   const handleDeckMasterDelete = () => {
     // TODO: 削除確認ダイアログ表示処理を追加（TASK-0023で実装予定）
-    console.log('DeckMaster delete clicked');
   };
 
   // 【MyDeck操作ハンドラ】: 新規追加
   const handleMyDeckAdd = () => {
     // TODO: モーダル表示処理を追加（TASK-0023で実装予定）
-    console.log('MyDeck add clicked');
   };
 
   // 【MyDeck操作ハンドラ】: 削除
   const handleMyDeckDelete = () => {
     // TODO: 削除確認ダイアログ表示処理を追加（TASK-0023で実装予定）
-    console.log('MyDeck delete clicked');
   };
 
-  // 【タブ切り替えハンドラ】
+  // 【タブ切り替えハンドラ】: タブID検証付き（W-002対応）
   const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId as TabType);
+    // タブIDがValidなTabTypeであることを検証
+    if (VALID_TAB_IDS.has(tabId as TabType)) {
+      setActiveTab(tabId as TabType);
+    }
   };
 
   return (
