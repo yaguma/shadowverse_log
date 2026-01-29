@@ -1,13 +1,15 @@
 /**
  * MyDecks リポジトリ
  * TASK-0024-4: MyDecks リポジトリ実装
+ * TASK-0016: MyDeck API - DELETE 実装
  *
  * @description マイデッキテーブル用のリポジトリ実装
  * 自分のデッキ情報を管理する
  */
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import type { Database } from '../index';
 import { type MyDeck, type NewMyDeck, myDecks } from '../schema/my-decks';
+import { battleLogs } from '../schema/battle-logs';
 import type { BaseRepository, PaginationOptions } from './base-repository';
 
 /**
@@ -160,5 +162,27 @@ export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
    */
   async activate(id: string): Promise<MyDeck | null> {
     return await this.update(id, { isActive: true });
+  }
+
+  /**
+   * マイデッキがbattle_logsから参照されている回数をカウント
+   * TASK-0016: MyDeck API - DELETE 実装
+   *
+   * @description
+   * battle_logsテーブルのmy_deck_idで参照されている件数を取得
+   * 削除前の参照チェックに使用
+   *
+   * @param id - マイデッキID
+   * @returns 参照されている件数
+   */
+  async countReferences(id: string): Promise<number> {
+    const result = await this.db
+      .select({
+        count: sql<number>`COUNT(*)`.as('count'),
+      })
+      .from(battleLogs)
+      .where(eq(battleLogs.myDeckId, id));
+
+    return result[0]?.count ?? 0;
   }
 }
