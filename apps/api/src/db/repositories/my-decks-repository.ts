@@ -38,6 +38,7 @@ export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
 
   /**
    * マイデッキを作成
+   * TASK-0015: deckId, className サポート追加
    * @param data - 作成するデータ（idが含まれている場合はそれを使用）
    */
   async create(data: NewMyDeck): Promise<MyDeck> {
@@ -47,8 +48,10 @@ export class MyDecksRepository implements BaseRepository<MyDeck, NewMyDeck> {
     const newMyDeck = {
       id,
       userId: data.userId,
-      deckCode: data.deckCode,
+      deckId: data.deckId, // DeckMasterへの参照（REQ-EXT-105）
+      deckCode: data.deckCode ?? '', // 空文字許可
       deckName: data.deckName,
+      className: data.className, // DeckMasterから取得（REQ-EXT-104）
       isActive: data.isActive ?? true,
     };
 
