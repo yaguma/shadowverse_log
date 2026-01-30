@@ -662,4 +662,196 @@ describe('StatisticsDashboardPage', () => {
       });
     });
   });
+
+  // ==================== TASK-0029: 対戦履歴登録ボタンテスト ====================
+
+  describe('TASK-0029: 対戦履歴登録ボタン', () => {
+    // 【テストデータ準備】: 統計データありの場合のモックを用意
+    const mockStatisticsWithData: StatisticsResponse = {
+      overall: { totalGames: 150, wins: 98, losses: 52, winRate: 65.3 },
+      byMyDeck: [],
+      byOpponentDeck: [],
+      byRank: [],
+      byTurn: {
+        先攻: { totalGames: 78, wins: 52, losses: 26, winRate: 66.7 },
+        後攻: { totalGames: 72, wins: 46, losses: 26, winRate: 63.9 },
+      },
+      opponentDeckDistribution: [],
+      dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
+    };
+
+    // 【テストデータ準備】: 統計データなしの場合のモック
+    const mockStatisticsEmpty: StatisticsResponse = {
+      overall: { totalGames: 0, wins: 0, losses: 0, winRate: 0 },
+      byMyDeck: [],
+      byOpponentDeck: [],
+      byRank: [],
+      byTurn: {
+        先攻: { totalGames: 0, wins: 0, losses: 0, winRate: 0 },
+        後攻: { totalGames: 0, wins: 0, losses: 0, winRate: 0 },
+      },
+      opponentDeckDistribution: [],
+      dateRange: { startDate: '2025-11-01', endDate: '2025-11-09' },
+    };
+
+    describe('対戦を記録ボタンの表示', () => {
+      it('TC-STATS-029-001: 統計データがある場合に「対戦を記録」ボタンが表示される', async () => {
+        // 【テスト目的】: 統計画面に「対戦を記録」ボタンが表示されることを確認
+        // 【テスト内容】: 統計データがある場合、ヘッダー部分に「対戦を記録」ボタンが表示される
+        // 【期待される動作】: ボタンが表示され、クリック可能な状態になっている
+        // 🔵 信頼性レベル: REQ-EXT-201, REQ-EXT-202 に基づく
+
+        vi.mocked(apiClient.get).mockImplementation((url: string) => {
+          if (url === '/battle-logs/latest-season') {
+            return Promise.resolve({ latestSeason: 1 });
+          }
+          if (url.startsWith('/statistics')) {
+            return Promise.resolve(mockStatisticsWithData);
+          }
+          return Promise.reject(new Error(`Unexpected API call: ${url}`));
+        });
+
+        render(<StatisticsDashboardPage />);
+
+        // 【検証項目】: 「対戦を記録」ボタンが表示される 🔵
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /対戦を記録/ })).toBeInTheDocument();
+        });
+      });
+
+      it('TC-STATS-029-002: 統計データがない場合に「最初の対戦を記録する」ボタンが表示される', async () => {
+        // 【テスト目的】: 統計データがない場合に別のボタンが表示されることを確認
+        // 【テスト内容】: 統計データが0件の場合、「最初の対戦を記録する」ボタンが表示される
+        // 【期待される動作】: EmptyState内に対戦記録を促すボタンが表示される
+        // 🔵 信頼性レベル: REQ-EXT-201 に基づく
+
+        vi.mocked(apiClient.get).mockImplementation((url: string) => {
+          if (url === '/battle-logs/latest-season') {
+            return Promise.resolve({ latestSeason: 1 });
+          }
+          if (url.startsWith('/statistics')) {
+            return Promise.resolve(mockStatisticsEmpty);
+          }
+          return Promise.reject(new Error(`Unexpected API call: ${url}`));
+        });
+
+        render(<StatisticsDashboardPage />);
+
+        // 【検証項目】: 「最初の対戦を記録する」ボタンが表示される 🔵
+        await waitFor(() => {
+          expect(screen.getByRole('button', { name: /最初の対戦を記録する/ })).toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('ダイアログ操作', () => {
+      it('TC-STATS-029-003: 「対戦を記録」ボタンクリックでダイアログが開く', async () => {
+        // 【テスト目的】: ボタンクリックでBattleLogDialogが開くことを確認
+        // 【テスト内容】: 「対戦を記録」ボタンをクリックすると、対戦履歴登録ダイアログが表示される
+        // 【期待される動作】: ダイアログが開き、対戦履歴登録フォームが表示される
+        // 🔵 信頼性レベル: REQ-EXT-202 に基づく
+
+        vi.mocked(apiClient.get).mockImplementation((url: string) => {
+          if (url === '/battle-logs/latest-season') {
+            return Promise.resolve({ latestSeason: 1 });
+          }
+          if (url.startsWith('/statistics')) {
+            return Promise.resolve(mockStatisticsWithData);
+          }
+          return Promise.reject(new Error(`Unexpected API call: ${url}`));
+        });
+
+        render(<StatisticsDashboardPage />);
+
+        // 統計データの表示を待つ
+        await waitFor(() => {
+          expect(screen.getByText('全体統計')).toBeInTheDocument();
+        });
+
+        // 「対戦を記録」ボタンをクリック
+        const recordButton = screen.getByRole('button', { name: /対戦を記録/ });
+        fireEvent.click(recordButton);
+
+        // 【検証項目】: ダイアログが開き、フォームタイトルが表示される 🔵
+        await waitFor(() => {
+          expect(screen.getByText('対戦履歴登録')).toBeInTheDocument();
+        });
+      });
+
+      it('TC-STATS-029-004: ダイアログの「キャンセル」ボタンでダイアログが閉じる', async () => {
+        // 【テスト目的】: ダイアログのキャンセル操作を確認
+        // 【テスト内容】: ダイアログ内の「キャンセル」ボタンをクリックするとダイアログが閉じる
+        // 【期待される動作】: ダイアログが閉じ、統計画面に戻る
+        // 🔵 信頼性レベル: 標準的なダイアログUIパターンに基づく
+
+        vi.mocked(apiClient.get).mockImplementation((url: string) => {
+          if (url === '/battle-logs/latest-season') {
+            return Promise.resolve({ latestSeason: 1 });
+          }
+          if (url.startsWith('/statistics')) {
+            return Promise.resolve(mockStatisticsWithData);
+          }
+          return Promise.reject(new Error(`Unexpected API call: ${url}`));
+        });
+
+        render(<StatisticsDashboardPage />);
+
+        // 統計データの表示を待つ
+        await waitFor(() => {
+          expect(screen.getByText('全体統計')).toBeInTheDocument();
+        });
+
+        // 「対戦を記録」ボタンをクリックしてダイアログを開く
+        const recordButton = screen.getByRole('button', { name: /対戦を記録/ });
+        fireEvent.click(recordButton);
+
+        // ダイアログが開いたことを確認
+        await waitFor(() => {
+          expect(screen.getByText('対戦履歴登録')).toBeInTheDocument();
+        });
+
+        // 「キャンセル」ボタンをクリック
+        const cancelButton = screen.getByRole('button', { name: 'キャンセル' });
+        fireEvent.click(cancelButton);
+
+        // 【検証項目】: ダイアログが閉じる 🔵
+        await waitFor(() => {
+          expect(screen.queryByText('対戦履歴登録')).not.toBeInTheDocument();
+        });
+      });
+
+      it('TC-STATS-029-005: 「最初の対戦を記録する」ボタンクリックでダイアログが開く', async () => {
+        // 【テスト目的】: EmptyState内のボタンからダイアログが開くことを確認
+        // 【テスト内容】: 「最初の対戦を記録する」ボタンをクリックすると、対戦履歴登録ダイアログが表示される
+        // 【期待される動作】: ダイアログが開き、対戦履歴登録フォームが表示される
+        // 🔵 信頼性レベル: REQ-EXT-201 に基づく
+
+        vi.mocked(apiClient.get).mockImplementation((url: string) => {
+          if (url === '/battle-logs/latest-season') {
+            return Promise.resolve({ latestSeason: 1 });
+          }
+          if (url.startsWith('/statistics')) {
+            return Promise.resolve(mockStatisticsEmpty);
+          }
+          return Promise.reject(new Error(`Unexpected API call: ${url}`));
+        });
+
+        render(<StatisticsDashboardPage />);
+
+        // EmptyStateの表示を待つ
+        await waitFor(() => {
+          expect(screen.getByText(/指定期間にデータがありません/)).toBeInTheDocument();
+        });
+
+        // 「最初の対戦を記録する」ボタンをクリック
+        const recordButton = screen.getByRole('button', { name: /最初の対戦を記録する/ });
+        fireEvent.click(recordButton);
+
+        // 【検証項目】: ダイアログが開き、フォームタイトルが表示される 🔵
+        await waitFor(() => {
+          expect(screen.getByText('対戦履歴登録')).toBeInTheDocument();
+        });
+      });
+    });
+  });
 });
