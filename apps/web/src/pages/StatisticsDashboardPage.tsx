@@ -17,6 +17,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient, extractErrorMessage } from '../api/client';
+import { fetchAvailableSeasons } from '../api/statistics';
 import { DeckStatsTable } from '../components/statistics/DeckStatsTable';
 import { EmptyState } from '../components/statistics/EmptyState';
 import { StatisticsError } from '../components/statistics/Error';
@@ -40,44 +41,66 @@ export function StatisticsDashboardPage() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [season, setSeason] = useState<number | undefined>(undefined); // シーズンフィルタ
+  const [availableSeasons, setAvailableSeasons] = useState<number[]>([]); // 利用可能なシーズン一覧
+  const [isSeasonsLoading, setIsSeasonsLoading] = useState<boolean>(false); // シーズン一覧読み込み中
   const [isSeasonInitialized, setIsSeasonInitialized] = useState<boolean>(false); // シーズン初期化完了フラグ
   const [statistics, setStatistics] = useState<StatisticsResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * 【初期化処理】: 最新シーズンを取得して設定
+   * 【初期化処理】: シーズン一覧と最新シーズンを取得して設定
    * 🔵 REQ-202: 統計ダッシュボードのデフォルト表示
+   * 🔵 TASK-0028: シーズン選択UI実装
    * 【実行タイミング】: コンポーネント初回マウント時（依存配列が空のため1回のみ）
-   * 【設計意図】: 最新シーズンのデータをデフォルトで表示
+   * 【設計意図】: シーズン一覧を取得してドロップダウン表示、最新シーズンをデフォルト選択
    * 【実装詳細】:
    *   - 日付範囲は空のまま（全期間を対象）
-   *   - 最新シーズン番号をAPIから取得して設定
+   *   - シーズン一覧をAPIから取得して設定
+   *   - 最新シーズン（一覧の先頭）を自動選択
    *   - 初期化完了フラグを設定して、統計取得のタイミングを制御
    */
   useEffect(() => {
     let isMounted = true;
 
-    const fetchLatestSeason = async () => {
+    const initializeSeasons = async () => {
+      setIsSeasonsLoading(true);
       try {
-        const data = await apiClient.get<{ latestSeason: number | null }>(
-          '/battle-logs/latest-season'
-        );
+        // 【シーズン一覧取得】: ドロップダウン表示用
+        const seasons = await fetchAvailableSeasons();
         if (isMounted) {
-          if (data.latestSeason) {
-            setSeason(data.latestSeason);
+          setAvailableSeasons(seasons);
+          // 【最新シーズン自動選択】: 一覧の先頭が最新シーズン
+          if (seasons.length > 0) {
+            setSeason(seasons[0]);
           }
+          setIsSeasonsLoading(false);
           setIsSeasonInitialized(true);
         }
       } catch (err) {
-        // 最新シーズン取得に失敗してもエラーとしない（undefinedのまま全シーズン表示）
-        console.warn('Failed to fetch latest season:', err);
-        if (isMounted) {
-          setIsSeasonInitialized(true);
+        // シーズン一覧取得に失敗した場合は、従来のAPIで最新シーズンのみ取得を試みる
+        console.warn('Failed to fetch seasons list:', err);
+        try {
+          const data = await apiClient.get<{ latestSeason: number | null }>(
+            '/battle-logs/latest-season'
+          );
+          if (isMounted) {
+            if (data.latestSeason) {
+              setSeason(data.latestSeason);
+            }
+            setIsSeasonsLoading(false);
+            setIsSeasonInitialized(true);
+          }
+        } catch (fallbackErr) {
+          console.warn('Failed to fetch latest season:', fallbackErr);
+          if (isMounted) {
+            setIsSeasonsLoading(false);
+            setIsSeasonInitialized(true);
+          }
         }
       }
     };
-    fetchLatestSeason();
+    initializeSeasons();
 
     return () => {
       isMounted = false;
@@ -200,8 +223,14 @@ export function StatisticsDashboardPage() {
             isLoading={isLoading}
           />
 
-          {/* 🔵 シーズンフィルタ */}
-          <SeasonSelector season={season} onSeasonChange={setSeason} isLoading={isLoading} />
+          {/* 🔵 TASK-0028: シーズンフィルタ（ドロップダウン表示） */}
+          <SeasonSelector
+            season={season}
+            onSeasonChange={setSeason}
+            isLoading={isLoading}
+            availableSeasons={availableSeasons}
+            isSeasonsLoading={isSeasonsLoading}
+          />
         </div>
       </div>
 
