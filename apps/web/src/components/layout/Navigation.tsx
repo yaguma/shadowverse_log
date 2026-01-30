@@ -19,6 +19,9 @@ export function Navigation() {
           <NavLink to="/import" className={linkClass}>
             インポート
           </NavLink>
+          <NavLink to="/decks" className={linkClass}>
+            デッキ管理
+          </NavLink>
         </div>
       </div>
     </nav>

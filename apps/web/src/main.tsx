@@ -28,6 +28,12 @@ const ImportDataPage = lazy(() =>
   }))
 );
 
+const DeckManagePage = lazy(() =>
+  import('./pages/DeckManagePage').then((module) => ({
+    default: module.DeckManagePage,
+  }))
+);
+
 /**
  * ローディングコンポーネント
  * Suspenseのフォールバックとして使用
@@ -67,6 +73,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingFallback />}>
             <ImportDataPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'decks',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <DeckManagePage />
           </Suspense>
         ),
       },
