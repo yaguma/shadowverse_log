@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient, extractErrorMessage } from '../api/client';
 import { fetchAvailableSeasons } from '../api/statistics';
+import { BattleLogDialog } from '../components/battle-log/BattleLogDialog';
 import { DeckStatsTable } from '../components/statistics/DeckStatsTable';
 import { EmptyState } from '../components/statistics/EmptyState';
 import { StatisticsError } from '../components/statistics/Error';
@@ -47,6 +48,8 @@ export function StatisticsDashboardPage() {
   const [statistics, setStatistics] = useState<StatisticsResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  // 🔵 TASK-0029: 対戦履歴登録ダイアログの開閉状態
+  const [isBattleLogDialogOpen, setIsBattleLogDialogOpen] = useState<boolean>(false);
 
   /**
    * 【初期化処理】: シーズン一覧と最新シーズンを取得して設定
@@ -206,10 +209,54 @@ export function StatisticsDashboardPage() {
     fetchStatistics();
   };
 
+  /**
+   * 🔵 TASK-0029: 対戦履歴登録ダイアログを開く
+   * 【機能概要】: 「対戦を記録」ボタンクリック時にダイアログを開く
+   */
+  const handleOpenBattleLogDialog = useCallback(() => {
+    setIsBattleLogDialogOpen(true);
+  }, []);
+
+  /**
+   * 🔵 TASK-0029: 対戦履歴登録ダイアログを閉じる
+   * 【機能概要】: ダイアログのキャンセルまたはオーバーレイクリック時にダイアログを閉じる
+   */
+  const handleCloseBattleLogDialog = useCallback(() => {
+    setIsBattleLogDialogOpen(false);
+  }, []);
+
+  /**
+   * 🔵 TASK-0029: 対戦履歴登録成功時のハンドラ
+   * 【機能概要】: 登録成功後に統計データを再取得
+   */
+  const handleBattleLogSaved = useCallback(() => {
+    fetchStatistics();
+  }, [fetchStatistics]);
+
   return (
     <div className="max-w-4xl mx-auto">
-      {/* 🔵 ページヘッダー */}
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">統計ダッシュボード</h2>
+      {/* 🔵 ページヘッダー + TASK-0029: 対戦を記録ボタン */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">統計ダッシュボード</h2>
+        <button
+          type="button"
+          onClick={handleOpenBattleLogDialog}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          対戦を記録
+        </button>
+      </div>
 
       {/* 🔵 REQ-202: 期間選択フォーム */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
@@ -240,8 +287,10 @@ export function StatisticsDashboardPage() {
       {/* 🔵 エラー状態 */}
       {!isLoading && error && <StatisticsError message={error} onRetry={handleRetry} />}
 
-      {/* 🔵 REQ-405: データなし状態 */}
-      {!isLoading && !error && statistics && statistics.overall.totalGames === 0 && <EmptyState />}
+      {/* 🔵 REQ-405: データなし状態 + TASK-0029: 最初の対戦を記録するボタン */}
+      {!isLoading && !error && statistics && statistics.overall.totalGames === 0 && (
+        <EmptyState onRecordBattle={handleOpenBattleLogDialog} />
+      )}
 
       {/* 🔵 REQ-203: 統計情報表示 */}
       {!isLoading && !error && statistics && statistics.overall.totalGames > 0 && (
@@ -281,6 +330,14 @@ export function StatisticsDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* 🔵 TASK-0029: 対戦履歴登録ダイアログ */}
+      <BattleLogDialog
+        isOpen={isBattleLogDialogOpen}
+        onClose={handleCloseBattleLogDialog}
+        onSaved={handleBattleLogSaved}
+        defaultSeason={season}
+      />
     </div>
   );
 }
