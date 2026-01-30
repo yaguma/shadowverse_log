@@ -50,7 +50,6 @@ function createErrorResponse(code: string, message: string, details?: unknown) {
   };
 }
 
-
 /**
  * UUIDの形式を検証
  */
@@ -320,10 +319,7 @@ deckMaster.delete('/:id', async (c) => {
 
     // UUIDバリデーション
     if (!isValidUUID(id)) {
-      return c.json(
-        createErrorResponse('VALIDATION_ERROR', '無効なID形式です'),
-        400
-      );
+      return c.json(createErrorResponse('VALIDATION_ERROR', '無効なID形式です'), 400);
     }
 
     // データベース接続とリポジトリ初期化
@@ -333,10 +329,7 @@ deckMaster.delete('/:id', async (c) => {
     // 存在確認
     const existing = await repository.findById(id);
     if (!existing) {
-      return c.json(
-        createErrorResponse('NOT_FOUND', '指定されたデッキ種別が見つかりません'),
-        404
-      );
+      return c.json(createErrorResponse('NOT_FOUND', '指定されたデッキ種別が見つかりません'), 404);
     }
 
     // 参照チェック
@@ -355,10 +348,7 @@ deckMaster.delete('/:id', async (c) => {
     // 削除実行
     const deleted = await repository.delete(id);
     if (!deleted) {
-      return c.json(
-        createErrorResponse('DATABASE_ERROR', 'デッキ種別の削除に失敗しました'),
-        500
-      );
+      return c.json(createErrorResponse('DATABASE_ERROR', 'デッキ種別の削除に失敗しました'), 500);
     }
 
     // 204 No Content
