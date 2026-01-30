@@ -1,22 +1,26 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from '../api/client';
+import * as statisticsApi from '../api/statistics';
 import type { StatisticsResponse } from '../types';
 import { StatisticsDashboardPage } from './StatisticsDashboardPage';
 
 // 【テストファイル概要】: Statistics Dashboardページコンポーネントの単体テスト
 // 【テスト目的】: StatisticsDashboardPageコンポーネントの全機能（正常系・異常系・境界値・UI/UX）を検証する
-// 【テスト範囲】: 統計表示、期間選択、ローディング、エラーハンドリング、レスポンシブデザイン
-// 【更新内容】: グラフィカル表示（WinRateGauge, TurnComparisonChart）に対応
+// 【テスト範囲】: 統計表示、期間選択、シーズン選択、ローディング、エラーハンドリング、レスポンシブデザイン
+// 【更新内容】: TASK-0028 シーズン選択ドロップダウン対応
 
-// 【モック設定】: API Clientをモック化してAPIレスポンスを制御
+// 【モック設定】: API ClientとStatistics APIをモック化してAPIレスポンスを制御
 vi.mock('../api/client');
+vi.mock('../api/statistics');
 
 describe('StatisticsDashboardPage', () => {
   // 【テスト前準備】: 各テスト実行前にモックを初期化し、一貫したテスト環境を構築
   // 【環境初期化】: モックAPIのレスポンスをリセットして前のテストの影響を受けないようにする
   beforeEach(() => {
     vi.clearAllMocks();
+    // 【TASK-0028】: デフォルトでシーズン一覧[1]を返すモック設定
+    vi.mocked(statisticsApi.fetchAvailableSeasons).mockResolvedValue([1]);
   });
 
   // ==================== 1. 正常系テストケース ====================
