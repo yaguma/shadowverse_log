@@ -223,10 +223,7 @@ myDecksRoute.delete('/:id', async (c) => {
 
     // UUIDバリデーション
     if (!isValidUUID(id)) {
-      return c.json(
-        createErrorResponse('VALIDATION_ERROR', '無効なID形式です'),
-        400
-      );
+      return c.json(createErrorResponse('VALIDATION_ERROR', '無効なID形式です'), 400);
     }
 
     // データベース接続とリポジトリ初期化
@@ -261,10 +258,7 @@ myDecksRoute.delete('/:id', async (c) => {
     // 削除実行
     const deleted = await repository.delete(id);
     if (!deleted) {
-      return c.json(
-        createErrorResponse('DATABASE_ERROR', 'マイデッキの削除に失敗しました'),
-        500
-      );
+      return c.json(createErrorResponse('DATABASE_ERROR', 'マイデッキの削除に失敗しました'), 500);
     }
 
     // 204 No Content

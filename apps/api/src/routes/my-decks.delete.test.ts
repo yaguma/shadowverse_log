@@ -75,9 +75,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request(`/api/my-decks/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/my-decks/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(204);
       // 204 No Contentはボディなし
@@ -93,9 +97,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request(`/api/my-decks/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/my-decks/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(204);
       expect(mockDelete).toHaveBeenCalledWith(TEST_UUID);
@@ -110,9 +118,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request(`/api/my-decks/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/my-decks/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(409);
       const json = await response.json();
@@ -130,9 +142,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request(`/api/my-decks/${NON_EXISTENT_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/my-decks/${NON_EXISTENT_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(404);
       const json = await response.json();
@@ -146,9 +162,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request('/api/my-decks/invalid-uuid-format', {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        '/api/my-decks/invalid-uuid-format',
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(400);
       const json = await response.json();
@@ -165,9 +185,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request(`/api/my-decks/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/my-decks/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(409);
       const json = await response.json();
@@ -184,9 +208,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request(`/api/my-decks/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/my-decks/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(500);
       const json = await response.json();
@@ -203,9 +231,13 @@ describe('DELETE /api/my-decks/:id', () => {
       const app = new Hono();
       app.route('/api/my-decks', myDecksRoute);
 
-      const response = await app.request(`/api/my-decks/${NON_EXISTENT_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/my-decks/${NON_EXISTENT_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       const json = await response.json();
 

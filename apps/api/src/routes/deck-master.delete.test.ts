@@ -73,9 +73,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request(`/api/deck-master/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/deck-master/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(204);
       // 204 No Contentはボディなし
@@ -92,9 +96,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request(`/api/deck-master/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/deck-master/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(204);
       expect(mockDelete).toHaveBeenCalledWith(TEST_UUID);
@@ -109,9 +117,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request(`/api/deck-master/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/deck-master/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(409);
       const json = await response.json();
@@ -128,9 +140,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request(`/api/deck-master/${NON_EXISTENT_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/deck-master/${NON_EXISTENT_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(404);
       const json = await response.json();
@@ -144,9 +160,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request('/api/deck-master/invalid-uuid-format', {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        '/api/deck-master/invalid-uuid-format',
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       // 実装方針: UUIDバリデーションを追加し、不正な形式は400を返す
       expect(response.status).toBe(400);
@@ -164,9 +184,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request(`/api/deck-master/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/deck-master/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(409);
       const json = await response.json();
@@ -183,9 +207,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request(`/api/deck-master/${TEST_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/deck-master/${TEST_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       expect(response.status).toBe(500);
       const json = await response.json();
@@ -202,9 +230,13 @@ describe('DELETE /api/deck-master/:id', () => {
       const app = new Hono();
       app.route('/api/deck-master', deckMasterRoutes);
 
-      const response = await app.request(`/api/deck-master/${NON_EXISTENT_UUID}`, {
-        method: 'DELETE',
-      }, mockEnv);
+      const response = await app.request(
+        `/api/deck-master/${NON_EXISTENT_UUID}`,
+        {
+          method: 'DELETE',
+        },
+        mockEnv
+      );
 
       const json = await response.json();
 
