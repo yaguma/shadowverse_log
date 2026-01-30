@@ -1,6 +1,7 @@
 /**
  * 統計API ルート
  * TASK-0030: 統計計算API実装
+ * TASK-0025: シーズン一覧取得API追加
  *
  * @description GET /api/statistics エンドポイントの実装
  * 🔵 信頼性レベル: 青信号（api-endpoints-cloudflare.md より）
@@ -9,6 +10,7 @@ import { Hono } from 'hono';
 import type { D1Database } from '@cloudflare/workers-types';
 import { createDb } from '../db';
 import { D1StatisticsService } from '../services/d1-statistics-service';
+import { BattleLogsRepository } from '../db/repositories/battle-logs-repository';
 
 /** 環境バインディング型 */
 type Bindings = {
@@ -49,6 +51,40 @@ function createErrorResponse(code: string, message: string) {
     meta: createMeta(),
   };
 }
+
+/**
+ * GET /api/statistics/seasons
+ * TASK-0025: シーズン一覧取得API実装
+ *
+ * 対戦履歴から重複を排除したシーズン一覧を降順で取得
+ *
+ * @returns シーズン番号の配列（降順）
+ */
+statistics.get('/seasons', async (c) => {
+  try {
+    // データベース接続とリポジトリ初期化
+    const db = createDb(c.env.DB);
+    const battleLogsRepo = new BattleLogsRepository(db);
+
+    // シーズン一覧取得
+    const seasons = await battleLogsRepo.getSeasonsList();
+
+    return c.json({
+      success: true,
+      data: {
+        seasons,
+      },
+      meta: createMeta(),
+    });
+  } catch (error) {
+    console.error('Seasons API error:', error);
+
+    return c.json(
+      createErrorResponse('DATABASE_ERROR', 'シーズン一覧の取得中にエラーが発生しました。'),
+      500
+    );
+  }
+});
 
 /**
  * GET /api/statistics

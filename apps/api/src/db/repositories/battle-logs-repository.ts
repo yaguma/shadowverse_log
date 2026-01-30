@@ -221,4 +221,21 @@ export class BattleLogsRepository implements BaseRepository<BattleLog, NewBattle
     const result = await this.db.select({ maxSeason: max(battleLogs.season) }).from(battleLogs);
     return result[0]?.maxSeason ?? null;
   }
+
+  /**
+   * シーズン一覧を取得（重複排除、降順ソート）
+   * TASK-0025: Statistics API - シーズン一覧取得実装
+   * @returns シーズン番号の配列（降順）
+   */
+  async getSeasonsList(): Promise<number[]> {
+    const results = await this.db
+      .selectDistinct({ season: battleLogs.season })
+      .from(battleLogs)
+      .orderBy(desc(battleLogs.season));
+
+    // seasonがnullの行を除外して数値のみを返す
+    return results
+      .filter((row): row is { season: number } => row.season !== null)
+      .map((row) => row.season);
+  }
 }

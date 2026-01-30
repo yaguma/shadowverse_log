@@ -447,4 +447,72 @@ describe('BattleLogsRepository', () => {
       expect(result).toBe(1);
     });
   });
+
+  /**
+   * TASK-0025: シーズン一覧取得のテスト
+   */
+  describe('getSeasonsList', () => {
+    it('should return seasons in descending order', async () => {
+      const mockData = [{ season: 5 }, { season: 3 }, { season: 1 }];
+      const chainMock = {
+        selectDistinct: vi.fn().mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            orderBy: vi.fn().mockResolvedValue(mockData),
+          }),
+        }),
+      };
+      const db = chainMock as unknown as Database;
+      const repo = new BattleLogsRepository(db);
+
+      const result = await repo.getSeasonsList();
+      expect(result).toEqual([5, 3, 1]);
+    });
+
+    it('should filter out null seasons', async () => {
+      const mockData = [{ season: 5 }, { season: null }, { season: 3 }];
+      const chainMock = {
+        selectDistinct: vi.fn().mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            orderBy: vi.fn().mockResolvedValue(mockData),
+          }),
+        }),
+      };
+      const db = chainMock as unknown as Database;
+      const repo = new BattleLogsRepository(db);
+
+      const result = await repo.getSeasonsList();
+      expect(result).toEqual([5, 3]);
+    });
+
+    it('should return empty array when no battle logs exist', async () => {
+      const chainMock = {
+        selectDistinct: vi.fn().mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            orderBy: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      };
+      const db = chainMock as unknown as Database;
+      const repo = new BattleLogsRepository(db);
+
+      const result = await repo.getSeasonsList();
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when all seasons are null', async () => {
+      const mockData = [{ season: null }, { season: null }];
+      const chainMock = {
+        selectDistinct: vi.fn().mockReturnValue({
+          from: vi.fn().mockReturnValue({
+            orderBy: vi.fn().mockResolvedValue(mockData),
+          }),
+        }),
+      };
+      const db = chainMock as unknown as Database;
+      const repo = new BattleLogsRepository(db);
+
+      const result = await repo.getSeasonsList();
+      expect(result).toEqual([]);
+    });
+  });
 });
