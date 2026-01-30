@@ -187,7 +187,7 @@ export const MyDeckList: React.FC<MyDeckListProps> = ({
   onDeleteClick,
 }) => {
   return (
-    <div className="p-4">
+    <div className="p-4" data-testid="my-deck-list">
       {/* 【ヘッダー部分】: タイトルと追加ボタン（共通化）🔵 */}
       <MyDeckListHeader onAddClick={onAddClick} />
 

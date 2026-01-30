@@ -43,7 +43,7 @@ export const Tabs = ({ tabs, activeTab, onTabChange, children }: TabsProps) => {
     <div>
       {/* 【タブナビゲーション】: WAI-ARIAに準拠したタブリスト */}
       <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8" role="tablist" aria-label="タブナビゲーション">
+        <div className="-mb-px flex space-x-8" role="tablist" aria-label="タブナビゲーション">
           {tabs.map((tab) => {
             const isSelected = activeTab === tab.id;
             return (
@@ -52,6 +52,7 @@ export const Tabs = ({ tabs, activeTab, onTabChange, children }: TabsProps) => {
                 type="button"
                 role="tab"
                 id={`tab-${tab.id}`}
+                data-testid={`tab-${tab.id}`}
                 aria-selected={isSelected}
                 aria-controls={`tabpanel-${tab.id}`}
                 tabIndex={isSelected ? 0 : -1}
@@ -69,13 +70,14 @@ export const Tabs = ({ tabs, activeTab, onTabChange, children }: TabsProps) => {
               </button>
             );
           })}
-        </nav>
+        </div>
       </div>
 
       {/* 【タブコンテンツ】: WAI-ARIAに準拠したタブパネル */}
       <div
         role="tabpanel"
         id={`tabpanel-${activeTab}`}
+        data-testid={`tabpanel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}
       >
         {children}
