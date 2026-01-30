@@ -99,9 +99,11 @@ export const DeckManagePage = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6" data-testid="deck-manage-page">
       {/* 【ページタイトル】 */}
-      <h1 className="text-2xl font-bold mb-6">デッキ管理</h1>
+      <h1 className="text-2xl font-bold mb-6" data-testid="deck-manage-title">
+        デッキ管理
+      </h1>
 
       {/* 【タブナビゲーションとコンテンツ】: 汎用Tabsコンポーネントを使用 */}
       <Tabs tabs={DECK_MANAGE_TABS} activeTab={activeTab} onTabChange={handleTabChange}>
