@@ -920,7 +920,143 @@ describe('BattleLogForm', () => {
     });
   });
 
-  // ==================== 8. API連携テストケース (TASK-0049) ====================
+  // ==================== 8. レイアウト改善テストケース (TASK-0031) ====================
+
+  describe('レイアウト改善テスト (TASK-0031)', () => {
+    it('TC-0031-001: シーズンと対戦日が同じグリッドコンテナ内にある', () => {
+      // 【テスト目的】: シーズンフィールドと対戦日フィールドが同じgridコンテナ内にあることを確認
+      // 【テスト内容】: シーズンと対戦日の親要素が `grid` クラスを持ち、`md:grid-cols-2` クラスを持つ
+      // 【期待される動作】: レスポンシブグリッドレイアウトが適用される
+      // 🔵 信頼性レベル: TASK-0031仕様に基づく
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【結果検証】: シーズンと対戦日の親要素がgridコンテナであることを確認
+      const seasonInput = screen.getByLabelText('シーズン');
+      const dateInput = screen.getByLabelText('対戦日');
+
+      // 親要素（グリッドコンテナ）を取得
+      // シーズンの親div → グリッドコンテナ
+      const seasonParent = seasonInput.closest('.grid');
+      const dateParent = dateInput.closest('.grid');
+
+      expect(seasonParent).not.toBeNull(); // 【確認内容】: シーズンがgridコンテナ内にある 🔵
+      expect(dateParent).not.toBeNull(); // 【確認内容】: 対戦日がgridコンテナ内にある 🔵
+      expect(seasonParent).toBe(dateParent); // 【確認内容】: 同じgridコンテナ内にある 🔵
+      expect(seasonParent).toHaveClass('md:grid-cols-2'); // 【確認内容】: レスポンシブgridが適用される 🔵
+    });
+
+    it('TC-0031-002: 詳細設定の折りたたみが存在する', () => {
+      // 【テスト目的】: 詳細設定セクションが `details` 要素として存在することを確認
+      // 【テスト内容】: 「詳細設定」というテキストを含む `summary` 要素が存在する
+      // 【期待される動作】: 折りたたみ可能なセクションとして表示される
+      // 🔵 信頼性レベル: TASK-0031仕様に基づく
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【結果検証】: 詳細設定のsummary要素が存在することを確認
+      const summaryElement = screen.getByText(/詳細設定/);
+      expect(summaryElement).toBeInTheDocument(); // 【確認内容】: 詳細設定のsummaryが存在する 🔵
+      expect(summaryElement.tagName).toBe('SUMMARY'); // 【確認内容】: SUMMARY要素である 🔵
+    });
+
+    it('TC-0031-003: ランクとグループが同じグリッドコンテナ内にある', () => {
+      // 【テスト目的】: ランクフィールドとグループフィールドが同じgridコンテナ内にあることを確認
+      // 【テスト内容】: ランクとグループの親要素が `grid-cols-2` クラスを持つ
+      // 【期待される動作】: 横並びレイアウトが適用される
+      // 🔵 信頼性レベル: TASK-0031仕様に基づく
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【詳細設定を展開】: details要素をクリックして展開
+      const summaryElement = screen.getByText(/詳細設定/);
+      fireEvent.click(summaryElement);
+
+      // 【結果検証】: ランクとグループの親要素がgridコンテナであることを確認
+      const rankSelect = screen.getByLabelText('ランク');
+      const groupSelect = screen.getByLabelText('グループ');
+
+      // 親要素（グリッドコンテナ）を取得
+      const rankParent = rankSelect.closest('.grid');
+      const groupParent = groupSelect.closest('.grid');
+
+      expect(rankParent).not.toBeNull(); // 【確認内容】: ランクがgridコンテナ内にある 🔵
+      expect(groupParent).not.toBeNull(); // 【確認内容】: グループがgridコンテナ内にある 🔵
+      expect(rankParent).toBe(groupParent); // 【確認内容】: 同じgridコンテナ内にある 🔵
+      expect(rankParent).toHaveClass('grid-cols-2'); // 【確認内容】: grid-cols-2が適用される 🔵
+    });
+
+    it('TC-0031-004: 既存フィールドが正常に表示される', () => {
+      // 【テスト目的】: 既存のすべてのフィールドが正常に表示されることを確認
+      // 【テスト内容】: 対戦日、シーズン、対戦タイプ、ランク、グループ、使用デッキ、先攻後攻、勝敗、相手デッキが表示される
+      // 【期待される動作】: すべてのフィールドがアクセス可能
+      // 🔵 信頼性レベル: TASK-0031仕様に基づく（既存機能の維持）
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm />);
+
+      // 【詳細設定を展開】: details要素をクリックして展開
+      const summaryElement = screen.getByText(/詳細設定/);
+      fireEvent.click(summaryElement);
+
+      // 【結果検証】: すべてのフィールドが表示されることを確認
+      expect(screen.getByLabelText('対戦日')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('シーズン')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('対戦タイプ')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('ランク')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('グループ')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('使用デッキ')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('先攻後攻')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('対戦結果')).toBeInTheDocument(); // 🔵
+      expect(screen.getByLabelText('相手デッキ')).toBeInTheDocument(); // 🔵
+    });
+
+    it('TC-0031-005: フォーム送信機能が維持される', async () => {
+      // 【テスト目的】: レイアウト変更後もフォーム送信機能が正常に動作することを確認
+      // 【テスト内容】: 登録ボタンクリックでフォームが送信される
+      // 【期待される動作】: createBattleLogが呼ばれる
+      // 🔵 信頼性レベル: TASK-0031仕様に基づく（既存機能の維持）
+
+      const createBattleLog = vi.fn().mockResolvedValue(undefined);
+      const onSuccess = vi.fn();
+
+      vi.mocked(useBattleLogStore).mockReturnValue({
+        battleLogs: [],
+        previousInput: null,
+        isLoading: false,
+        error: null,
+        fetchBattleLogs: vi.fn(),
+        createBattleLog,
+        deleteBattleLog: vi.fn(),
+        setPreviousInput: vi.fn(),
+        clearError: vi.fn(),
+      });
+
+      // 【実際の処理実行】: BattleLogFormをレンダリング
+      render(<BattleLogForm onSuccess={onSuccess} />);
+
+      // 【必須フィールド入力】: myDeckIdとopponentDeckIdを入力
+      const myDeckSelect = screen.getByLabelText('使用デッキ') as HTMLSelectElement;
+      fireEvent.change(myDeckSelect, { target: { value: 'deck-001' } });
+
+      const opponentDeckSelect = screen.getByLabelText('相手デッキ') as HTMLSelectElement;
+      fireEvent.change(opponentDeckSelect, { target: { value: 'deck-master-001' } });
+
+      const submitButton = screen.getByRole('button', { name: '登録' });
+      fireEvent.click(submitButton);
+
+      // 【結果検証】: フォーム送信が成功することを確認
+      await waitFor(() => {
+        expect(createBattleLog).toHaveBeenCalled(); // 【確認内容】: createBattleLogが呼ばれる 🔵
+        expect(onSuccess).toHaveBeenCalled(); // 【確認内容】: onSuccessが呼ばれる 🔵
+      });
+    });
+  });
+
+  // ==================== 9. API連携テストケース (TASK-0049) ====================
 
   describe('API連携テスト (TASK-0049)', () => {
     it('TC-0049-001: デッキマスター一覧がAPI経由で取得される（fetchDeckMastersが呼ばれる）', () => {
