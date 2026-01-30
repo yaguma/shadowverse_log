@@ -93,14 +93,17 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
   // 【Zustand Store取得】: useDeckStoreからデッキマスター一覧とマイデッキ一覧を取得 🔵
   // 🔵 TASK-0049: API連携のため、デッキマスター一覧をStoreから取得
+  // 🔵 TASK-0032: 相手デッキ選択肢を最近使用順でソートするため、deckMastersWithUsageを使用
   const {
-    deckMasters,
+    deckMastersWithUsage,
     myDecks,
     isLoading: isDeckLoading,
     isMyDecksLoading,
+    isLoadingDeckMasters,
     error: deckError,
     myDecksError,
-    fetchDeckMasters,
+    deckMasterError,
+    fetchDeckMastersWithUsage,
     fetchMyDecks,
   } = useDeckStore();
 
@@ -161,15 +164,16 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   }, [fetchMyDecks]);
 
   /**
-   * 【デッキマスター一覧取得】: 初期化時にデッキマスター一覧をAPIから取得
+   * 【デッキマスター一覧取得】: 初期化時にデッキマスター一覧（使用履歴付き）をAPIから取得
    * 【実装方針】: TC-FORM-INT-002, TC-0049-001, TC-0049-002を通すための実装
-   * 【テスト対応】: TC-FORM-INT-002, TC-FORM-BND-005, TASK-0049テストケースを通すための実装
-   * 🔵 信頼性レベル: TASK-0049 REQ-0049-001に基づく（モック→API連携本実装）
+   * 【テスト対応】: TC-FORM-INT-002, TC-FORM-BND-005, TASK-0049テストケース、TASK-0032テストケースを通すための実装
+   * 🔵 信頼性レベル: TASK-0049 REQ-0049-001、TASK-0032 REQ-EXT-302に基づく
    */
   useEffect(() => {
-    // 【API呼び出し】: useDeckStoreのfetchDeckMastersを呼び出してデッキマスター一覧を取得 🔵
-    fetchDeckMasters();
-  }, [fetchDeckMasters]);
+    // 【API呼び出し】: useDeckStoreのfetchDeckMastersWithUsageを呼び出して使用履歴付きデッキマスター一覧を取得 🔵
+    // 🔵 TASK-0032: 相手デッキ選択肢を最近使用順でソートするため、includeUsage=trueで取得
+    fetchDeckMastersWithUsage(true);
+  }, [fetchDeckMastersWithUsage]);
 
   /**
    * 【日付バリデーション】: 未来日付を禁止するバリデーション
@@ -356,16 +360,17 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
   /**
    * 【送信ボタン無効化判定】: マイデッキまたはデッキマスターが0件、またはローディング中、またはバリデーションエラーがある場合は無効化
-   * 【実装方針】: TC-FORM-BND-004, TC-FORM-BND-005, TC-FORM-UI-001, TC-0049-004を通すための実装
+   * 【実装方針】: TC-FORM-BND-004, TC-FORM-BND-005, TC-FORM-UI-001, TC-0049-004, TC-0032-004を通すための実装
    * 【改善】: バリデーションエラーがある場合のみ無効化（必須フィールドの入力状態は validateForm で確認）
-   * 🔵 信頼性レベル: TASK-0049 REQ-0049-003に基づく（デッキローディング状態の統合）
+   * 🔵 信頼性レベル: TASK-0049 REQ-0049-003、TASK-0032 REQ-0032-004に基づく
    */
   const isSubmitDisabled =
     isLoading ||
     isDeckLoading || // 🔵 TASK-0049: デッキマスター取得中も無効化
     isMyDecksLoading || // 🔵 マイデッキ取得中も無効化
+    isLoadingDeckMasters || // 🔵 TASK-0032: 使用履歴付きデッキマスター取得中も無効化
     myDecks.length === 0 ||
-    deckMasters.length === 0 ||
+    deckMastersWithUsage.length === 0 || // 🔵 TASK-0032: deckMastersWithUsageを使用
     (Object.keys(validationErrors).length > 0 &&
       Object.values(validationErrors).some((error) => error !== undefined));
 
@@ -402,6 +407,13 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
       {myDecksError && (
         <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
           {myDecksError}
+        </div>
+      )}
+
+      {/* 【デッキマスターエラーメッセージ】: デッキマスター取得エラーを表示 🔵 TASK-0032 */}
+      {deckMasterError && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {deckMasterError}
         </div>
       )}
 
@@ -592,12 +604,12 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         </div>
       </div>
 
-      {/* 【相手デッキフィールド】: 相手デッキ選択 🔵 */}
+      {/* 【相手デッキフィールド】: 相手デッキ選択（最近使用順でソート）🔵 TASK-0032 */}
       <div className="mb-4">
         <label htmlFor="opponentDeckId" className="label">
           相手デッキ
         </label>
-        {deckMasters.length === 0 ? (
+        {deckMastersWithUsage.length === 0 ? (
           <p className="error-message">デッキマスターを登録してください</p>
         ) : (
           <select
@@ -610,9 +622,10 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
             aria-describedby={validationErrors.opponentDeckId ? 'opponentDeckId-error' : undefined}
           >
             <option value="">選択してください</option>
-            {deckMasters.map((deck) => (
+            {deckMastersWithUsage.map((deck) => (
               <option key={deck.id} value={deck.id}>
                 {deck.deckName}
+                {deck.usageCount > 0 && ` (${deck.usageCount}回)`}
               </option>
             ))}
           </select>
