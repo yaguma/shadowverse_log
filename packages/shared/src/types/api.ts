@@ -144,3 +144,12 @@ export interface DeleteConstraintError {
     referenceCount: number;
   };
 }
+
+/**
+ * シーズン一覧レスポンス
+ * TASK-0025 対応
+ */
+export interface SeasonsResponse {
+  /** シーズン番号の配列（降順） */
+  seasons: number[];
+}
