@@ -405,106 +405,120 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         </div>
       )}
 
-      {/* 【日付フィールド】: 対戦日入力 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="date" className="label">
-          対戦日
-        </label>
-        <input
-          id="date"
-          type="date"
-          className="input-field"
-          value={formData.date}
-          onChange={(e) => handleChange('date', e.target.value)}
-          onBlur={() => handleBlur('date')}
-          aria-invalid={!!validationErrors.date}
-          aria-describedby={validationErrors.date ? 'date-error' : undefined}
-        />
-        {validationErrors.date && (
-          <p id="date-error" className="error-message">
-            {validationErrors.date}
-          </p>
-        )}
+      {/* 🔵 TASK-0031: シーズンと対戦日を横並びレイアウト（モバイルは縦並び） */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 【シーズンフィールド】: シーズン番号入力 🔵 */}
+        <div>
+          <label htmlFor="season" className="label">
+            シーズン
+          </label>
+          <input
+            id="season"
+            type="number"
+            min="1"
+            className="input-field"
+            value={formData.season ?? ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              handleChange('season', value === '' ? undefined : Number(value));
+            }}
+            placeholder="例: 1"
+          />
+        </div>
+
+        {/* 【日付フィールド】: 対戦日入力 🔵 */}
+        <div>
+          <label htmlFor="date" className="label">
+            対戦日
+          </label>
+          <input
+            id="date"
+            type="date"
+            className="input-field"
+            value={formData.date}
+            onChange={(e) => handleChange('date', e.target.value)}
+            onBlur={() => handleBlur('date')}
+            aria-invalid={!!validationErrors.date}
+            aria-describedby={validationErrors.date ? 'date-error' : undefined}
+          />
+          {validationErrors.date && (
+            <p id="date-error" className="error-message">
+              {validationErrors.date}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* 【対戦タイプフィールド】: 対戦タイプ選択 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="battleType" className="label">
-          対戦タイプ
-        </label>
-        <select
-          id="battleType"
-          className="input-field"
-          value={formData.battleType}
-          onChange={(e) => handleChange('battleType', e.target.value)}
-        >
-          <option value="">選択してください</option>
-          {BATTLE_TYPES_OPTIONS.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* 🔵 TASK-0031: 詳細設定（対戦タイプ、ランク、グループ）を折りたたみ可能に */}
+      <details className="mb-4 border border-gray-200 rounded-md">
+        <summary className="px-4 py-2 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50">
+          詳細設定（対戦タイプ・ランク・グループ）
+        </summary>
+        <div className="px-4 py-3 space-y-4 border-t border-gray-200">
+          {/* 【対戦タイプフィールド】: 対戦タイプ選択 🔵 */}
+          <div>
+            <label htmlFor="battleType" className="label">
+              対戦タイプ
+            </label>
+            <select
+              id="battleType"
+              className="input-field"
+              value={formData.battleType}
+              onChange={(e) => handleChange('battleType', e.target.value)}
+            >
+              <option value="">選択してください</option>
+              {BATTLE_TYPES_OPTIONS.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {/* 【シーズンフィールド】: シーズン番号入力 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="season" className="label">
-          シーズン
-        </label>
-        <input
-          id="season"
-          type="number"
-          min="1"
-          className="input-field w-24"
-          value={formData.season ?? ''}
-          onChange={(e) => {
-            const value = e.target.value;
-            handleChange('season', value === '' ? undefined : Number(value));
-          }}
-          placeholder="例: 1"
-        />
-      </div>
+          {/* 🔵 TASK-0031: ランクとグループを横並びレイアウト */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* 【ランクフィールド】: ランク選択 🔵 */}
+            <div>
+              <label htmlFor="rank" className="label">
+                ランク
+              </label>
+              <select
+                id="rank"
+                className="input-field"
+                value={formData.rank}
+                onChange={(e) => handleChange('rank', e.target.value)}
+              >
+                <option value="">選択してください</option>
+                {RANKS_OPTIONS.map((rank) => (
+                  <option key={rank} value={rank}>
+                    {rank}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      {/* 【ランクフィールド】: ランク選択 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="rank" className="label">
-          ランク
-        </label>
-        <select
-          id="rank"
-          className="input-field"
-          value={formData.rank}
-          onChange={(e) => handleChange('rank', e.target.value)}
-        >
-          <option value="">選択してください</option>
-          {RANKS_OPTIONS.map((rank) => (
-            <option key={rank} value={rank}>
-              {rank}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* 【グループフィールド】: グループ選択 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="groupName" className="label">
-          グループ
-        </label>
-        <select
-          id="groupName"
-          className="input-field"
-          value={formData.groupName}
-          onChange={(e) => handleChange('groupName', e.target.value)}
-        >
-          <option value="">選択してください</option>
-          {GROUPS_OPTIONS.map((group) => (
-            <option key={group} value={group}>
-              {group}
-            </option>
-          ))}
-        </select>
-      </div>
+            {/* 【グループフィールド】: グループ選択 🔵 */}
+            <div>
+              <label htmlFor="groupName" className="label">
+                グループ
+              </label>
+              <select
+                id="groupName"
+                className="input-field"
+                value={formData.groupName}
+                onChange={(e) => handleChange('groupName', e.target.value)}
+              >
+                <option value="">選択してください</option>
+                {GROUPS_OPTIONS.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </details>
 
       {/* 【マイデッキフィールド】: 使用デッキ選択 🔵 */}
       <div className="mb-4">
