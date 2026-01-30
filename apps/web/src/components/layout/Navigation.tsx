@@ -19,7 +19,7 @@ export function Navigation() {
           <NavLink to="/import" className={linkClass}>
             インポート
           </NavLink>
-          <NavLink to="/decks" className={linkClass}>
+          <NavLink to="/decks" className={linkClass} data-testid="nav-deck-management">
             デッキ管理
           </NavLink>
         </div>
