@@ -32,11 +32,39 @@ describe('BattleLogForm', () => {
 
     // 【モック初期化】: useDeckStoreのモックをデフォルト状態に設定
     // 🔵 TASK-0049: API連携のため、デッキマスター一覧をStoreから取得するモック
+    // 🔵 TASK-0032: deckMastersWithUsage と関連プロパティを追加
     vi.mocked(useDeckStore).mockReturnValue({
       deckMasters: [
         { id: 'deck-master-001', className: 'ウィッチ', deckName: '相手デッキ1', sortOrder: 1 },
         { id: 'deck-master-002', className: 'ウィッチ', deckName: '相手デッキ2', sortOrder: 2 },
         { id: 'deck-master-005', className: 'ウィッチ', deckName: '相手デッキ5', sortOrder: 5 },
+      ],
+      // 🔵 TASK-0032: 使用履歴付きデッキマスター一覧
+      deckMastersWithUsage: [
+        {
+          id: 'deck-master-001',
+          className: 'ウィッチ',
+          deckName: '相手デッキ1',
+          sortOrder: 1,
+          usageCount: 0,
+          lastUsedDate: null,
+        },
+        {
+          id: 'deck-master-002',
+          className: 'ウィッチ',
+          deckName: '相手デッキ2',
+          sortOrder: 2,
+          usageCount: 0,
+          lastUsedDate: null,
+        },
+        {
+          id: 'deck-master-005',
+          className: 'ウィッチ',
+          deckName: '相手デッキ5',
+          sortOrder: 5,
+          usageCount: 0,
+          lastUsedDate: null,
+        },
       ],
       myDecks: [
         {
@@ -58,11 +86,21 @@ describe('BattleLogForm', () => {
       ],
       isLoading: false,
       isMyDecksLoading: false,
+      isLoadingDeckMasters: false, // 🔵 TASK-0032
       error: null,
       myDecksError: null,
+      deckMasterError: null, // 🔵 TASK-0032
       fetchDeckMasters: vi.fn(),
       fetchMyDecks: vi.fn(),
+      fetchDeckMastersWithUsage: vi.fn(), // 🔵 TASK-0032
+      addDeckMaster: vi.fn(), // 🔵 TASK-0032
+      updateDeckMaster: vi.fn(), // 🔵 TASK-0032
+      deleteDeckMaster: vi.fn(), // 🔵 TASK-0032
+      addMyDeck: vi.fn(), // 🔵 TASK-0032
+      deleteMyDeck: vi.fn(), // 🔵 TASK-0032
       clearError: vi.fn(),
+      clearDeckMasterError: vi.fn(), // 🔵 TASK-0032
+      clearMyDecksError: vi.fn(), // 🔵 TASK-0032
     });
 
     // モックをクリア
@@ -1067,10 +1105,29 @@ describe('BattleLogForm', () => {
 
       const fetchDeckMasters = vi.fn();
       const fetchMyDecks = vi.fn();
+      const fetchDeckMastersWithUsage = vi.fn();
       vi.mocked(useDeckStore).mockReturnValue({
         deckMasters: [
           { id: 'deck-master-001', className: 'ウィッチ', deckName: '相手デッキ1', sortOrder: 1 },
           { id: 'deck-master-002', className: 'ウィッチ', deckName: '相手デッキ2', sortOrder: 2 },
+        ],
+        deckMastersWithUsage: [
+          {
+            id: 'deck-master-001',
+            className: 'ウィッチ',
+            deckName: '相手デッキ1',
+            sortOrder: 1,
+            usageCount: 5,
+            lastUsedDate: '2024-01-10T00:00:00.000Z',
+          },
+          {
+            id: 'deck-master-002',
+            className: 'ウィッチ',
+            deckName: '相手デッキ2',
+            sortOrder: 2,
+            usageCount: 0,
+            lastUsedDate: null,
+          },
         ],
         myDecks: [
           {
@@ -1084,18 +1141,27 @@ describe('BattleLogForm', () => {
         ],
         isLoading: false,
         isMyDecksLoading: false,
+        isLoadingDeckMasters: false,
         error: null,
         myDecksError: null,
+        deckMasterError: null,
         fetchDeckMasters,
+        fetchDeckMastersWithUsage,
         fetchMyDecks,
+        createDeckMaster: vi.fn(),
+        updateDeckMaster: vi.fn(),
+        deleteDeckMaster: vi.fn(),
+        createMyDeck: vi.fn(),
+        updateMyDeck: vi.fn(),
+        deleteMyDeck: vi.fn(),
         clearError: vi.fn(),
       });
 
       // 【実際の処理実行】: BattleLogFormをレンダリング
       render(<BattleLogForm />);
 
-      // 【結果検証】: fetchDeckMastersが呼ばれることを確認
-      expect(fetchDeckMasters).toHaveBeenCalledTimes(1); // 【確認内容】: fetchDeckMastersが1回呼ばれる 🔵
+      // 【結果検証】: fetchDeckMastersWithUsageが呼ばれることを確認（TASK-0032変更）
+      expect(fetchDeckMastersWithUsage).toHaveBeenCalledTimes(1); // 【確認内容】: fetchDeckMastersWithUsageが1回呼ばれる 🔵
     });
 
     it('TC-0049-002: デッキマスター一覧がStoreから取得されドロップダウンに表示される', async () => {
@@ -1109,6 +1175,24 @@ describe('BattleLogForm', () => {
           { id: 'api-deck-001', className: 'ウィッチ', deckName: 'APIデッキ1', sortOrder: 1 },
           { id: 'api-deck-002', className: 'ウィッチ', deckName: 'APIデッキ2', sortOrder: 2 },
         ],
+        deckMastersWithUsage: [
+          {
+            id: 'api-deck-001',
+            className: 'ウィッチ',
+            deckName: 'APIデッキ1',
+            sortOrder: 1,
+            usageCount: 3,
+            lastUsedDate: '2024-01-05T00:00:00.000Z',
+          },
+          {
+            id: 'api-deck-002',
+            className: 'ウィッチ',
+            deckName: 'APIデッキ2',
+            sortOrder: 2,
+            usageCount: 0,
+            lastUsedDate: null,
+          },
+        ],
         myDecks: [
           {
             id: 'deck-001',
@@ -1121,20 +1205,30 @@ describe('BattleLogForm', () => {
         ],
         isLoading: false,
         isMyDecksLoading: false,
+        isLoadingDeckMasters: false,
         error: null,
         myDecksError: null,
+        deckMasterError: null,
         fetchDeckMasters: vi.fn(),
+        fetchDeckMastersWithUsage: vi.fn(),
         fetchMyDecks: vi.fn(),
+        createDeckMaster: vi.fn(),
+        updateDeckMaster: vi.fn(),
+        deleteDeckMaster: vi.fn(),
+        createMyDeck: vi.fn(),
+        updateMyDeck: vi.fn(),
+        deleteMyDeck: vi.fn(),
         clearError: vi.fn(),
       });
 
       // 【実際の処理実行】: BattleLogFormをレンダリング
       render(<BattleLogForm />);
 
-      // 【結果検証】: Storeから取得したデッキマスターが表示されることを確認
+      // 【結果検証】: Storeから取得したデッキマスターが表示されることを確認（TASK-0032変更: deckMastersWithUsageを使用）
       await waitFor(() => {
-        expect(screen.getByText('APIデッキ1')).toBeInTheDocument(); // 【確認内容】: APIデッキ1が表示される 🔵
-        expect(screen.getByText('APIデッキ2')).toBeInTheDocument(); // 【確認内容】: APIデッキ2が表示される 🔵
+        // 使用回数付きで表示される（APIデッキ1は3回使用）
+        expect(screen.getByText('APIデッキ1 (3回)')).toBeInTheDocument(); // 【確認内容】: APIデッキ1が使用回数付きで表示される 🔵
+        expect(screen.getByText('APIデッキ2')).toBeInTheDocument(); // 【確認内容】: APIデッキ2が表示される（使用回数0なので回数なし） 🔵
       });
     });
 
@@ -1146,6 +1240,7 @@ describe('BattleLogForm', () => {
 
       vi.mocked(useDeckStore).mockReturnValue({
         deckMasters: [],
+        deckMastersWithUsage: [], // 🔵 TASK-0032
         myDecks: [
           {
             id: 'deck-001',
@@ -1158,11 +1253,21 @@ describe('BattleLogForm', () => {
         ],
         isLoading: true,
         isMyDecksLoading: false,
+        isLoadingDeckMasters: false, // 🔵 TASK-0032
         error: null,
         myDecksError: null,
+        deckMasterError: null, // 🔵 TASK-0032
         fetchDeckMasters: vi.fn(),
         fetchMyDecks: vi.fn(),
+        fetchDeckMastersWithUsage: vi.fn(), // 🔵 TASK-0032
+        addDeckMaster: vi.fn(),
+        updateDeckMaster: vi.fn(),
+        deleteDeckMaster: vi.fn(),
+        addMyDeck: vi.fn(),
+        deleteMyDeck: vi.fn(),
         clearError: vi.fn(),
+        clearDeckMasterError: vi.fn(),
+        clearMyDecksError: vi.fn(),
       });
 
       // 【実際の処理実行】: BattleLogFormをレンダリング
@@ -1181,6 +1286,7 @@ describe('BattleLogForm', () => {
 
       vi.mocked(useDeckStore).mockReturnValue({
         deckMasters: [],
+        deckMastersWithUsage: [], // 🔵 TASK-0032
         myDecks: [
           {
             id: 'deck-001',
@@ -1193,11 +1299,21 @@ describe('BattleLogForm', () => {
         ],
         isLoading: false,
         isMyDecksLoading: false,
+        isLoadingDeckMasters: false, // 🔵 TASK-0032
         error: 'デッキ情報の取得に失敗しました',
         myDecksError: null,
+        deckMasterError: null, // 🔵 TASK-0032
         fetchDeckMasters: vi.fn(),
         fetchMyDecks: vi.fn(),
+        fetchDeckMastersWithUsage: vi.fn(), // 🔵 TASK-0032
+        addDeckMaster: vi.fn(),
+        updateDeckMaster: vi.fn(),
+        deleteDeckMaster: vi.fn(),
+        addMyDeck: vi.fn(),
+        deleteMyDeck: vi.fn(),
         clearError: vi.fn(),
+        clearDeckMasterError: vi.fn(),
+        clearMyDecksError: vi.fn(),
       });
 
       // 【実際の処理実行】: BattleLogFormをレンダリング
@@ -1217,6 +1333,7 @@ describe('BattleLogForm', () => {
 
       vi.mocked(useDeckStore).mockReturnValue({
         deckMasters: [],
+        deckMastersWithUsage: [], // 🔵 TASK-0032: deckMastersWithUsageも0件
         myDecks: [
           {
             id: 'deck-001',
@@ -1229,11 +1346,21 @@ describe('BattleLogForm', () => {
         ],
         isLoading: false,
         isMyDecksLoading: false,
+        isLoadingDeckMasters: false, // 🔵 TASK-0032
         error: null,
         myDecksError: null,
+        deckMasterError: null, // 🔵 TASK-0032
         fetchDeckMasters: vi.fn(),
         fetchMyDecks: vi.fn(),
+        fetchDeckMastersWithUsage: vi.fn(), // 🔵 TASK-0032
+        addDeckMaster: vi.fn(),
+        updateDeckMaster: vi.fn(),
+        deleteDeckMaster: vi.fn(),
+        addMyDeck: vi.fn(),
+        deleteMyDeck: vi.fn(),
         clearError: vi.fn(),
+        clearDeckMasterError: vi.fn(),
+        clearMyDecksError: vi.fn(),
       });
 
       // 【実際の処理実行】: BattleLogFormをレンダリング
