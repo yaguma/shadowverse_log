@@ -143,9 +143,16 @@ export const MyDeckDialog: React.FC<MyDeckDialogProps> = ({
       {/* 【モーダル背景】: 背景をクリックしてもクローズしない */}
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         {/* 【ダイアログコンテンツ】: フォームを表示 */}
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div
+          className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="my-deck-dialog-title"
+        >
           {/* 【ダイアログタイトル】: タイトルを表示 */}
-          <h2 className="text-xl font-bold mb-4">マイデッキの追加</h2>
+          <h2 id="my-deck-dialog-title" className="text-xl font-bold mb-4">
+            マイデッキの追加
+          </h2>
 
           <form onSubmit={handleSubmit}>
             {/* 【デッキ種別フィールド】: デッキ種別選択 */}

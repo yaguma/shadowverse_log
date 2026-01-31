@@ -7,7 +7,7 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-009, REQ-010, REQ-011, REQ-032, REQ-033）に基づく
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BattleLogDetailModal } from '../components/battle-log/BattleLogDetailModal';
 import { BattleLogForm } from '../components/battle-log/BattleLogForm';
 import { BattleLogList } from '../components/battle-log/BattleLogList';
@@ -97,10 +97,28 @@ export function BattleLogListPage() {
    * 【実装方針】: isFormOpenをfalseに設定してモーダルを閉じる
    * 🔵 信頼性レベル: 一般的なフォームUXパターンから
    */
-  const handleFormCancel = () => {
+  const handleFormCancel = useCallback(() => {
     // 【フォームクローズ】: isFormOpenをfalseに設定 🔵
     setIsFormOpen(false);
-  };
+  }, []);
+
+  /**
+   * 【Escキーハンドリング】: Escキーでフォームモーダルを閉じる
+   * 【実装方針】: キーボードイベントをリッスンしてEscキーでダイアログを閉じる
+   * 🔵 信頼性レベル: アクセシビリティ要件に基づく
+   */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFormOpen) {
+        handleFormCancel();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFormOpen, handleFormCancel]);
 
   /**
    * 【削除ボタンハンドラー】: 削除確認ダイアログを表示
