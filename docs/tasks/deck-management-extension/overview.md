@@ -179,10 +179,10 @@ Phase 1 ── TASK-0025 ──┬── TASK-0027 ── TASK-0028 ── TASK-
 
 ### タスク一覧
 
-- [ ] [TASK-0031: BattleLogDialogレイアウト改善](TASK-0031.md) - 2h (TDD) 🔵
-- [ ] [TASK-0032: 相手デッキ選択肢ソート機能実装](TASK-0032.md) - 2h (TDD) 🔵
-- [ ] [TASK-0033: 対戦履歴UI改善E2Eテスト](TASK-0033.md) - 2h (TDD) 🔵
-- [ ] [TASK-0034: 全機能統合E2Eテスト](TASK-0034.md) - 2h (TDD) 🔵
+- [x] [TASK-0031: BattleLogDialogレイアウト改善](TASK-0031.md) - 2h (TDD) 🔵
+- [x] [TASK-0032: 相手デッキ選択肢ソート機能実装](TASK-0032.md) - 2h (TDD) 🔵
+- [x] [TASK-0033: 対戦履歴UI改善E2Eテスト](TASK-0033.md) - 2h (TDD) 🔵
+- [x] [TASK-0034: 全機能統合E2Eテスト](TASK-0034.md) - 2h (TDD) 🔵
 
 ### 依存関係
 

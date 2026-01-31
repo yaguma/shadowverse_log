@@ -1,6 +1,7 @@
 /**
  * 日付フォーマット修正スクリプト
- * ハイフン形式（YYYY-MM-DD）をスラッシュ形式（YYYY/MM/DD）に変換
+ * スラッシュ形式（YYYY/MM/DD）をハイフン形式（YYYY-MM-DD）に変換
+ * ※ YYYY-MM-DD形式で統一するためのマイグレーションスクリプト
  */
 import Database from 'better-sqlite3';
 import path from 'path';
@@ -19,20 +20,20 @@ console.log('Opening database:', dbPath);
 try {
   const db = new Database(dbPath);
 
-  // ハイフン形式の日付を持つレコードを検索
-  const hyphenRows = db
-    .prepare("SELECT id, date FROM battle_logs WHERE date LIKE '%-%'")
+  // スラッシュ形式の日付を持つレコードを検索
+  const slashRows = db
+    .prepare("SELECT id, date FROM battle_logs WHERE date LIKE '%/%'")
     .all();
 
-  console.log(`\nFound ${hyphenRows.length} records with hyphen format dates:`);
-  hyphenRows.forEach((row) => {
+  console.log(`\nFound ${slashRows.length} records with slash format dates:`);
+  slashRows.forEach((row) => {
     console.log(`  ID: ${row.id}, Date: ${row.date}`);
   });
 
-  if (hyphenRows.length > 0) {
-    // 日付フォーマットを変換
+  if (slashRows.length > 0) {
+    // 日付フォーマットを変換 (YYYY/MM/DD → YYYY-MM-DD)
     const updateStmt = db.prepare(
-      "UPDATE battle_logs SET date = REPLACE(date, '-', '/') WHERE date LIKE '%-%'"
+      "UPDATE battle_logs SET date = REPLACE(date, '/', '-') WHERE date LIKE '%/%'"
     );
     const result = updateStmt.run();
 
@@ -40,8 +41,8 @@ try {
 
     // 更新後の確認
     const verifyRows = db
-      .prepare("SELECT id, date FROM battle_logs WHERE id IN (" + hyphenRows.map(() => '?').join(',') + ")")
-      .all(hyphenRows.map(r => r.id));
+      .prepare("SELECT id, date FROM battle_logs WHERE id IN (" + slashRows.map(() => '?').join(',') + ")")
+      .all(slashRows.map(r => r.id));
 
     console.log('\nVerification after update:');
     verifyRows.forEach((row) => {

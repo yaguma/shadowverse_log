@@ -93,14 +93,17 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
   // 【Zustand Store取得】: useDeckStoreからデッキマスター一覧とマイデッキ一覧を取得 🔵
   // 🔵 TASK-0049: API連携のため、デッキマスター一覧をStoreから取得
+  // 🔵 TASK-0032: 相手デッキ選択肢を最近使用順でソートするため、deckMastersWithUsageを使用
   const {
-    deckMasters,
+    deckMastersWithUsage,
     myDecks,
     isLoading: isDeckLoading,
     isMyDecksLoading,
+    isLoadingDeckMasters,
     error: deckError,
     myDecksError,
-    fetchDeckMasters,
+    deckMasterError,
+    fetchDeckMastersWithUsage,
     fetchMyDecks,
   } = useDeckStore();
 
@@ -161,15 +164,16 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   }, [fetchMyDecks]);
 
   /**
-   * 【デッキマスター一覧取得】: 初期化時にデッキマスター一覧をAPIから取得
+   * 【デッキマスター一覧取得】: 初期化時にデッキマスター一覧（使用履歴付き）をAPIから取得
    * 【実装方針】: TC-FORM-INT-002, TC-0049-001, TC-0049-002を通すための実装
-   * 【テスト対応】: TC-FORM-INT-002, TC-FORM-BND-005, TASK-0049テストケースを通すための実装
-   * 🔵 信頼性レベル: TASK-0049 REQ-0049-001に基づく（モック→API連携本実装）
+   * 【テスト対応】: TC-FORM-INT-002, TC-FORM-BND-005, TASK-0049テストケース、TASK-0032テストケースを通すための実装
+   * 🔵 信頼性レベル: TASK-0049 REQ-0049-001、TASK-0032 REQ-EXT-302に基づく
    */
   useEffect(() => {
-    // 【API呼び出し】: useDeckStoreのfetchDeckMastersを呼び出してデッキマスター一覧を取得 🔵
-    fetchDeckMasters();
-  }, [fetchDeckMasters]);
+    // 【API呼び出し】: useDeckStoreのfetchDeckMastersWithUsageを呼び出して使用履歴付きデッキマスター一覧を取得 🔵
+    // 🔵 TASK-0032: 相手デッキ選択肢を最近使用順でソートするため、includeUsage=trueで取得
+    fetchDeckMastersWithUsage(true);
+  }, [fetchDeckMastersWithUsage]);
 
   /**
    * 【日付バリデーション】: 未来日付を禁止するバリデーション
@@ -356,16 +360,17 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
 
   /**
    * 【送信ボタン無効化判定】: マイデッキまたはデッキマスターが0件、またはローディング中、またはバリデーションエラーがある場合は無効化
-   * 【実装方針】: TC-FORM-BND-004, TC-FORM-BND-005, TC-FORM-UI-001, TC-0049-004を通すための実装
+   * 【実装方針】: TC-FORM-BND-004, TC-FORM-BND-005, TC-FORM-UI-001, TC-0049-004, TC-0032-004を通すための実装
    * 【改善】: バリデーションエラーがある場合のみ無効化（必須フィールドの入力状態は validateForm で確認）
-   * 🔵 信頼性レベル: TASK-0049 REQ-0049-003に基づく（デッキローディング状態の統合）
+   * 🔵 信頼性レベル: TASK-0049 REQ-0049-003、TASK-0032 REQ-0032-004に基づく
    */
   const isSubmitDisabled =
     isLoading ||
     isDeckLoading || // 🔵 TASK-0049: デッキマスター取得中も無効化
     isMyDecksLoading || // 🔵 マイデッキ取得中も無効化
+    isLoadingDeckMasters || // 🔵 TASK-0032: 使用履歴付きデッキマスター取得中も無効化
     myDecks.length === 0 ||
-    deckMasters.length === 0 ||
+    deckMastersWithUsage.length === 0 || // 🔵 TASK-0032: deckMastersWithUsageを使用
     (Object.keys(validationErrors).length > 0 &&
       Object.values(validationErrors).some((error) => error !== undefined));
 
@@ -405,106 +410,127 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         </div>
       )}
 
-      {/* 【日付フィールド】: 対戦日入力 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="date" className="label">
-          対戦日
-        </label>
-        <input
-          id="date"
-          type="date"
-          className="input-field"
-          value={formData.date}
-          onChange={(e) => handleChange('date', e.target.value)}
-          onBlur={() => handleBlur('date')}
-          aria-invalid={!!validationErrors.date}
-          aria-describedby={validationErrors.date ? 'date-error' : undefined}
-        />
-        {validationErrors.date && (
-          <p id="date-error" className="error-message">
-            {validationErrors.date}
-          </p>
-        )}
+      {/* 【デッキマスターエラーメッセージ】: デッキマスター取得エラーを表示 🔵 TASK-0032 */}
+      {deckMasterError && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {deckMasterError}
+        </div>
+      )}
+
+      {/* 🔵 TASK-0031: シーズンと対戦日を横並びレイアウト（モバイルは縦並び） */}
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 【シーズンフィールド】: シーズン番号入力 🔵 */}
+        <div>
+          <label htmlFor="season" className="label">
+            シーズン
+          </label>
+          <input
+            id="season"
+            type="number"
+            min="1"
+            className="input-field"
+            value={formData.season ?? ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              handleChange('season', value === '' ? undefined : Number(value));
+            }}
+            placeholder="例: 1"
+          />
+        </div>
+
+        {/* 【日付フィールド】: 対戦日入力 🔵 */}
+        <div>
+          <label htmlFor="date" className="label">
+            対戦日
+          </label>
+          <input
+            id="date"
+            type="date"
+            className="input-field"
+            value={formData.date}
+            onChange={(e) => handleChange('date', e.target.value)}
+            onBlur={() => handleBlur('date')}
+            aria-invalid={!!validationErrors.date}
+            aria-describedby={validationErrors.date ? 'date-error' : undefined}
+          />
+          {validationErrors.date && (
+            <p id="date-error" className="error-message">
+              {validationErrors.date}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* 【対戦タイプフィールド】: 対戦タイプ選択 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="battleType" className="label">
-          対戦タイプ
-        </label>
-        <select
-          id="battleType"
-          className="input-field"
-          value={formData.battleType}
-          onChange={(e) => handleChange('battleType', e.target.value)}
-        >
-          <option value="">選択してください</option>
-          {BATTLE_TYPES_OPTIONS.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* 🔵 TASK-0031: 詳細設定（対戦タイプ、ランク、グループ）を折りたたみ可能に */}
+      <details className="mb-4 border border-gray-200 rounded-md">
+        <summary className="px-4 py-2 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50">
+          詳細設定（対戦タイプ・ランク・グループ）
+        </summary>
+        <div className="px-4 py-3 space-y-4 border-t border-gray-200">
+          {/* 【対戦タイプフィールド】: 対戦タイプ選択 🔵 */}
+          <div>
+            <label htmlFor="battleType" className="label">
+              対戦タイプ
+            </label>
+            <select
+              id="battleType"
+              className="input-field"
+              value={formData.battleType}
+              onChange={(e) => handleChange('battleType', e.target.value)}
+            >
+              <option value="">選択してください</option>
+              {BATTLE_TYPES_OPTIONS.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {/* 【シーズンフィールド】: シーズン番号入力 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="season" className="label">
-          シーズン
-        </label>
-        <input
-          id="season"
-          type="number"
-          min="1"
-          className="input-field w-24"
-          value={formData.season ?? ''}
-          onChange={(e) => {
-            const value = e.target.value;
-            handleChange('season', value === '' ? undefined : Number(value));
-          }}
-          placeholder="例: 1"
-        />
-      </div>
+          {/* 🔵 TASK-0031: ランクとグループを横並びレイアウト */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* 【ランクフィールド】: ランク選択 🔵 */}
+            <div>
+              <label htmlFor="rank" className="label">
+                ランク
+              </label>
+              <select
+                id="rank"
+                className="input-field"
+                value={formData.rank}
+                onChange={(e) => handleChange('rank', e.target.value)}
+              >
+                <option value="">選択してください</option>
+                {RANKS_OPTIONS.map((rank) => (
+                  <option key={rank} value={rank}>
+                    {rank}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-      {/* 【ランクフィールド】: ランク選択 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="rank" className="label">
-          ランク
-        </label>
-        <select
-          id="rank"
-          className="input-field"
-          value={formData.rank}
-          onChange={(e) => handleChange('rank', e.target.value)}
-        >
-          <option value="">選択してください</option>
-          {RANKS_OPTIONS.map((rank) => (
-            <option key={rank} value={rank}>
-              {rank}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* 【グループフィールド】: グループ選択 🔵 */}
-      <div className="mb-4">
-        <label htmlFor="groupName" className="label">
-          グループ
-        </label>
-        <select
-          id="groupName"
-          className="input-field"
-          value={formData.groupName}
-          onChange={(e) => handleChange('groupName', e.target.value)}
-        >
-          <option value="">選択してください</option>
-          {GROUPS_OPTIONS.map((group) => (
-            <option key={group} value={group}>
-              {group}
-            </option>
-          ))}
-        </select>
-      </div>
+            {/* 【グループフィールド】: グループ選択 🔵 */}
+            <div>
+              <label htmlFor="groupName" className="label">
+                グループ
+              </label>
+              <select
+                id="groupName"
+                className="input-field"
+                value={formData.groupName}
+                onChange={(e) => handleChange('groupName', e.target.value)}
+              >
+                <option value="">選択してください</option>
+                {GROUPS_OPTIONS.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </details>
 
       {/* 【マイデッキフィールド】: 使用デッキ選択 🔵 */}
       <div className="mb-4">
@@ -578,12 +604,12 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         </div>
       </div>
 
-      {/* 【相手デッキフィールド】: 相手デッキ選択 🔵 */}
+      {/* 【相手デッキフィールド】: 相手デッキ選択（最近使用順でソート）🔵 TASK-0032 */}
       <div className="mb-4">
         <label htmlFor="opponentDeckId" className="label">
           相手デッキ
         </label>
-        {deckMasters.length === 0 ? (
+        {deckMastersWithUsage.length === 0 ? (
           <p className="error-message">デッキマスターを登録してください</p>
         ) : (
           <select
@@ -596,9 +622,10 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
             aria-describedby={validationErrors.opponentDeckId ? 'opponentDeckId-error' : undefined}
           >
             <option value="">選択してください</option>
-            {deckMasters.map((deck) => (
+            {deckMastersWithUsage.map((deck) => (
               <option key={deck.id} value={deck.id}>
                 {deck.deckName}
+                {deck.usageCount > 0 && ` (${deck.usageCount}回)`}
               </option>
             ))}
           </select>

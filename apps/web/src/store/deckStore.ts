@@ -2,10 +2,12 @@ import type {
   DeckMasterCreateRequest,
   DeckMasterUpdateRequest,
   DeckMasterWithUsage,
+  MyDeck,
+  MyDeckCreateRequest,
 } from '@shadowverse-log/shared';
 import { create } from 'zustand';
 import { apiClient, extractErrorMessage } from '../api/client';
-import type { DeckMaster, MyDeck } from '../types';
+import type { DeckMaster } from '../types';
 
 /**
  * 【機能概要】: デッキマスターデータの状態管理を行うZustandストア
@@ -61,6 +63,11 @@ interface DeckState {
   updateDeckMaster: (id: string, data: DeckMasterUpdateRequest) => Promise<DeckMasterWithUsage>;
   deleteDeckMaster: (id: string) => Promise<void>;
   clearDeckMasterError: () => void;
+
+  // 【アクション】: MyDeck CRUD操作（TASK-0017）🔵
+  addMyDeck: (data: MyDeckCreateRequest) => Promise<MyDeck>;
+  deleteMyDeck: (id: string) => Promise<void>;
+  clearMyDecksError: () => void;
 }
 
 /**
@@ -265,5 +272,71 @@ export const useDeckStore = create<DeckState>((set, get) => ({
   clearDeckMasterError: () => {
     // 【エラークリア】: deckMasterErrorをnullに設定 🔵
     set({ deckMasterError: null });
+  },
+
+  // ==================== MyDeck CRUD操作（TASK-0017）====================
+
+  /**
+   * 【機能概要】: マイデッキを追加
+   * 【実装方針】: API Clientを使用してBackend APIにPOSTリクエストを送信し、成功時はストアに追加
+   * 【テスト対応】: TC-STORE-MD-001〜TC-STORE-MD-004を通すための実装
+   * 🔵 信頼性レベル: TASK-0017仕様に準拠
+   */
+  addMyDeck: async (data: MyDeckCreateRequest): Promise<MyDeck> => {
+    // 【ローディング開始】: isMyDecksLoadingをtrueに設定し、エラーをクリア 🔵
+    set({ isMyDecksLoading: true, myDecksError: null });
+
+    try {
+      // 【API呼び出し】: API ClientのPOSTメソッドでマイデッキを追加 🔵
+      const newDeck = await apiClient.post<MyDeck>('/my-decks', data);
+
+      // 【状態更新】: myDecks配列に新しいデッキを追加 🔵
+      const currentDecks = get().myDecks;
+      set({ myDecks: [...currentDecks, newDeck], isMyDecksLoading: false });
+
+      return newDeck;
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定して再throw 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({ myDecksError: errorMessage, isMyDecksLoading: false });
+      throw error;
+    }
+  },
+
+  /**
+   * 【機能概要】: マイデッキを削除
+   * 【実装方針】: API Clientを使用してBackend APIにDELETEリクエストを送信し、成功時はストアから削除
+   * 【テスト対応】: TC-STORE-MD-005〜TC-STORE-MD-008を通すための実装
+   * 🔵 信頼性レベル: TASK-0017仕様に準拠
+   */
+  deleteMyDeck: async (id: string): Promise<void> => {
+    // 【ローディング開始】: isMyDecksLoadingをtrueに設定し、エラーをクリア 🔵
+    set({ isMyDecksLoading: true, myDecksError: null });
+
+    try {
+      // 【API呼び出し】: API ClientのDELETEメソッドでマイデッキを削除 🔵
+      await apiClient.del<void>(`/my-decks/${id}`);
+
+      // 【状態更新】: myDecks配列から削除 🔵
+      const currentDecks = get().myDecks;
+      const filteredDecks = currentDecks.filter((deck) => deck.id !== id);
+      set({ myDecks: filteredDecks, isMyDecksLoading: false });
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定して再throw 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({ myDecksError: errorMessage, isMyDecksLoading: false });
+      throw error;
+    }
+  },
+
+  /**
+   * 【機能概要】: MyDecksエラー状態をクリア
+   * 【実装方針】: myDecksErrorをnullに設定する同期処理
+   * 【テスト対応】: TC-STORE-MD-009を通すための実装
+   * 🔵 信頼性レベル: TASK-0017仕様に準拠
+   */
+  clearMyDecksError: () => {
+    // 【エラークリア】: myDecksErrorをnullに設定 🔵
+    set({ myDecksError: null });
   },
 }));

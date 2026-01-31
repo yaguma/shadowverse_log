@@ -6,7 +6,7 @@
  * @implements Cloudflare D1 + Drizzle ORM
  * 🔵 信頼性レベル: 青信号（requirements.md より）
  */
-import { and, eq, gte, inArray, lte } from 'drizzle-orm';
+import { and, eq, gte, inArray, lte, max, isNotNull } from 'drizzle-orm';
 import type { Database } from '../db';
 import { battleLogs } from '../db/schema/battle-logs';
 import { deckMaster } from '../db/schema/deck-master';
@@ -78,6 +78,8 @@ export interface ClassStatistics {
  * 統計レスポンスの型定義
  */
 export interface StatisticsResult {
+  /** フィルタリングされたシーズン（未指定の場合は最新シーズン、シーズンデータがない場合はnull） */
+  season: number | null;
   overall: OverallStatistics;
   byMyDeck: DeckStatistics[];
   byOpponentDeck: DeckStatistics[];
@@ -108,7 +110,7 @@ export class D1StatisticsService {
   /**
    * 統計データを取得
    *
-   * @param params - クエリパラメータ（startDate, endDate, battleType）
+   * @param params - クエリパラメータ（startDate, endDate, battleType, season）
    * @returns 統計情報
    */
   async getStatistics(params: StatisticsParams): Promise<StatisticsResult> {
@@ -116,8 +118,14 @@ export class D1StatisticsService {
     const endDate = params.endDate || getTodayInJST();
     const startDate = params.startDate || getDateBeforeDays(endDate, 7);
 
+    // シーズン決定: 指定なしの場合は最新シーズンを取得
+    let season = params.season;
+    if (season === undefined) {
+      season = (await this.getLatestSeason()) ?? undefined;
+    }
+
     // 対戦履歴を取得
-    const logs = await this.fetchBattleLogs(startDate, endDate, params.battleType, params.season);
+    const logs = await this.fetchBattleLogs(startDate, endDate, params.battleType, season);
 
     // デッキ名のマッピングを取得
     const myDeckNameMap = await this.fetchMyDeckNames(logs);
@@ -133,6 +141,7 @@ export class D1StatisticsService {
     const byTurn = this.calculateByTurn(logs);
 
     return {
+      season: season ?? null,
       overall,
       byMyDeck,
       byOpponentDeck,
@@ -140,6 +149,20 @@ export class D1StatisticsService {
       byRank,
       byTurn,
     };
+  }
+
+  /**
+   * 最新シーズン番号を取得
+   *
+   * @returns 最新シーズン番号（シーズンデータがない場合はnull）
+   */
+  async getLatestSeason(): Promise<number | null> {
+    const result = await this.db
+      .select({ maxSeason: max(battleLogs.season) })
+      .from(battleLogs)
+      .where(isNotNull(battleLogs.season));
+
+    return result[0]?.maxSeason ?? null;
   }
 
   /**

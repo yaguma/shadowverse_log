@@ -1,12 +1,17 @@
 import { create } from 'zustand';
 import { apiClient, extractErrorMessage } from '../api/client';
+import {
+  fetchAvailableSeasons,
+  fetchStatisticsBySeason as fetchStatisticsBySeasonApi,
+} from '../api/statistics';
 import type { StatisticsResponse } from '../types';
 
 /**
  * 【機能概要】: 統計データの状態管理を行うZustandストア
  * 【実装方針】: Zustandのcreate関数を使用してストアを作成し、API Clientと連携
- * 【テスト対応】: TC-STORE-ST-001〜TC-STORE-ST-006の全6ケースを通すための実装
+ * 【テスト対応】: TC-STORE-ST-001〜TC-STORE-ST-020の全20ケースを通すための実装
  * 🔵 信頼性レベル: 要件定義書のStatisticsStore仕様とテストケース定義に基づいた実装
+ * 🔵 TASK-0027: シーズン選択機能（fetchSeasons, setSelectedSeason, fetchStatisticsBySeason）追加
  */
 
 /**
@@ -39,10 +44,20 @@ interface StatisticsState {
   // 【期間状態】: 現在選択されている期間を保持 🔵
   currentPeriod: PeriodType;
 
+  // 【シーズン状態】: シーズン選択機能の状態を保持 (TASK-0027) 🔵
+  selectedSeason: number | null;
+  availableSeasons: number[];
+  isSeasonsLoading: boolean;
+
   // 【アクション】: データ取得・設定アクションを定義 🔵
   fetchStatistics: (params: GetStatisticsRequest) => Promise<void>;
   setPeriod: (period: PeriodType) => void;
   clearError: () => void;
+
+  // 【シーズンアクション】: シーズン関連アクションを定義 (TASK-0027) 🔵
+  fetchSeasons: () => Promise<void>;
+  setSelectedSeason: (season: number) => Promise<void>;
+  fetchStatisticsBySeason: (season: number) => Promise<void>;
 }
 
 /**
@@ -56,6 +71,11 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
   isLoading: false,
   error: null,
   currentPeriod: '1week',
+
+  // 【シーズン初期状態】: (TASK-0027) 🔵
+  selectedSeason: null,
+  availableSeasons: [],
+  isSeasonsLoading: false,
 
   /**
    * 【機能概要】: 統計データを取得
@@ -112,4 +132,111 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
     // 【エラークリア】: errorをnullに設定 🔵
     set({ error: null });
   },
+
+  /**
+   * 【機能概要】: シーズン一覧を取得
+   * 【実装方針】: Statistics APIを使用してシーズン一覧を取得し、最新シーズンを自動選択
+   * 【テスト対応】: TC-STORE-ST-007〜TC-STORE-ST-010を通すための実装
+   * 🔵 信頼性レベル: TASK-0027要件に基づく
+   */
+  fetchSeasons: async () => {
+    // 【ローディング開始】: isSeasonsLoadingをtrueに設定 🔵
+    set({ isSeasonsLoading: true, error: null });
+
+    try {
+      // 【API呼び出し】: シーズン一覧を取得 🔵
+      const seasons = await fetchAvailableSeasons();
+
+      // 【状態更新】: シーズン一覧と選択中シーズンを更新 🔵
+      // 最新シーズン（配列の先頭）を自動選択。空の場合はnull
+      const latestSeason = seasons.length > 0 ? seasons[0] : null;
+      set({
+        availableSeasons: seasons,
+        selectedSeason: latestSeason,
+        isSeasonsLoading: false,
+      });
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({
+        error: errorMessage,
+        isSeasonsLoading: false,
+      });
+    }
+  },
+
+  /**
+   * 【機能概要】: シーズンを選択
+   * 【実装方針】: 選択したシーズンを設定し、統計データを再取得
+   * 【テスト対応】: TC-STORE-ST-011〜TC-STORE-ST-012を通すための実装
+   * 🔵 信頼性レベル: TASK-0027要件に基づく
+   */
+  setSelectedSeason: async (season: number) => {
+    // 【ローディング開始】: isLoadingをtrueに設定 🔵
+    set({ isLoading: true, error: null, selectedSeason: season });
+
+    try {
+      // 【API呼び出し】: 指定シーズンの統計を取得 🔵
+      await fetchStatisticsBySeasonApi(season);
+
+      // 【状態更新】: ローディング終了 🔵
+      set({ isLoading: false });
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({
+        error: errorMessage,
+        isLoading: false,
+      });
+    }
+  },
+
+  /**
+   * 【機能概要】: 指定シーズンの統計データを取得
+   * 【実装方針】: Statistics APIを使用して指定シーズンの統計を取得
+   * 【テスト対応】: TC-STORE-ST-013〜TC-STORE-ST-014を通すための実装
+   * 🔵 信頼性レベル: TASK-0027要件に基づく
+   */
+  fetchStatisticsBySeason: async (season: number) => {
+    // 【ローディング開始】: isLoadingをtrueに設定 🔵
+    set({ isLoading: true, error: null });
+
+    try {
+      // 【API呼び出し】: 指定シーズンの統計を取得 🔵
+      await fetchStatisticsBySeasonApi(season);
+
+      // 【状態更新】: ローディング終了 🔵
+      set({ isLoading: false });
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({
+        error: errorMessage,
+        isLoading: false,
+      });
+    }
+  },
 }));
+
+/**
+ * 【セレクタ】: パフォーマンス最適化のためのセレクタ関数群 (TASK-0027)
+ * 🔵 信頼性レベル: Zustandベストプラクティスに準拠
+ */
+
+/** 統計データを取得するセレクタ */
+export const selectStatistics = (state: StatisticsState) => state.statistics;
+
+/** 選択中のシーズンを取得するセレクタ */
+export const selectSelectedSeason = (state: StatisticsState) => state.selectedSeason;
+
+/** 利用可能なシーズン一覧を取得するセレクタ */
+export const selectAvailableSeasons = (state: StatisticsState) => state.availableSeasons;
+
+/** ローディング状態を取得するセレクタ */
+export const selectIsLoading = (state: StatisticsState) => state.isLoading;
+
+/** シーズン一覧ローディング状態を取得するセレクタ */
+export const selectIsSeasonsLoading = (state: StatisticsState) => state.isSeasonsLoading;
+
+/** エラー状態を取得するセレクタ */
+export const selectError = (state: StatisticsState) => state.error;

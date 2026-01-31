@@ -72,7 +72,7 @@ export const BattleLogList: React.FC<BattleLogListProps> = ({ battleLogs, onDele
         <tbody>
           {battleLogs.map((log) => (
             <tr key={log.id} className="hover:bg-gray-50">
-              {/* 【対戦日】: YYYY/MM/DD形式で表示 🔵 */}
+              {/* 【対戦日】: YYYY-MM-DD形式で表示 🔵 */}
               <td className="border border-gray-300 px-4 py-2">{log.date}</td>
               {/* 【シーズン】: シーズン番号を表示（未設定の場合は"-"） 🔵 */}
               <td className="border border-gray-300 px-4 py-2 text-center">{log.season ?? '-'}</td>

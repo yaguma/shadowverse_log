@@ -176,7 +176,7 @@ export const DeckMasterList: React.FC<DeckMasterListProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="p-4">
+    <div className="p-4" data-testid="deck-master-list">
       {/* 【ヘッダー部分】: タイトルと追加ボタン（共通化）🔵 */}
       <DeckMasterListHeader onAdd={onAdd} />
 
