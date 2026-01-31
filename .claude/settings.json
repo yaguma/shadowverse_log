@@ -63,7 +63,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./.claude/gh-setup.sh"
+            "command": "./.claude/hooks/gh-setup.sh"
           }
         ]
       }
