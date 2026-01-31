@@ -15,20 +15,6 @@ test.describe('対戦履歴UI改善 - BattleLogDialog レイアウト改善', ()
    * 🔵 信頼性レベル: TASK-0031要件に基づく
    */
   test.describe('デスクトップ表示', () => {
-    test.beforeEach(async ({ browser }) => {
-      // 1280x720 デスクトップビューポート
-      const context = await browser.newContext({
-        viewport: { width: 1280, height: 720 },
-      });
-      const page = await context.newPage();
-      await page.goto('/');
-      await page.getByRole('button', { name: '新規登録' }).click();
-      await expect(page.getByRole('dialog')).toBeVisible();
-
-      // テスト用にcontextを引き回すためにbeforeEachでは設定しない
-      await context.close();
-    });
-
     test('シーズンと対戦日が横並びで表示される', async ({ browser }) => {
       const context = await browser.newContext({
         viewport: { width: 1280, height: 720 },
