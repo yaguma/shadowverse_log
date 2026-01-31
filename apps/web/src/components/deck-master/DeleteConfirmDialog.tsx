@@ -43,9 +43,16 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
       {/* 【モーダル背景】: 背景オーバーレイ */}
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         {/* 【ダイアログコンテンツ】: 削除確認の内容を表示 */}
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div
+          className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-confirm-dialog-title"
+        >
           {/* 【ダイアログタイトル】: "デッキ種別の削除"を表示 */}
-          <h2 className="text-xl font-bold mb-4">デッキ種別の削除</h2>
+          <h2 id="delete-confirm-dialog-title" className="text-xl font-bold mb-4">
+            デッキ種別の削除
+          </h2>
 
           {/* 【確認メッセージ】: デッキ名を含む確認メッセージを表示 */}
           <p className="mb-4">「{target.deckName}」を削除してもよろしいですか？</p>

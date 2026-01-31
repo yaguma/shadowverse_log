@@ -46,9 +46,18 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
         data-testid="confirm-dialog"
       >
         {/* 【ダイアログコンテンツ】: 削除確認の内容を表示 */}
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div
+          className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="my-deck-delete-confirm-dialog-title"
+        >
           {/* 【ダイアログタイトル】: "デッキの削除"を表示 */}
-          <h2 className="text-xl font-bold mb-4" data-testid="confirm-dialog-title">
+          <h2
+            id="my-deck-delete-confirm-dialog-title"
+            className="text-xl font-bold mb-4"
+            data-testid="confirm-dialog-title"
+          >
             デッキの削除
           </h2>
 
