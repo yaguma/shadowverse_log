@@ -66,7 +66,7 @@ app.use(
       /^\/api\/migration/,
       /^\/api\/import/,
       /^\/api\/battle-logs/,
-      /^\/api\/deck-master/,
+      /^\/api\/deck-masters/,
       /^\/api\/my-decks/,
       /^\/api\/statistics/,
     ],
@@ -111,7 +111,7 @@ app.route('/api/import', importRoutes);
 app.route('/api/battle-logs', battleLogsRoutes);
 
 // デッキマスターAPIルート
-app.route('/api/deck-master', deckMasterRoutes);
+app.route('/api/deck-masters', deckMasterRoutes);
 
 // マイデッキAPIルート
 app.route('/api/my-decks', myDecksRoutes);
