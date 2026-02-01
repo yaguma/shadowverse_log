@@ -29,6 +29,15 @@ export interface GetStatisticsRequest {
 }
 
 /**
+ * 日付範囲とシーズンによる統計取得リクエストの型
+ */
+export interface GetStatisticsByDateRangeRequest {
+  startDate?: string;
+  endDate?: string;
+  season?: number;
+}
+
+/**
  * Statistics Storeの状態型
  * 【型定義】: Zustandストアの状態とアクションを定義
  * 🔵 信頼性レベル: 要件定義書のStatisticsStore仕様に準拠
@@ -44,6 +53,10 @@ interface StatisticsState {
   // 【期間状態】: 現在選択されている期間を保持 🔵
   currentPeriod: PeriodType;
 
+  // 【日付範囲状態】: カスタム日付範囲を保持 🔵
+  startDate: string;
+  endDate: string;
+
   // 【シーズン状態】: シーズン選択機能の状態を保持 (TASK-0027) 🔵
   selectedSeason: number | null;
   availableSeasons: number[];
@@ -51,7 +64,10 @@ interface StatisticsState {
 
   // 【アクション】: データ取得・設定アクションを定義 🔵
   fetchStatistics: (params: GetStatisticsRequest) => Promise<void>;
+  fetchStatisticsByDateRange: (params: GetStatisticsByDateRangeRequest) => Promise<void>;
   setPeriod: (period: PeriodType) => void;
+  setStartDate: (date: string) => void;
+  setEndDate: (date: string) => void;
   clearError: () => void;
 
   // 【シーズンアクション】: シーズン関連アクションを定義 (TASK-0027) 🔵
@@ -71,6 +87,10 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
   isLoading: false,
   error: null,
   currentPeriod: '1week',
+
+  // 【日付範囲初期状態】: 🔵
+  startDate: '',
+  endDate: '',
 
   // 【シーズン初期状態】: (TASK-0027) 🔵
   selectedSeason: null,
@@ -112,6 +132,44 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
   },
 
   /**
+   * 【機能概要】: 日付範囲とシーズンを指定して統計データを取得
+   * 【実装方針】: API Clientを使用してBackend APIから統計データを取得し、ストアの状態を更新
+   * 🔵 信頼性レベル: StatisticsDashboardPageとの統合用
+   */
+  fetchStatisticsByDateRange: async (params: GetStatisticsByDateRangeRequest) => {
+    // 【ローディング開始】: isLoadingをtrueに設定し、errorをnullにクリア 🔵
+    set({ isLoading: true, error: null });
+
+    try {
+      // 【クエリパラメータ構築】: 日付範囲とシーズンをクエリ文字列に変換 🔵
+      const queryParams: string[] = [];
+      if (params.startDate) queryParams.push(`startDate=${params.startDate}`);
+      if (params.endDate) queryParams.push(`endDate=${params.endDate}`);
+      if (params.season) queryParams.push(`season=${params.season}`);
+      const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+      // 【API呼び出し】: API Clientのget()メソッドで統計データを取得 🔵
+      const response = await apiClient.get<StatisticsResponse>(`/statistics${queryString}`);
+
+      // 【状態更新】: statisticsを更新し、isLoadingをfalseに設定 🔵
+      set({
+        statistics: response,
+        isLoading: false,
+        startDate: params.startDate || '',
+        endDate: params.endDate || '',
+        selectedSeason: params.season || null,
+      });
+    } catch (error) {
+      // 【エラーハンドリング】: エラーメッセージを設定し、isLoadingをfalseに設定 🔵
+      const errorMessage = extractErrorMessage(error);
+      set({
+        error: errorMessage,
+        isLoading: false,
+      });
+    }
+  },
+
+  /**
    * 【機能概要】: 期間を設定
    * 【実装方針】: currentPeriodを直接更新する同期処理
    * 【テスト対応】: TC-STORE-ST-004, TC-STORE-ST-005を通すための実装
@@ -120,6 +178,24 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
   setPeriod: (period: PeriodType) => {
     // 【期間更新】: 引数のperiodをcurrentPeriodに設定 🔵
     set({ currentPeriod: period });
+  },
+
+  /**
+   * 【機能概要】: 開始日を設定
+   * 【実装方針】: startDateを直接更新する同期処理
+   * 🔵 信頼性レベル: StatisticsDashboardPageとの統合用
+   */
+  setStartDate: (date: string) => {
+    set({ startDate: date });
+  },
+
+  /**
+   * 【機能概要】: 終了日を設定
+   * 【実装方針】: endDateを直接更新する同期処理
+   * 🔵 信頼性レベル: StatisticsDashboardPageとの統合用
+   */
+  setEndDate: (date: string) => {
+    set({ endDate: date });
   },
 
   /**
@@ -240,3 +316,9 @@ export const selectIsSeasonsLoading = (state: StatisticsState) => state.isSeason
 
 /** エラー状態を取得するセレクタ */
 export const selectError = (state: StatisticsState) => state.error;
+
+/** 開始日を取得するセレクタ */
+export const selectStartDate = (state: StatisticsState) => state.startDate;
+
+/** 終了日を取得するセレクタ */
+export const selectEndDate = (state: StatisticsState) => state.endDate;

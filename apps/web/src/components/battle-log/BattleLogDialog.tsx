@@ -13,7 +13,8 @@
  * 🔵 信頼性レベル: REQ-EXT-201, REQ-EXT-202 に基づく
  */
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { BattleLogForm } from './BattleLogForm';
 
 /**
@@ -62,19 +63,9 @@ export const BattleLogDialog: React.FC<BattleLogDialogProps> = ({
 
   /**
    * 【Escキーハンドラ】: Escキーでダイアログを閉じる
+   * 【リファクタリング】: 011-escape-key-handler-duplication.md に基づきカスタムフックを使用
    */
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+  useEscapeKey(onClose, isOpen);
 
   /**
    * 【オーバーレイクリックハンドラ】: オーバーレイクリックでダイアログを閉じる
