@@ -19,7 +19,8 @@ export const DeckNameSchema = z
   .max(100, 'デッキ名は100文字以内で入力してください');
 
 /**
- * 新規デッキマスターの入力スキーマ（既存、後方互換性のため残す）
+ * 新規デッキマスターの入力スキーマ
+ * 注意: 現在使用されていません。DeckMasterCreateRequestSchemaを使用してください
  */
 export const NewDeckMasterSchema = z.object({
   id: z.string().uuid().optional(),
@@ -31,7 +32,8 @@ export const NewDeckMasterSchema = z.object({
 export type NewDeckMasterInput = z.infer<typeof NewDeckMasterSchema>;
 
 /**
- * デッキマスター更新の入力スキーマ（既存、後方互換性のため残す）
+ * デッキマスター更新の入力スキーマ
+ * 注意: 現在使用されていません。DeckMasterUpdateRequestSchemaを使用してください
  */
 export const UpdateDeckMasterSchema = NewDeckMasterSchema.partial().omit({ id: true });
 

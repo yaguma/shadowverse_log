@@ -1,28 +1,58 @@
 /**
  * 日付ユーティリティ関数
  * 日本時間（JST、UTC+9）での日付処理を提供
+ *
+ * Intl.DateTimeFormatを使用した正確なタイムゾーン処理
  */
 
 /**
  * 日本時間での今日の日付をYYYY-MM-DD形式で取得
+ * Intl.DateTimeFormatを使用して正確にJSTの日付を取得
  * @returns 今日の日付（YYYY-MM-DD形式）
  */
 export const getTodayInJST = (): string => {
-  const now = new Date();
-  // UTC時刻に9時間（日本時間のオフセット）を加算
-  const jstOffset = 9 * 60 * 60 * 1000; // 9時間をミリ秒に変換
-  const jstDate = new Date(now.getTime() + jstOffset);
-  return jstDate.toISOString().split('T')[0] || '';
+  return new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(new Date())
+    .replace(/\//g, '-');
 };
 
 /**
  * 日本時間での現在日時をDate オブジェクトで取得
- * @returns 日本時間のDateオブジェクト（UTCとして表現されているが値はJST）
+ * 注意: このDateオブジェクトはUTCとして表現されていますが、
+ * 値はJSTの日時を表しています。日付の比較に使用してください。
+ * @returns 日本時間の日時情報を持つDateオブジェクト
  */
 export const getNowInJST = (): Date => {
-  const now = new Date();
-  const jstOffset = 9 * 60 * 60 * 1000;
-  return new Date(now.getTime() + jstOffset);
+  const formatter = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(new Date());
+  const getValue = (type: string): number => {
+    const part = parts.find((p) => p.type === type);
+    return part ? Number.parseInt(part.value, 10) : 0;
+  };
+
+  return new Date(
+    getValue('year'),
+    getValue('month') - 1,
+    getValue('day'),
+    getValue('hour'),
+    getValue('minute'),
+    getValue('second')
+  );
 };
 
 /**
