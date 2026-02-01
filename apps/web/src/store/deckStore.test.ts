@@ -73,7 +73,7 @@ describe('Deck Store', () => {
       expect(state.error).toBeNull();
 
       expect(apiClient.apiClient.get).toHaveBeenCalledTimes(1);
-      expect(apiClient.apiClient.get).toHaveBeenCalledWith('/deck-master');
+      expect(apiClient.apiClient.get).toHaveBeenCalledWith('/deck-masters');
     });
 
     it('TC-STORE-DM-002: デッキマスター一覧の取得が失敗し、エラー状態が設定される', async () => {

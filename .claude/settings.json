@@ -59,11 +59,11 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "",
+        "matcher": "startup",
         "hooks": [
           {
             "type": "command",
-            "command": "./.claude/hooks/gh-setup.sh"
+            "command": "bun x gh-setup-hooks"
           }
         ]
       }

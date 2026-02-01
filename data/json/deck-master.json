@@ -32,5 +32,10 @@
 {"id":"31",	"className":"エルフ",	"deckName":"進化エルフ",	"sortOrder":11},
 {"id":"32",	"className":"ドラゴン",	"deckName":"進化ドラゴン",	"sortOrder":12},
 {"id":"33",	"className":"ナイトメア",	"deckName":"進化ナイトメア",	"sortOrder":6},
-{"id":"34",	"className":"ロイヤル",	"deckName":"進化ロイヤル",	"sortOrder":2}
-]
+{"id":"34",	"className":"ロイヤル",	"deckName":"進化ロイヤル",	"sortOrder":2},
+{"id":"35",	"className":"ビショップ",	"deckName":"奇数ビショップ",	"sortOrder":35},
+{"id":"36",	"className":"ナイトメア",	"deckName":"シャクドウナイトメア",	"sortOrder":36},
+{"id":"37",	"className":"エルフ",	"deckName":"不殺エルフ",	"sortOrder":37},
+{"id":"38",	"className":"ドラゴン",	"deckName":"オルカドラゴン",	"sortOrder":38},
+{"id":"39",	"className":"ウィッチ",	"deckName":"リンクルウィッチ",	"sortOrder":39},
+{"id":"40",	"className":"ナイトメア",	"deckName":"リアニメイトナイトメア",	"sortOrder":40}]
