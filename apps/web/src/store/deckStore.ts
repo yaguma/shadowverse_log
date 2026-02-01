@@ -163,12 +163,14 @@ export const useDeckStore = create<DeckState>((set, get) => ({
 
     try {
       // 【API呼び出し】: API Clientのget()メソッドで使用履歴付きデッキマスター一覧を取得 🔵
-      const response = await apiClient.get<DeckMasterWithUsage[]>(
+      // 【レスポンス形式】: APIは { deckMasters: DeckMasterWithUsage[] } 形式で返す
+      const response = await apiClient.get<{ deckMasters: DeckMasterWithUsage[] }>(
         '/deck-masters?includeUsage=true'
       );
 
       // 【状態更新】: deckMastersWithUsageを更新し、isLoadingDeckMastersをfalseに設定 🔵
-      set({ deckMastersWithUsage: response, isLoadingDeckMasters: false });
+      // 【修正】: response.deckMasters で配列を取得（APIレスポンス形式に合わせる）
+      set({ deckMastersWithUsage: response.deckMasters, isLoadingDeckMasters: false });
     } catch (error) {
       // 【エラーハンドリング】: エラーメッセージを設定し、isLoadingDeckMastersをfalseに設定 🔵
       const errorMessage = extractErrorMessage(error);
