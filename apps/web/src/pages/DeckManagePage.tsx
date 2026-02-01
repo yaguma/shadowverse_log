@@ -1,16 +1,23 @@
 /**
  * 【機能概要】: デッキ管理ページコンポーネント
  * 【実装方針】: タブ切り替えによるデッキ種別管理とマイデッキ管理の統合画面
- * 【タスク】: TASK-0022
+ * 【リファクタリング】: Issue 005対応 - 未実装ハンドラを実装
+ * 【タスク】: TASK-0022, TASK-0023
  * 🔵 信頼性レベル: architecture.md 2.3に基づく
  */
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Tab } from '../components/common/Tabs';
 import { Tabs } from '../components/common/Tabs';
+import { DeckMasterDialog } from '../components/deck-master/DeckMasterDialog';
 import { DeckMasterList } from '../components/deck-master/DeckMasterList';
+import { DeleteConfirmDialog as DeckMasterDeleteConfirmDialog } from '../components/deck-master/DeleteConfirmDialog';
+import { DeleteConfirmDialog as MyDeckDeleteConfirmDialog } from '../components/my-deck/DeleteConfirmDialog';
+import type { CreateMyDeckInput } from '../components/my-deck/MyDeckDialog';
+import { MyDeckDialog } from '../components/my-deck/MyDeckDialog';
 import { MyDeckList } from '../components/my-deck/MyDeckList';
 import { useDeckStore } from '../store/deckStore';
+import type { DeckMasterWithUsage, MyDeck } from '../types';
 
 /**
  * 【型定義】: タブ種別
@@ -44,20 +51,59 @@ export const DeckManagePage = () => {
 
   // 【Deck Store】: デッキ管理用の状態と操作
   const {
+    deckMasters,
     deckMastersWithUsage,
     myDecks,
     isLoadingDeckMasters,
     isMyDecksLoading,
     deckMasterError,
     myDecksError,
+    fetchDeckMasters,
+    fetchDeckMastersWithUsage,
+    fetchMyDecks,
+    addDeckMaster,
+    updateDeckMaster,
+    deleteDeckMaster,
+    addMyDeck,
+    deleteMyDeck,
   } = useDeckStore();
 
-  // 【削除可能判定マップ】: マイデッキの削除可否を判定（useMemoでメモ化 I-004対応）
-  // 使用履歴がないデッキは削除可能（TASK-0023で詳細実装予定）
+  // 【初期化処理】: ページマウント時にデータを取得
+  useEffect(() => {
+    fetchDeckMastersWithUsage(true);
+    fetchMyDecks();
+  }, [fetchDeckMastersWithUsage, fetchMyDecks]);
+
+  // ==================== DeckMaster ダイアログ状態 ====================
+
+  // 【State】: デッキマスター追加/編集ダイアログ
+  const [isDeckMasterDialogOpen, setIsDeckMasterDialogOpen] = useState(false);
+  const [deckMasterDialogMode, setDeckMasterDialogMode] = useState<'create' | 'edit'>('create');
+  const [editingDeckMaster, setEditingDeckMaster] = useState<DeckMasterWithUsage | undefined>(
+    undefined
+  );
+  const [isDeckMasterSubmitting, setIsDeckMasterSubmitting] = useState(false);
+  const [deckMasterDialogError, setDeckMasterDialogError] = useState<string | undefined>(undefined);
+
+  // 【State】: デッキマスター削除確認ダイアログ
+  const [isDeckMasterDeleteDialogOpen, setIsDeckMasterDeleteDialogOpen] = useState(false);
+  const [deletingDeckMaster, setDeletingDeckMaster] = useState<DeckMasterWithUsage | null>(null);
+
+  // ==================== MyDeck ダイアログ状態 ====================
+
+  // 【State】: マイデッキ追加ダイアログ
+  const [isMyDeckDialogOpen, setIsMyDeckDialogOpen] = useState(false);
+  const [isMyDeckSubmitting, setIsMyDeckSubmitting] = useState(false);
+
+  // 【State】: マイデッキ削除確認ダイアログ
+  const [isMyDeckDeleteDialogOpen, setIsMyDeckDeleteDialogOpen] = useState(false);
+  const [deletingMyDeck, setDeletingMyDeck] = useState<MyDeck | null>(null);
+
+  // 【削除可能判定マップ】: マイデッキの削除可否を判定（useMemoでメモ化）
   const canDeleteMap = useMemo<Record<string, boolean>>(() => {
     return myDecks.reduce(
       (acc, deck) => {
-        // TODO: 使用履歴に基づいた削除可否判定を実装（TASK-0023）
+        // 全てのデッキは削除可能
         acc[deck.id] = true;
         return acc;
       },
@@ -65,34 +111,150 @@ export const DeckManagePage = () => {
     );
   }, [myDecks]);
 
+  // ==================== DeckMaster ハンドラ ====================
+
   // 【DeckMaster操作ハンドラ】: 新規追加
-  const handleDeckMasterAdd = () => {
-    // TODO: モーダル表示処理を追加（TASK-0023で実装予定）
-  };
+  const handleDeckMasterAdd = useCallback(() => {
+    setDeckMasterDialogMode('create');
+    setEditingDeckMaster(undefined);
+    setDeckMasterDialogError(undefined);
+    setIsDeckMasterDialogOpen(true);
+  }, []);
 
   // 【DeckMaster操作ハンドラ】: 編集
-  const handleDeckMasterEdit = () => {
-    // TODO: モーダル表示処理を追加（TASK-0023で実装予定）
-  };
+  const handleDeckMasterEdit = useCallback((deckMaster: DeckMasterWithUsage) => {
+    setDeckMasterDialogMode('edit');
+    setEditingDeckMaster(deckMaster);
+    setDeckMasterDialogError(undefined);
+    setIsDeckMasterDialogOpen(true);
+  }, []);
 
-  // 【DeckMaster操作ハンドラ】: 削除
-  const handleDeckMasterDelete = () => {
-    // TODO: 削除確認ダイアログ表示処理を追加（TASK-0023で実装予定）
-  };
+  // 【DeckMaster操作ハンドラ】: 削除確認ダイアログを開く
+  const handleDeckMasterDelete = useCallback((deckMaster: DeckMasterWithUsage) => {
+    setDeletingDeckMaster(deckMaster);
+    setIsDeckMasterDeleteDialogOpen(true);
+  }, []);
+
+  // 【DeckMaster操作ハンドラ】: ダイアログを閉じる
+  const handleDeckMasterDialogClose = useCallback(() => {
+    setIsDeckMasterDialogOpen(false);
+    setEditingDeckMaster(undefined);
+    setDeckMasterDialogError(undefined);
+  }, []);
+
+  // 【DeckMaster操作ハンドラ】: 送信処理
+  const handleDeckMasterSubmit = useCallback(
+    async (data: { className: string; deckName: string }) => {
+      setIsDeckMasterSubmitting(true);
+      setDeckMasterDialogError(undefined);
+
+      try {
+        if (deckMasterDialogMode === 'create') {
+          await addDeckMaster(data);
+        } else if (editingDeckMaster) {
+          await updateDeckMaster(editingDeckMaster.id, { deckName: data.deckName });
+        }
+        handleDeckMasterDialogClose();
+      } catch (err) {
+        setDeckMasterDialogError(
+          err instanceof Error ? err.message : 'エラーが発生しました。もう一度お試しください。'
+        );
+      } finally {
+        setIsDeckMasterSubmitting(false);
+      }
+    },
+    [
+      deckMasterDialogMode,
+      editingDeckMaster,
+      addDeckMaster,
+      updateDeckMaster,
+      handleDeckMasterDialogClose,
+    ]
+  );
+
+  // 【DeckMaster操作ハンドラ】: 削除確定
+  const handleDeckMasterDeleteConfirm = useCallback(async () => {
+    if (!deletingDeckMaster) return;
+
+    try {
+      await deleteDeckMaster(deletingDeckMaster.id);
+      setIsDeckMasterDeleteDialogOpen(false);
+      setDeletingDeckMaster(null);
+    } catch {
+      // エラーはStoreで管理される
+    }
+  }, [deletingDeckMaster, deleteDeckMaster]);
+
+  // 【DeckMaster操作ハンドラ】: 削除キャンセル
+  const handleDeckMasterDeleteCancel = useCallback(() => {
+    setIsDeckMasterDeleteDialogOpen(false);
+    setDeletingDeckMaster(null);
+  }, []);
+
+  // ==================== MyDeck ハンドラ ====================
 
   // 【MyDeck操作ハンドラ】: 新規追加
-  const handleMyDeckAdd = () => {
-    // TODO: モーダル表示処理を追加（TASK-0023で実装予定）
-  };
+  const handleMyDeckAdd = useCallback(() => {
+    // デッキマスター一覧を取得してからダイアログを開く
+    fetchDeckMasters();
+    setIsMyDeckDialogOpen(true);
+  }, [fetchDeckMasters]);
 
-  // 【MyDeck操作ハンドラ】: 削除
-  const handleMyDeckDelete = () => {
-    // TODO: 削除確認ダイアログ表示処理を追加（TASK-0023で実装予定）
-  };
+  // 【MyDeck操作ハンドラ】: 削除確認ダイアログを開く
+  const handleMyDeckDelete = useCallback((myDeck: MyDeck) => {
+    setDeletingMyDeck(myDeck);
+    setIsMyDeckDeleteDialogOpen(true);
+  }, []);
+
+  // 【MyDeck操作ハンドラ】: ダイアログを閉じる
+  const handleMyDeckDialogClose = useCallback(() => {
+    setIsMyDeckDialogOpen(false);
+  }, []);
+
+  // 【MyDeck操作ハンドラ】: 送信処理
+  const handleMyDeckSubmit = useCallback(
+    async (input: CreateMyDeckInput) => {
+      setIsMyDeckSubmitting(true);
+
+      try {
+        await addMyDeck({
+          deckId: input.deckId,
+          deckName: input.deckName,
+          deckCode: input.deckCode,
+        });
+        handleMyDeckDialogClose();
+      } catch {
+        // エラーはStoreで管理される
+      } finally {
+        setIsMyDeckSubmitting(false);
+      }
+    },
+    [addMyDeck, handleMyDeckDialogClose]
+  );
+
+  // 【MyDeck操作ハンドラ】: 削除確定
+  const handleMyDeckDeleteConfirm = useCallback(async () => {
+    if (!deletingMyDeck) return;
+
+    try {
+      await deleteMyDeck(deletingMyDeck.id);
+      setIsMyDeckDeleteDialogOpen(false);
+      setDeletingMyDeck(null);
+    } catch {
+      // エラーはStoreで管理される
+    }
+  }, [deletingMyDeck, deleteMyDeck]);
+
+  // 【MyDeck操作ハンドラ】: 削除キャンセル
+  const handleMyDeckDeleteCancel = useCallback(() => {
+    setIsMyDeckDeleteDialogOpen(false);
+    setDeletingMyDeck(null);
+  }, []);
+
+  // ==================== タブ切り替え ====================
 
   // 【タブ切り替えハンドラ】: タブID検証付き（W-002対応）
   const handleTabChange = (tabId: string) => {
-    // タブIDがValidなTabTypeであることを検証
     if (VALID_TAB_IDS.has(tabId as TabType)) {
       setActiveTab(tabId as TabType);
     }
@@ -129,6 +291,46 @@ export const DeckManagePage = () => {
           />
         )}
       </Tabs>
+
+      {/* ==================== DeckMaster ダイアログ ==================== */}
+
+      {/* 【デッキマスター追加/編集ダイアログ】 */}
+      <DeckMasterDialog
+        isOpen={isDeckMasterDialogOpen}
+        mode={deckMasterDialogMode}
+        initialData={editingDeckMaster}
+        onClose={handleDeckMasterDialogClose}
+        onSubmit={handleDeckMasterSubmit}
+        isSubmitting={isDeckMasterSubmitting}
+        error={deckMasterDialogError}
+      />
+
+      {/* 【デッキマスター削除確認ダイアログ】 */}
+      <DeckMasterDeleteConfirmDialog
+        isOpen={isDeckMasterDeleteDialogOpen}
+        target={deletingDeckMaster}
+        onConfirm={handleDeckMasterDeleteConfirm}
+        onCancel={handleDeckMasterDeleteCancel}
+      />
+
+      {/* ==================== MyDeck ダイアログ ==================== */}
+
+      {/* 【マイデッキ追加ダイアログ】 */}
+      <MyDeckDialog
+        isOpen={isMyDeckDialogOpen}
+        deckMasters={deckMasters}
+        isSubmitting={isMyDeckSubmitting}
+        onClose={handleMyDeckDialogClose}
+        onSubmit={handleMyDeckSubmit}
+      />
+
+      {/* 【マイデッキ削除確認ダイアログ】 */}
+      <MyDeckDeleteConfirmDialog
+        isOpen={isMyDeckDeleteDialogOpen}
+        target={deletingMyDeck}
+        onConfirm={handleMyDeckDeleteConfirm}
+        onCancel={handleMyDeckDeleteCancel}
+      />
     </div>
   );
 };

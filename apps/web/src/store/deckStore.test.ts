@@ -1,3 +1,4 @@
+import { createInitialAsyncState } from '@shadowverse-log/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as apiClient from '../api/client';
 import { useDeckStore } from './deckStore';
@@ -29,9 +30,18 @@ describe('Deck Store', () => {
   // 【テスト前準備】: 各テスト実行前にストアの状態を初期化
   beforeEach(() => {
     useDeckStore.setState({
+      _deckMastersState: createInitialAsyncState([]),
+      _myDecksState: createInitialAsyncState([]),
+      _deckMastersWithUsageState: createInitialAsyncState([]),
       deckMasters: [],
+      myDecks: [],
+      deckMastersWithUsage: [],
       isLoading: false,
+      isMyDecksLoading: false,
+      isLoadingDeckMasters: false,
       error: null,
+      myDecksError: null,
+      deckMasterError: null,
     });
     vi.clearAllMocks();
   });
@@ -106,7 +116,15 @@ describe('Deck Store', () => {
       // 【テスト目的】: DeckStoreの clearError() アクションが正常に動作すること 🔵
       // 🔵 信頼性レベル: ユーザーがエラーメッセージを閉じた後の状態管理
 
-      useDeckStore.setState({ error: 'ネットワークエラーが発生しました' });
+      useDeckStore.setState({
+        _deckMastersState: {
+          data: [],
+          isLoading: false,
+          error: 'ネットワークエラーが発生しました',
+        },
+        _myDecksState: createInitialAsyncState([]),
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+      });
 
       useDeckStore.getState().clearError();
 
