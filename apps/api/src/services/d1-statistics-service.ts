@@ -17,15 +17,15 @@ import { getTodayInJST, getDateBeforeDays } from '../utils/date';
  * 勝敗の定数（データベースの値に合わせる）
  */
 const RESULT = {
-  WIN: 'WIN',
-  LOSE: 'LOSE',
+  WIN: '勝ち',
+  LOSE: '負け',
 } as const;
 
 /**
  * ターンの定数（データベースの値に合わせる）
  */
 const TURN = {
-  FIRST: '先行',
+  FIRST: '先攻',
   SECOND: '後攻',
 } as const;
 
@@ -114,14 +114,22 @@ export class D1StatisticsService {
    * @returns 統計情報
    */
   async getStatistics(params: StatisticsParams): Promise<StatisticsResult> {
-    // デフォルト期間の設定（日本時間）
-    const endDate = params.endDate || getTodayInJST();
-    const startDate = params.startDate || getDateBeforeDays(endDate, 7);
-
     // シーズン決定: 指定なしの場合は最新シーズンを取得
     let season = params.season;
     if (season === undefined) {
       season = (await this.getLatestSeason()) ?? undefined;
+    }
+
+    // 日付フィルタリング:
+    // - シーズンが指定されている場合: 日付範囲は任意（未指定ならシーズン全体）
+    // - シーズンが未指定の場合: デフォルトで過去7日間を適用
+    let startDate: string | undefined = params.startDate;
+    let endDate: string | undefined = params.endDate;
+
+    if (!season && !params.startDate && !params.endDate) {
+      // シーズンも日付も未指定の場合のみデフォルト日付範囲を適用
+      endDate = getTodayInJST();
+      startDate = getDateBeforeDays(endDate, 7);
     }
 
     // 対戦履歴を取得
@@ -167,14 +175,23 @@ export class D1StatisticsService {
 
   /**
    * 対戦履歴を取得
+   * 日付・シーズンのフィルタリングは指定された場合のみ適用
    */
   private async fetchBattleLogs(
-    startDate: string,
-    endDate: string,
+    startDate?: string,
+    endDate?: string,
     battleType?: string,
     season?: number
   ) {
-    const conditions = [gte(battleLogs.date, startDate), lte(battleLogs.date, endDate)];
+    const conditions = [];
+
+    // 日付フィルタリング（指定されている場合のみ）
+    if (startDate) {
+      conditions.push(gte(battleLogs.date, startDate));
+    }
+    if (endDate) {
+      conditions.push(lte(battleLogs.date, endDate));
+    }
 
     if (battleType) {
       conditions.push(eq(battleLogs.battleType, battleType));
@@ -182,6 +199,11 @@ export class D1StatisticsService {
 
     if (season) {
       conditions.push(eq(battleLogs.season, season));
+    }
+
+    // 条件がない場合は全件取得
+    if (conditions.length === 0) {
+      return await this.db.select().from(battleLogs);
     }
 
     return await this.db
