@@ -1,4 +1,5 @@
 import type { DeckMasterWithUsage } from '@shadowverse-log/shared';
+import { createInitialAsyncState } from '@shadowverse-log/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as apiClient from '../api/client';
 import { useDeckStore } from './deckStore';
@@ -33,8 +34,17 @@ describe('DeckStore - DeckMaster CRUD', () => {
   // 【テスト前準備】: 各テスト実行前にストアの状態を初期化
   beforeEach(() => {
     useDeckStore.setState({
+      _deckMastersState: createInitialAsyncState([]),
+      _myDecksState: createInitialAsyncState([]),
+      _deckMastersWithUsageState: createInitialAsyncState([]),
+      deckMasters: [],
+      myDecks: [],
       deckMastersWithUsage: [],
+      isLoading: false,
+      isMyDecksLoading: false,
       isLoadingDeckMasters: false,
+      error: null,
+      myDecksError: null,
       deckMasterError: null,
     });
     vi.clearAllMocks();
@@ -117,7 +127,18 @@ describe('DeckStore - DeckMaster CRUD', () => {
         usageCount: 0,
         lastUsedDate: null,
       };
-      useDeckStore.setState({ deckMastersWithUsage: [existingDeck] });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: createInitialAsyncState([]),
+        _deckMastersWithUsageState: {
+          data: [existingDeck],
+          isLoading: false,
+          error: null,
+        },
+        deckMastersWithUsage: [existingDeck],
+        isLoadingDeckMasters: false,
+        deckMasterError: null,
+      });
 
       const newDeck: DeckMasterWithUsage = {
         id: 'deck-002',
@@ -178,7 +199,18 @@ describe('DeckStore - DeckMaster CRUD', () => {
         usageCount: 10,
         lastUsedDate: '2024-01-15',
       };
-      useDeckStore.setState({ deckMastersWithUsage: [existingDeck] });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: createInitialAsyncState([]),
+        _deckMastersWithUsageState: {
+          data: [existingDeck],
+          isLoading: false,
+          error: null,
+        },
+        deckMastersWithUsage: [existingDeck],
+        isLoadingDeckMasters: false,
+        deckMasterError: null,
+      });
 
       const updatedDeck: DeckMasterWithUsage = {
         ...existingDeck,
@@ -242,7 +274,18 @@ describe('DeckStore - DeckMaster CRUD', () => {
           lastUsedDate: null,
         },
       ];
-      useDeckStore.setState({ deckMastersWithUsage: decks });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: createInitialAsyncState([]),
+        _deckMastersWithUsageState: {
+          data: decks,
+          isLoading: false,
+          error: null,
+        },
+        deckMastersWithUsage: decks,
+        isLoadingDeckMasters: false,
+        deckMasterError: null,
+      });
 
       vi.mocked(apiClient.apiClient.del).mockResolvedValueOnce(undefined);
 
@@ -272,7 +315,18 @@ describe('DeckStore - DeckMaster CRUD', () => {
   describe('clearDeckMasterError()', () => {
     it('TC-STORE-DMU-010: エラークリアでdeckMasterErrorがnullになる', () => {
       // 【テスト目的】: clearDeckMasterErrorが正常に動作すること
-      useDeckStore.setState({ deckMasterError: 'エラーメッセージ' });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: createInitialAsyncState([]),
+        _deckMastersWithUsageState: {
+          data: [],
+          isLoading: false,
+          error: 'エラーメッセージ',
+        },
+        deckMastersWithUsage: [],
+        isLoadingDeckMasters: false,
+        deckMasterError: 'エラーメッセージ',
+      });
 
       useDeckStore.getState().clearDeckMasterError();
 
