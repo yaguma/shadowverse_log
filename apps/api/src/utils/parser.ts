@@ -31,6 +31,32 @@ const REQUIRED_CSV_HEADERS = [
 ] as const;
 
 /**
+ * フィールド名のマッピング（後方互換性のため）
+ * - group → groupName
+ */
+function normalizeFieldNames(
+  item: Record<string, unknown>
+): Record<string, unknown> {
+  const normalized = { ...item };
+
+  // group → groupName のマッピング
+  if ('group' in normalized && !('groupName' in normalized)) {
+    normalized.groupName = normalized.group;
+    delete normalized.group;
+  }
+
+  // season を文字列から数値に変換
+  if (typeof normalized.season === 'string' && normalized.season !== '') {
+    const seasonNum = Number.parseInt(normalized.season, 10);
+    if (!Number.isNaN(seasonNum)) {
+      normalized.season = seasonNum;
+    }
+  }
+
+  return normalized;
+}
+
+/**
  * JSON文字列をパース
  *
  * @param data - JSON文字列
@@ -50,7 +76,21 @@ export function parseJSON(data: string): ImportBattleLogInput[] {
     throw new Error(ERROR_MESSAGES.NOT_ARRAY);
   }
 
-  return parsed as ImportBattleLogInput[];
+  // フィールド名を正規化
+  return parsed.map((item) =>
+    normalizeFieldNames(item as Record<string, unknown>)
+  ) as ImportBattleLogInput[];
+}
+
+/**
+ * CSVヘッダーを正規化（後方互換性のため）
+ * - group → groupName
+ */
+function normalizeHeader(header: string): string {
+  if (header === 'group') {
+    return 'groupName';
+  }
+  return header;
 }
 
 /**
@@ -76,7 +116,8 @@ export function parseCSV(data: string): ImportBattleLogInput[] {
     throw new Error(ERROR_MESSAGES.EMPTY_CSV);
   }
 
-  const headers = headerLine.split(',').map((h) => h.trim());
+  // ヘッダーを正規化（group → groupName）
+  const headers = headerLine.split(',').map((h) => normalizeHeader(h.trim()));
 
   // 必須ヘッダーチェック
   const missingHeaders = REQUIRED_CSV_HEADERS.filter((h) => !headers.includes(h));
@@ -102,12 +143,15 @@ export function parseCSV(data: string): ImportBattleLogInput[] {
     }
 
     // オブジェクトに変換
-    const log: Record<string, string> = {};
+    const log: Record<string, unknown> = {};
     headers.forEach((header, index) => {
       log[header] = values[index] || '';
     });
 
-    battleLogs.push(log as unknown as ImportBattleLogInput);
+    // フィールド名を正規化（season の数値変換など）
+    battleLogs.push(
+      normalizeFieldNames(log) as unknown as ImportBattleLogInput
+    );
   }
 
   return battleLogs;
