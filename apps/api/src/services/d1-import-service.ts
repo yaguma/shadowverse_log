@@ -13,8 +13,30 @@ import { parseJSON, parseCSV } from '../utils/parser';
 import { getNowInJST } from '../utils/date';
 
 /**
+ * 日付文字列が有効な日付かどうかを検証
+ * Issue 9: 日付バリデーションの強化
+ * @param date - YYYY-MM-DD形式の日付文字列
+ * @returns 有効な日付であればtrue
+ */
+function isValidDate(date: string): boolean {
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return false;
+  }
+  // 入力された日付と解析後の日付が一致するか確認
+  // これにより2025-13-45のような無効な日付を検出できる
+  const [year, month, day] = date.split('-').map(Number);
+  return (
+    parsedDate.getFullYear() === year &&
+    parsedDate.getMonth() + 1 === month &&
+    parsedDate.getDate() === day
+  );
+}
+
+/**
  * バリデーションスキーマ
  * ※ 登録用スキーマ（battle-logs.validation.ts）と一致させること
+ * Issue 9: 日付バリデーションの強化
  */
 const importBattleLogSchema = z.object({
   id: z.string().optional(),
@@ -22,6 +44,7 @@ const importBattleLogSchema = z.object({
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, '日付はYYYY-MM-DD形式で入力してください')
+    .refine(isValidDate, { message: '有効な日付を入力してください' })
     .refine(
       (date) => {
         const inputDate = new Date(date);
@@ -48,11 +71,6 @@ const importBattleLogSchema = z.object({
   opponentDeckId: z.string().min(1, '相手デッキIDは必須です'),
   season: z.number().int().positive().optional(), // シーズン番号（任意、1以上の整数）
 });
-
-/**
- * ID生成プレフィックス
- */
-const ID_PREFIX = 'log_import';
 
 /**
  * D1ImportService クラス
@@ -143,8 +161,8 @@ export class D1ImportService {
         continue;
       }
 
-      // ID自動生成
-      const id = validatedData.id || `${ID_PREFIX}_${Date.now()}_${i}`;
+      // Issue 12: ID生成の競合状態対策 - crypto.randomUUID()を使用
+      const id = validatedData.id || crypto.randomUUID();
 
       // INSERT
       try {
