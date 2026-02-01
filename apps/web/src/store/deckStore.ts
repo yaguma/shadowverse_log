@@ -123,7 +123,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
 
     try {
       // 【API呼び出し】: API Clientのget()メソッドでデッキマスター一覧を取得 🔵
-      const response = await apiClient.get<DeckMastersResponse>('/deck-master');
+      const response = await apiClient.get<DeckMastersResponse>('/deck-masters');
 
       // 【状態更新】: AsyncStateを成功状態に設定 🔵
       const successState = setAsyncSuccess(response.deckMasters);
@@ -220,7 +220,7 @@ export const useDeckStore = create<DeckState>((set, get) => ({
       );
 
       // 【状態更新】: AsyncStateを成功状態に設定 🔵
-      const successState = setAsyncSuccess(response);
+      const successState = setAsyncSuccess(response.deckMasters);
       set({
         _deckMastersWithUsageState: successState,
         deckMastersWithUsage: successState.data,
