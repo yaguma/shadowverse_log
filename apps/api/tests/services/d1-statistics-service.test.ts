@@ -13,7 +13,7 @@ describe('D1StatisticsService', () => {
   let mockDb: Database;
 
   // テスト用のモック対戦履歴データ
-  // 実際のDBの値に合わせる: result='WIN'/'LOSE', turn='先行'/'後攻'
+  // 実際のDBの値に合わせる: result='勝ち'/'負け', turn='先攻'/'後攻'
   const mockBattleLogs = [
     {
       id: '1',
@@ -23,8 +23,8 @@ describe('D1StatisticsService', () => {
       rank: 'ダイアモンド',
       groupName: 'AAA',
       myDeckId: 'deck-1',
-      turn: '先行',
-      result: 'WIN',
+      turn: '先攻',
+      result: '勝ち',
       opponentDeckId: 'opp-1',
     },
     {
@@ -36,7 +36,7 @@ describe('D1StatisticsService', () => {
       groupName: 'AAA',
       myDeckId: 'deck-1',
       turn: '後攻',
-      result: 'LOSE',
+      result: '負け',
       opponentDeckId: 'opp-2',
     },
     {
@@ -47,8 +47,8 @@ describe('D1StatisticsService', () => {
       rank: 'ダイアモンド',
       groupName: 'AAA',
       myDeckId: 'deck-2',
-      turn: '先行',
-      result: 'WIN',
+      turn: '先攻',
+      result: '勝ち',
       opponentDeckId: 'opp-1',
     },
     {
@@ -60,7 +60,7 @@ describe('D1StatisticsService', () => {
       groupName: 'S',
       myDeckId: 'deck-1',
       turn: '後攻',
-      result: 'WIN',
+      result: '勝ち',
       opponentDeckId: 'opp-3',
     },
   ];
@@ -247,7 +247,7 @@ describe('D1StatisticsService', () => {
   // TC-005: ターン別統計を取得できる 🔵
   // ===========================================
   describe('TC-005: ターン別統計を取得できる', () => {
-    it("turn = '先行' と '後攻' で分けて統計を計算する", async () => {
+    it("turn = '先攻' と '後攻' で分けて統計を計算する", async () => {
       mockDb = createMockDbWithSeasonParam(mockBattleLogs.slice(0, 4));
       service = new D1StatisticsService(mockDb);
 
@@ -339,7 +339,7 @@ describe('D1StatisticsService', () => {
   // ===========================================
   describe('TC-202: 全勝の場合の勝率計算', () => {
     it('全勝の場合、勝率が100.0になる', async () => {
-      const allWins = mockBattleLogs.filter((log) => log.result === 'WIN');
+      const allWins = mockBattleLogs.filter((log) => log.result === '勝ち');
 
       mockDb = createMockDbWithSeasonParam(allWins);
       service = new D1StatisticsService(mockDb);
@@ -478,8 +478,8 @@ describe('D1StatisticsService', () => {
         rank: 'ダイアモンド',
         groupName: 'AAA',
         myDeckId: 'deck-1',
-        turn: '先行',
-        result: 'WIN',
+        turn: '先攻',
+        result: '勝ち',
         opponentDeckId: 'opp-1',
         season: 1,
       },
@@ -492,7 +492,7 @@ describe('D1StatisticsService', () => {
         groupName: 'AAA',
         myDeckId: 'deck-1',
         turn: '後攻',
-        result: 'LOSE',
+        result: '負け',
         opponentDeckId: 'opp-2',
         season: 1,
       },
@@ -504,8 +504,8 @@ describe('D1StatisticsService', () => {
         rank: 'ダイアモンド',
         groupName: 'AAA',
         myDeckId: 'deck-2',
-        turn: '先行',
-        result: 'WIN',
+        turn: '先攻',
+        result: '勝ち',
         opponentDeckId: 'opp-1',
         season: 2,
       },
@@ -518,7 +518,7 @@ describe('D1StatisticsService', () => {
         groupName: 'AAA',
         myDeckId: 'deck-1',
         turn: '後攻',
-        result: 'WIN',
+        result: '勝ち',
         opponentDeckId: 'opp-3',
         season: 2,
       },
@@ -562,9 +562,9 @@ describe('D1StatisticsService', () => {
     });
 
     it('season と他のパラメータを組み合わせてフィルタリングできる', async () => {
-      // シーズン2かつ先行のみ
+      // シーズン2かつ先攻のみ
       const filteredLogs = mockBattleLogsWithSeason.filter(
-        (log) => log.season === 2 && log.turn === '先行'
+        (log) => log.season === 2 && log.turn === '先攻'
       );
 
       // シーズン指定ありの場合はgetLatestSeasonが呼ばれない
