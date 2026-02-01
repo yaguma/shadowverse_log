@@ -164,9 +164,16 @@ export const DeckMasterDialog: React.FC<DeckMasterDialogProps> = ({
       {/* 【モーダル背景】: 背景をクリックしてもクローズしない 🔵 */}
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         {/* 【ダイアログコンテンツ】: フォームを表示 🔵 */}
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div
+          className="bg-white rounded-lg p-6 max-w-md w-full mx-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="deck-master-dialog-title"
+        >
           {/* 【ダイアログタイトル】: モードに応じたタイトルを表示 🔵 */}
-          <h2 className="text-xl font-bold mb-4">{title}</h2>
+          <h2 id="deck-master-dialog-title" className="text-xl font-bold mb-4">
+            {title}
+          </h2>
 
           {/* 【APIエラーメッセージ】: error propがある場合に表示 🔵 */}
           {error && (

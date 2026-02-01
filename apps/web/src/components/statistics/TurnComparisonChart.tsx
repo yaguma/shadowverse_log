@@ -1,8 +1,10 @@
 /**
  * 先攻後攻比較チャートコンポーネント
  * 横向き棒グラフで先攻・後攻の勝率を比較表示
+ * 【パフォーマンス】: React.memoとuseMemoでメモ化
  */
 
+import { memo, useMemo } from 'react';
 import {
   Bar,
   BarChart,
@@ -30,26 +32,34 @@ interface TurnComparisonChartProps {
 
 /**
  * 先攻後攻比較チャートコンポーネント
+ * 【パフォーマンス】: React.memoでメモ化し、親コンポーネントの再レンダリング時に不要な再描画を防止
  */
-export function TurnComparisonChart({ first, second }: TurnComparisonChartProps) {
-  const data = [
-    {
-      name: '先攻',
-      winRate: first.winRate,
-      totalGames: first.totalGames,
-      wins: first.wins,
-      losses: first.losses,
-      fill: '#3b82f6', // 青
-    },
-    {
-      name: '後攻',
-      winRate: second.winRate,
-      totalGames: second.totalGames,
-      wins: second.wins,
-      losses: second.losses,
-      fill: '#ef4444', // 赤
-    },
-  ];
+export const TurnComparisonChart = memo(function TurnComparisonChart({
+  first,
+  second,
+}: TurnComparisonChartProps) {
+  // 【パフォーマンス】: useMemoでデータ変換をメモ化
+  const data = useMemo(
+    () => [
+      {
+        name: '先攻',
+        winRate: first.winRate,
+        totalGames: first.totalGames,
+        wins: first.wins,
+        losses: first.losses,
+        fill: '#3b82f6', // 青
+      },
+      {
+        name: '後攻',
+        winRate: second.winRate,
+        totalGames: second.totalGames,
+        wins: second.wins,
+        losses: second.losses,
+        fill: '#ef4444', // 赤
+      },
+    ],
+    [first, second]
+  );
 
   // カスタムツールチップ
   const CustomTooltip = ({
@@ -130,4 +140,4 @@ export function TurnComparisonChart({ first, second }: TurnComparisonChartProps)
       </div>
     </div>
   );
-}
+});

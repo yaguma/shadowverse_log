@@ -1,4 +1,5 @@
 import type { MyDeck, MyDeckCreateRequest } from '@shadowverse-log/shared';
+import { createInitialAsyncState } from '@shadowverse-log/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as apiClient from '../api/client';
 import { useDeckStore } from './deckStore';
@@ -33,9 +34,18 @@ describe('DeckStore - MyDeck CRUD', () => {
   // 【テスト前準備】: 各テスト実行前にストアの状態を初期化
   beforeEach(() => {
     useDeckStore.setState({
+      _deckMastersState: createInitialAsyncState([]),
+      _myDecksState: createInitialAsyncState([]),
+      _deckMastersWithUsageState: createInitialAsyncState([]),
+      deckMasters: [],
       myDecks: [],
+      deckMastersWithUsage: [],
+      isLoading: false,
       isMyDecksLoading: false,
+      isLoadingDeckMasters: false,
+      error: null,
       myDecksError: null,
+      deckMasterError: null,
     });
     vi.clearAllMocks();
   });
@@ -52,7 +62,18 @@ describe('DeckStore - MyDeck CRUD', () => {
         isActive: true,
         createdAt: '2024-01-01T00:00:00Z',
       };
-      useDeckStore.setState({ myDecks: [existingDeck] });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: {
+          data: [existingDeck],
+          isLoading: false,
+          error: null,
+        },
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+        myDecks: [existingDeck],
+        isMyDecksLoading: false,
+        myDecksError: null,
+      });
 
       const newDeck: MyDeck = {
         id: 'mydeck-002',
@@ -132,7 +153,18 @@ describe('DeckStore - MyDeck CRUD', () => {
         isActive: true,
         createdAt: '2024-01-01T00:00:00Z',
       };
-      useDeckStore.setState({ myDecks: [existingDeck] });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: {
+          data: [existingDeck],
+          isLoading: false,
+          error: null,
+        },
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+        myDecks: [existingDeck],
+        isMyDecksLoading: false,
+        myDecksError: null,
+      });
 
       const mockError = new Error('追加に失敗しました');
       vi.mocked(apiClient.apiClient.post).mockRejectedValueOnce(mockError);
@@ -172,7 +204,18 @@ describe('DeckStore - MyDeck CRUD', () => {
           createdAt: '2024-01-02T00:00:00Z',
         },
       ];
-      useDeckStore.setState({ myDecks: decks });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: {
+          data: decks,
+          isLoading: false,
+          error: null,
+        },
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+        myDecks: decks,
+        isMyDecksLoading: false,
+        myDecksError: null,
+      });
 
       vi.mocked(apiClient.apiClient.del).mockResolvedValueOnce(undefined);
 
@@ -194,7 +237,18 @@ describe('DeckStore - MyDeck CRUD', () => {
         isActive: true,
         createdAt: '2024-01-01T00:00:00Z',
       };
-      useDeckStore.setState({ myDecks: [existingDeck] });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: {
+          data: [existingDeck],
+          isLoading: false,
+          error: null,
+        },
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+        myDecks: [existingDeck],
+        isMyDecksLoading: false,
+        myDecksError: null,
+      });
 
       vi.mocked(apiClient.apiClient.del).mockImplementation(() => {
         // 呼び出し時点でisMyDecksLoadingがtrueであることを確認
@@ -217,7 +271,18 @@ describe('DeckStore - MyDeck CRUD', () => {
         isActive: true,
         createdAt: '2024-01-01T00:00:00Z',
       };
-      useDeckStore.setState({ myDecks: [existingDeck] });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: {
+          data: [existingDeck],
+          isLoading: false,
+          error: null,
+        },
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+        myDecks: [existingDeck],
+        isMyDecksLoading: false,
+        myDecksError: null,
+      });
 
       const mockError = new Error('対戦履歴から参照されているため削除できません');
       vi.mocked(apiClient.apiClient.del).mockRejectedValueOnce(mockError);
@@ -243,7 +308,18 @@ describe('DeckStore - MyDeck CRUD', () => {
         isActive: true,
         createdAt: '2024-01-01T00:00:00Z',
       };
-      useDeckStore.setState({ myDecks: [existingDeck] });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: {
+          data: [existingDeck],
+          isLoading: false,
+          error: null,
+        },
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+        myDecks: [existingDeck],
+        isMyDecksLoading: false,
+        myDecksError: null,
+      });
 
       const mockError = new Error('削除に失敗しました');
       vi.mocked(apiClient.apiClient.del).mockRejectedValueOnce(mockError);
@@ -260,7 +336,18 @@ describe('DeckStore - MyDeck CRUD', () => {
   describe('clearMyDecksError()', () => {
     it('TC-STORE-MD-009: エラークリアでmyDecksErrorがnullになる', () => {
       // 【テスト目的】: clearMyDecksErrorが正常に動作すること
-      useDeckStore.setState({ myDecksError: 'エラーメッセージ' });
+      useDeckStore.setState({
+        _deckMastersState: createInitialAsyncState([]),
+        _myDecksState: {
+          data: [],
+          isLoading: false,
+          error: 'エラーメッセージ',
+        },
+        _deckMastersWithUsageState: createInitialAsyncState([]),
+        myDecks: [],
+        isMyDecksLoading: false,
+        myDecksError: 'エラーメッセージ',
+      });
 
       useDeckStore.getState().clearMyDecksError();
 

@@ -1,8 +1,10 @@
 /**
  * 【機能概要】: 対戦相手クラス分布円グラフコンポーネント
  * 【実装方針】: OpponentDeckPieChartを参考に、クラス別の集計を表示
+ * 【パフォーマンス】: React.memoでメモ化
  */
 
+import { memo } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { StatisticsResponse } from '../../types';
 
@@ -44,8 +46,11 @@ const CLASS_COLORS: Record<string, string> = {
 
 /**
  * 【機能概要】: 対戦相手クラス分布円グラフコンポーネント
+ * 【パフォーマンス】: React.memoでメモ化し、親コンポーネントの再レンダリング時に不要な再描画を防止
  */
-export function OpponentClassPieChart({ data }: OpponentClassPieChartProps) {
+export const OpponentClassPieChart = memo(function OpponentClassPieChart({
+  data,
+}: OpponentClassPieChartProps) {
   // 【入力値検証】: データが空配列、null、undefinedの場合の早期リターン
   if (!data || data.length === 0) {
     return (
@@ -119,4 +124,4 @@ export function OpponentClassPieChart({ data }: OpponentClassPieChartProps) {
       </div>
     );
   }
-}
+});

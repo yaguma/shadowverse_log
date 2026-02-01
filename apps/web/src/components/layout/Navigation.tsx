@@ -10,10 +10,10 @@ export function Navigation() {
     <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex space-x-2 py-3">
-          <NavLink to="/" className={linkClass}>
+          <NavLink to="/" className={linkClass} data-testid="nav-battle-log">
             対戦履歴
           </NavLink>
-          <NavLink to="/statistics" className={linkClass}>
+          <NavLink to="/statistics" className={linkClass} data-testid="nav-statistics">
             統計
           </NavLink>
           <NavLink to="/import" className={linkClass}>

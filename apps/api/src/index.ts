@@ -57,10 +57,11 @@ app.use('*', logger());
 // レート制限: 100リクエスト/分
 app.use('/api/*', rateLimit({ limit: 100, windowMs: 60000 }));
 // 認証ミドルウェア: TASK-0040で有効化
+// Issue 3: デバッグモードを環境変数で制御
 // 開発環境ではスキップ、本番環境では有効化
-app.use(
-  '/api/*',
-  authMiddleware({
+app.use('/api/*', async (c, next) => {
+  const isDevelopment = c.env.ENVIRONMENT === 'development';
+  const middleware = authMiddleware({
     skipPaths: [
       '/api/health',
       /^\/api\/migration/,
@@ -70,9 +71,10 @@ app.use(
       /^\/api\/my-decks/,
       /^\/api\/statistics/,
     ],
-    debug: true,
-  })
-);
+    debug: isDevelopment,
+  });
+  return middleware(c, next);
+});
 
 // ルートエンドポイント
 app.get('/', (c) => {

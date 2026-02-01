@@ -2,9 +2,11 @@
  * 【機能概要】: 対戦相手デッキ分布円グラフコンポーネント
  * 【実装方針】: TDD Greenフェーズの最小実装、Rechartsを使用してシンプルに実装
  * 【テスト対応】: OpponentDeckPieChart.test.tsxの全テストケースを通すための実装
+ * 【パフォーマンス】: React.memoとuseMemoでメモ化
  * 🔵 信頼性レベル: REQ-GRAPH-001〜012に基づいた実装
  */
 
+import { memo, useMemo } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { StatisticsResponse } from '../../types';
 
@@ -76,8 +78,9 @@ const DECK_COLORS = [
  *   - カラーパレットの重複削除（品質向上）
  *   - エラーログの環境変数制御（セキュリティ強化）
  *   - 日本語コメントの充実（保守性向上）
+ *   - React.memoとuseMemoでメモ化（パフォーマンス向上）
  * 【設計方針】: 単一責任原則（円グラフ表示のみに特化）
- * 【パフォーマンス】: O(n)の時間計算量で効率的（nはデッキ数）
+ * 【パフォーマンス】: O(n)の時間計算量で効率的（nはデッキ数）、React.memoで不要な再レンダリングを防止
  * 【保守性】: 詳細な日本語コメントで将来の変更を容易化
  * 【テスト対応】: TC-GRAPH-001〜014の全テストケースを通すための実装
  * 🔵 信頼性レベル: REQ-GRAPH-001〜012、EDGE-GRAPH-001〜002に基づく
@@ -86,7 +89,9 @@ const DECK_COLORS = [
  * @param props.data - 相手デッキ統計データ配列（StatisticsResponse['byOpponentDeck']型）
  * @returns 円グラフコンポーネント、または空データ/エラー時のフォールバック表示
  */
-export function OpponentDeckPieChart({ data }: OpponentDeckPieChartProps) {
+export const OpponentDeckPieChart = memo(function OpponentDeckPieChart({
+  data,
+}: OpponentDeckPieChartProps) {
   // 【入力値検証】: データが空配列、null、undefinedの場合の早期リターン
   // 【テスト対応】: TC-GRAPH-009（空データ時のフォールバック表示）を満たすため
   // 🟡 信頼性レベル: REQ-GRAPH-101から妥当な推測
@@ -206,4 +211,4 @@ export function OpponentDeckPieChart({ data }: OpponentDeckPieChartProps) {
       </div>
     );
   }
-}
+});

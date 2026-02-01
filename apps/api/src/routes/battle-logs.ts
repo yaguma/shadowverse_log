@@ -10,6 +10,8 @@ import { Hono } from 'hono';
 import { createDb } from '../db';
 import { BattleLogsRepository } from '../db/repositories/battle-logs-repository';
 import { NewBattleLogSchema } from '../db/schema/battle-logs.validation';
+import { createMeta, createErrorResponse } from '../utils/response';
+import { isValidUUID } from '../utils/validation';
 
 /** 環境バインディング型 */
 type Bindings = {
@@ -17,27 +19,6 @@ type Bindings = {
 };
 
 const battleLogs = new Hono<{ Bindings: Bindings }>();
-
-/**
- * メタ情報を生成
- */
-function createMeta() {
-  return {
-    timestamp: new Date().toISOString(),
-    requestId: crypto.randomUUID(),
-  };
-}
-
-/**
- * エラーレスポンスを生成
- */
-function createErrorResponse(code: string, message: string, details?: Record<string, string>) {
-  return {
-    success: false as const,
-    error: { code, message, ...(details && { details }) },
-    meta: createMeta(),
-  };
-}
 
 /**
  * GET /api/battle-logs
@@ -215,6 +196,11 @@ battleLogs.get('/latest-season', async (c) => {
 battleLogs.delete('/:id', async (c) => {
   try {
     const id = c.req.param('id');
+
+    // UUIDバリデーション（Issue 2: 一貫性のため追加）
+    if (!isValidUUID(id)) {
+      return c.json(createErrorResponse('VALIDATION_ERROR', '無効なID形式です'), 400);
+    }
 
     // データベース接続とリポジトリ初期化
     const db = createDb(c.env.DB);

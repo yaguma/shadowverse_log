@@ -7,7 +7,7 @@
  * - エラーメッセージの日本語変換
  */
 
-import type { ValidationError, DeleteConstraintError } from '../types/api.js';
+import type { DeleteConstraintError, ValidationError } from '../types/api.js';
 
 /**
  * APIエラーレスポンスがValidationErrorかどうかを判定する
@@ -35,15 +35,40 @@ export function isDeleteConstraintError(error: unknown): error is DeleteConstrai
 
 /**
  * バリデーション制約を日本語メッセージに変換する
+ * Zodのエラーコードに対応
  */
 export function translateValidationConstraint(constraint: string, value: unknown): string {
-  const translations: Record<string, string> = {
-    required: '必須項目です',
-    minLength: `${value}文字以上で入力してください`,
-    maxLength: `${value}文字以下で入力してください`,
-    invalidClassName: '無効なクラス名です',
-  };
-  return translations[constraint] ?? `バリデーションエラー: ${constraint}`;
+  switch (constraint) {
+    case 'invalid_type':
+      return '必須項目です';
+    case 'too_small':
+      return typeof value === 'number'
+        ? `${value}文字以上で入力してください`
+        : '入力値が短すぎます';
+    case 'too_big':
+      return typeof value === 'number'
+        ? `${value}文字以下で入力してください`
+        : '入力値が長すぎます';
+    case 'invalid_enum_value':
+      return '無効な値です';
+    case 'invalid_string':
+      return '無効な文字列形式です';
+    // 後方互換性のための旧キー
+    case 'required':
+      return '必須項目です';
+    case 'minLength':
+      return typeof value === 'number'
+        ? `${value}文字以上で入力してください`
+        : '入力値が短すぎます';
+    case 'maxLength':
+      return typeof value === 'number'
+        ? `${value}文字以下で入力してください`
+        : '入力値が長すぎます';
+    case 'invalidClassName':
+      return '無効なクラス名です';
+    default:
+      return `バリデーションエラー: ${constraint}`;
+  }
 }
 
 /**
@@ -52,7 +77,9 @@ export function translateValidationConstraint(constraint: string, value: unknown
 export function getValidationErrorMessages(error: ValidationError): Record<string, string> {
   const messages: Record<string, string> = {};
   for (const detail of error.details) {
-    messages[detail.field] = translateValidationConstraint(detail.constraint, detail.value);
+    // detailにmessageがあればそれを使用、なければ旧方式でメッセージを生成
+    messages[detail.field] =
+      detail.message || translateValidationConstraint(detail.constraint, detail.value);
   }
   return messages;
 }

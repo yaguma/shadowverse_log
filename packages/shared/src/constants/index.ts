@@ -3,12 +3,22 @@ import type { BattleResult, BattleType, Group, Rank, Turn } from '../types/battl
 /**
  * 対戦タイプの定数配列
  */
-export const BATTLE_TYPES: readonly BattleType[] = ['ランクマッチ', '対戦台', 'ロビー大会'] as const;
+export const BATTLE_TYPES: readonly BattleType[] = [
+  'ランクマッチ',
+  '対戦台',
+  'ロビー大会',
+] as const;
 
 /**
  * ランクの定数配列
  */
-export const RANKS: readonly Rank[] = ['サファイア', 'ダイアモンド', 'ルビー', 'トパーズ', '-'] as const;
+export const RANKS: readonly Rank[] = [
+  'サファイア',
+  'ダイアモンド',
+  'ルビー',
+  'トパーズ',
+  '-',
+] as const;
 
 /**
  * グループの定数配列
@@ -43,7 +53,8 @@ export const CLASS_NAMES = [
   'ロイヤル',
   'ウィッチ',
   'ドラゴン',
-  'ナイトメア',
+  'ネクロマンサー',
+  'ヴァンパイア',
   'ビショップ',
   'ネメシス',
 ] as const;

@@ -7,11 +7,12 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-009, REQ-010, REQ-011, REQ-032, REQ-033）に基づく
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { BattleLogDetailModal } from '../components/battle-log/BattleLogDetailModal';
 import { BattleLogForm } from '../components/battle-log/BattleLogForm';
 import { BattleLogList } from '../components/battle-log/BattleLogList';
 import { DeleteConfirmDialog } from '../components/battle-log/DeleteConfirmDialog';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { useBattleLogStore } from '../store/battleLogStore';
 import { useDeckStore } from '../store/deckStore';
 import type { BattleLog, BattleLogWithDeckNames } from '../types';
@@ -97,10 +98,16 @@ export function BattleLogListPage() {
    * 【実装方針】: isFormOpenをfalseに設定してモーダルを閉じる
    * 🔵 信頼性レベル: 一般的なフォームUXパターンから
    */
-  const handleFormCancel = () => {
+  const handleFormCancel = useCallback(() => {
     // 【フォームクローズ】: isFormOpenをfalseに設定 🔵
     setIsFormOpen(false);
-  };
+  }, []);
+
+  /**
+   * 【Escキーハンドリング】: Escキーでフォームモーダルを閉じる
+   * 【リファクタリング】: 011-escape-key-handler-duplication.md に基づきカスタムフックを使用
+   */
+  useEscapeKey(handleFormCancel, isFormOpen);
 
   /**
    * 【削除ボタンハンドラー】: 削除確認ダイアログを表示

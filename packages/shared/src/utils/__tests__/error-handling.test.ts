@@ -1,15 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import type { DeleteConstraintError, ValidationError } from '../../types/api.js';
 import {
-  isValidationError,
-  isDeleteConstraintError,
-  getValidationErrorMessages,
-  getReferenceCount,
   getEntityType,
-  translateValidationConstraint,
-  translateDeleteConstraintError,
+  getReferenceCount,
+  getValidationErrorMessages,
+  isDeleteConstraintError,
+  isValidationError,
   translateApiError,
+  translateDeleteConstraintError,
+  translateValidationConstraint,
 } from '../error-handling.js';
-import type { ValidationError, DeleteConstraintError } from '../../types/api.js';
 
 describe('error-handling', () => {
   // ===================================
@@ -21,7 +21,7 @@ describe('error-handling', () => {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
         details: [
-          { field: 'deckName', constraint: 'required', value: '' },
+          { field: 'deckName', constraint: 'required', value: '', message: '必須項目です' },
         ],
       };
       expect(isValidationError(error)).toBe(true);
@@ -61,8 +61,13 @@ describe('error-handling', () => {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
         details: [
-          { field: 'deckName', constraint: 'required', value: '' },
-          { field: 'className', constraint: 'invalidClassName', value: 'invalid' },
+          { field: 'deckName', constraint: 'required', value: '', message: '必須項目です' },
+          {
+            field: 'className',
+            constraint: 'invalidClassName',
+            value: 'invalid',
+            message: '無効なクラス名です',
+          },
         ],
       };
       const messages = getValidationErrorMessages(error);
@@ -77,7 +82,12 @@ describe('error-handling', () => {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
         details: [
-          { field: 'deckName', constraint: 'minLength', value: 3 },
+          {
+            field: 'deckName',
+            constraint: 'minLength',
+            value: 3,
+            message: '3文字以上で入力してください',
+          },
         ],
       };
       const messages = getValidationErrorMessages(error);
@@ -91,7 +101,12 @@ describe('error-handling', () => {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
         details: [
-          { field: 'deckName', constraint: 'maxLength', value: 50 },
+          {
+            field: 'deckName',
+            constraint: 'maxLength',
+            value: 50,
+            message: '50文字以下で入力してください',
+          },
         ],
       };
       const messages = getValidationErrorMessages(error);
@@ -105,7 +120,12 @@ describe('error-handling', () => {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
         details: [
-          { field: 'deckName', constraint: 'unknownConstraint', value: null },
+          {
+            field: 'deckName',
+            constraint: 'unknownConstraint',
+            value: null,
+            message: 'バリデーションエラー: unknownConstraint',
+          },
         ],
       };
       const messages = getValidationErrorMessages(error);
@@ -233,7 +253,9 @@ describe('error-handling', () => {
     });
 
     it('invalidClassName制約を日本語に変換する', () => {
-      expect(translateValidationConstraint('invalidClassName', 'invalid')).toBe('無効なクラス名です');
+      expect(translateValidationConstraint('invalidClassName', 'invalid')).toBe(
+        '無効なクラス名です'
+      );
     });
 
     it('未知の制約はデフォルトメッセージを返す', () => {
@@ -287,8 +309,13 @@ describe('error-handling', () => {
         code: 'VALIDATION_ERROR',
         message: 'バリデーションエラー',
         details: [
-          { field: 'deckName', constraint: 'required', value: '' },
-          { field: 'className', constraint: 'invalidClassName', value: 'invalid' },
+          { field: 'deckName', constraint: 'required', value: '', message: '必須項目です' },
+          {
+            field: 'className',
+            constraint: 'invalidClassName',
+            value: 'invalid',
+            message: '無効なクラス名です',
+          },
         ],
       };
       const message = translateApiError(error);
@@ -307,9 +334,7 @@ describe('error-handling', () => {
         },
       };
       const message = translateApiError(error);
-      expect(message).toBe(
-        'このデッキ種別は5件の対戦履歴で使用されているため削除できません'
-      );
+      expect(message).toBe('このデッキ種別は5件の対戦履歴で使用されているため削除できません');
     });
 
     it('messageプロパティを持つオブジェクトはmessageを返す', () => {
