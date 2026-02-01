@@ -1,8 +1,10 @@
 /**
  * 勝率ゲージコンポーネント
  * 半円型のプログレスバーで勝率を視覚的に表示
+ * 【パフォーマンス】: React.memoとuseMemoでメモ化
  */
 
+import { memo, useMemo } from 'react';
 import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from 'recharts';
 
 interface WinRateGaugeProps {
@@ -28,24 +30,37 @@ function getColorByWinRate(rate: number): string {
 
 /**
  * 勝率ゲージコンポーネント
+ * 【パフォーマンス】: React.memoでメモ化し、親コンポーネントの再レンダリング時に不要な再描画を防止
  */
-export function WinRateGauge({ winRate, totalGames, wins, losses }: WinRateGaugeProps) {
-  const data = [
-    {
-      name: '勝率',
-      value: winRate,
-      fill: getColorByWinRate(winRate),
-    },
-  ];
+export const WinRateGauge = memo(function WinRateGauge({
+  winRate,
+  totalGames,
+  wins,
+  losses,
+}: WinRateGaugeProps) {
+  // 【パフォーマンス】: useMemoでデータ変換をメモ化
+  const data = useMemo(
+    () => [
+      {
+        name: '勝率',
+        value: winRate,
+        fill: getColorByWinRate(winRate),
+      },
+    ],
+    [winRate]
+  );
 
-  // 背景用のデータ（常に100%）
-  const backgroundData = [
-    {
-      name: 'background',
-      value: 100,
-      fill: '#e5e7eb', // グレー
-    },
-  ];
+  // 背景用のデータ（常に100%） - 定数なのでメモ化不要
+  const backgroundData = useMemo(
+    () => [
+      {
+        name: 'background',
+        value: 100,
+        fill: '#e5e7eb', // グレー
+      },
+    ],
+    []
+  );
 
   return (
     <div className="flex flex-col items-center">
@@ -96,4 +111,4 @@ export function WinRateGauge({ winRate, totalGames, wins, losses }: WinRateGauge
       </div>
     </div>
   );
-}
+});

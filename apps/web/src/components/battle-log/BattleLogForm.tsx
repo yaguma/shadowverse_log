@@ -9,6 +9,7 @@
 
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import { logger } from '../../utils/logger';
 import { useBattleLogStore } from '../../store/battleLogStore';
 import { useDeckStore } from '../../store/deckStore';
 import type {
@@ -323,7 +324,7 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         }
       } catch (error) {
         // 【エラー処理】: エラーはZustand Storeで管理されているため、ここでは何もしない 🔵
-        console.error('Failed to create battle log:', error);
+        logger.error('Failed to create battle log:', error);
       }
     },
     [formData, validateForm, createBattleLog, onSuccess]

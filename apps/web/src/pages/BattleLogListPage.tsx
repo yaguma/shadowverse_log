@@ -12,6 +12,7 @@ import { BattleLogDetailModal } from '../components/battle-log/BattleLogDetailMo
 import { BattleLogForm } from '../components/battle-log/BattleLogForm';
 import { BattleLogList } from '../components/battle-log/BattleLogList';
 import { DeleteConfirmDialog } from '../components/battle-log/DeleteConfirmDialog';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { useBattleLogStore } from '../store/battleLogStore';
 import { useDeckStore } from '../store/deckStore';
 import type { BattleLog, BattleLogWithDeckNames } from '../types';
@@ -104,21 +105,9 @@ export function BattleLogListPage() {
 
   /**
    * 【Escキーハンドリング】: Escキーでフォームモーダルを閉じる
-   * 【実装方針】: キーボードイベントをリッスンしてEscキーでダイアログを閉じる
-   * 🔵 信頼性レベル: アクセシビリティ要件に基づく
+   * 【リファクタリング】: 011-escape-key-handler-duplication.md に基づきカスタムフックを使用
    */
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFormOpen) {
-        handleFormCancel();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isFormOpen, handleFormCancel]);
+  useEscapeKey(handleFormCancel, isFormOpen);
 
   /**
    * 【削除ボタンハンドラー】: 削除確認ダイアログを表示
