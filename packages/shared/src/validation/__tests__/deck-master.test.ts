@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ClassNameSchema,
   DeckMasterCreateRequestSchema,
   DeckMasterUpdateRequestSchema,
-  ClassNameSchema,
   DeckNameSchema,
 } from '../deck-master.js';
 
@@ -32,7 +32,8 @@ describe('DeckMasterCreateRequestSchema', () => {
         'ロイヤル',
         'ウィッチ',
         'ドラゴン',
-        'ナイトメア',
+        'ネクロマンサー',
+        'ヴァンパイア',
         'ビショップ',
         'ネメシス',
       ];

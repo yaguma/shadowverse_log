@@ -1,51 +1,28 @@
-import { z } from 'zod';
-
 /**
- * 対戦タイプ
+ * Battle Log バリデーションスキーマ
+ * 共有パッケージから再エクスポート
  */
-export const BattleTypeSchema = z.enum(['ランクマッチ', '対戦台', 'ロビー大会']);
-export type BattleType = z.infer<typeof BattleTypeSchema>;
+export {
+  BattleTypeSchema,
+  RankSchema,
+  TurnSchema,
+  ResultSchema,
+  NewBattleLogSchema,
+  UpdateBattleLogSchema,
+  type NewBattleLogInput,
+  type UpdateBattleLogInput,
+} from '@shadowverse-log/shared';
 
-/**
- * ランク
- */
-export const RankSchema = z.enum(['サファイア', 'ダイアモンド', 'ルビー', 'トパーズ', '-']);
-export type Rank = z.infer<typeof RankSchema>;
+// 共有パッケージの型から推論した型をエクスポート
+import type {
+  BattleTypeSchema as BattleTypeSchemaType,
+  RankSchema as RankSchemaType,
+  TurnSchema as TurnSchemaType,
+  ResultSchema as ResultSchemaType,
+} from '@shadowverse-log/shared';
+import type { z } from 'zod';
 
-/**
- * 先攻/後攻
- */
-export const TurnSchema = z.enum(['先攻', '後攻']);
-export type Turn = z.infer<typeof TurnSchema>;
-
-/**
- * 勝敗結果
- */
-export const ResultSchema = z.enum(['勝ち', '負け']);
-export type Result = z.infer<typeof ResultSchema>;
-
-/**
- * 新規対戦履歴の入力スキーマ
- */
-export const NewBattleLogSchema = z.object({
-  id: z.string().uuid().optional(),
-  userId: z.string().min(1).optional(), // Phase 2で必須化
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '日付はYYYY-MM-DD形式で入力してください'),
-  battleType: BattleTypeSchema,
-  rank: RankSchema,
-  groupName: z.string().min(1, 'グループ名は必須です'),
-  myDeckId: z.string().min(1, '自分のデッキIDは必須です'),
-  turn: TurnSchema,
-  result: ResultSchema,
-  opponentDeckId: z.string().min(1, '相手のデッキIDは必須です'),
-  season: z.number().int().positive().optional(), // シーズン番号（任意、1以上の整数）
-});
-
-export type NewBattleLogInput = z.infer<typeof NewBattleLogSchema>;
-
-/**
- * 対戦履歴更新の入力スキーマ
- */
-export const UpdateBattleLogSchema = NewBattleLogSchema.partial().omit({ id: true });
-
-export type UpdateBattleLogInput = z.infer<typeof UpdateBattleLogSchema>;
+export type BattleType = z.infer<typeof BattleTypeSchemaType>;
+export type Rank = z.infer<typeof RankSchemaType>;
+export type Turn = z.infer<typeof TurnSchemaType>;
+export type Result = z.infer<typeof ResultSchemaType>;

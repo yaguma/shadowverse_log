@@ -117,17 +117,24 @@ export interface ApiError {
 }
 
 /**
+ * バリデーションエラー詳細
+ * REQ-EXT-403 対応
+ */
+export interface ValidationErrorDetail {
+  field: string;
+  constraint: string;
+  value: unknown;
+  message: string;
+}
+
+/**
  * バリデーションエラー
  * REQ-EXT-403 対応
  */
 export interface ValidationError {
   code: 'VALIDATION_ERROR';
   message: string;
-  details: {
-    field: string;
-    constraint: string;
-    value: unknown;
-  }[];
+  details: ValidationErrorDetail[];
 }
 
 /**
