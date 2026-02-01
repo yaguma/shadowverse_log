@@ -16,6 +16,8 @@ import { CLASS_NAMES } from '@shadowverse-log/shared';
 import { createDb } from '../db';
 import { DeckMasterRepository } from '../db/repositories/deck-master-repository';
 import { DeckMasterIdSchema, PutDeckMasterSchema } from '../db/schema/deck-master.validation';
+import { createMeta, createErrorResponse } from '../utils/response';
+import { isValidUUID } from '../utils/validation';
 
 /** 環境バインディング型 */
 type Bindings = {
@@ -23,40 +25,6 @@ type Bindings = {
 };
 
 const deckMaster = new Hono<{ Bindings: Bindings }>();
-
-/**
- * メタ情報を生成（countを含む）
- */
-function createMeta(count?: number) {
-  return {
-    timestamp: new Date().toISOString(),
-    requestId: crypto.randomUUID(),
-    ...(count !== undefined && { count }),
-  };
-}
-
-/**
- * エラーレスポンスを生成
- */
-function createErrorResponse(code: string, message: string, details?: unknown) {
-  return {
-    success: false as const,
-    error: {
-      code,
-      message,
-      ...(details !== undefined && { details }),
-    },
-    meta: createMeta(),
-  };
-}
-
-/**
- * UUIDの形式を検証
- */
-function isValidUUID(id: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(id);
-}
 
 /**
  * GET /api/deck-master

@@ -7,20 +7,14 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-001, REQ-002, REQ-003, REQ-030, REQ-031, REQ-603）に基づく
  */
 
+import { BATTLE_RESULTS, BATTLE_TYPES, GROUPS, RANKS, TURNS } from '@shadowverse-log/shared';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { logger } from '../../utils/logger';
 import { useBattleLogStore } from '../../store/battleLogStore';
 import { useDeckStore } from '../../store/deckStore';
-import type {
-  BattleResult,
-  BattleType,
-  CreateBattleLogRequest,
-  Group,
-  Rank,
-  Turn,
-} from '../../types';
+import type { CreateBattleLogRequest } from '../../types';
 import { getTodayInJST } from '../../utils/date';
+import { logger } from '../../utils/logger';
 
 /**
  * 【型定義】: BattleLogFormコンポーネントのプロップス型
@@ -50,36 +44,14 @@ interface ValidationErrors {
 
 /**
  * 【定数定義】: 選択肢の定義
- * 【改善内容】: readonly化により型推論を改善し、不要な配列生成を防止
- * 【パフォーマンス】: 各レンダリングでの配列生成を防ぎ、メモリ効率を向上
- * 🔵 信頼性レベル: types/index.ts の定数定義に基づく
- * 🟡 改善: readonly化によるパフォーマンス最適化
+ * Issue 007: @shadowverse-log/sharedパッケージの定数を使用するように修正
+ * 🔵 信頼性レベル: packages/shared/src/constants/index.ts に基づく
  */
-const BATTLE_TYPES_OPTIONS: readonly BattleType[] = [
-  'ランクマッチ',
-  '対戦台',
-  'ロビー大会',
-] as const;
-const RANKS_OPTIONS: readonly Rank[] = [
-  'サファイア',
-  'ダイアモンド',
-  'ルビー',
-  'トパーズ',
-  '-',
-] as const;
-const GROUPS_OPTIONS: readonly Group[] = [
-  'A',
-  'AA',
-  'AAA',
-  'Master',
-  'GrandMaster0',
-  'GrandMaster1',
-  'GrandMaster2',
-  'GrandMaster3',
-  '-',
-] as const;
-const TURNS_OPTIONS: readonly Turn[] = ['先攻', '後攻'] as const;
-const BATTLE_RESULTS_OPTIONS: readonly BattleResult[] = ['勝ち', '負け'] as const;
+const BATTLE_TYPES_OPTIONS = BATTLE_TYPES;
+const RANKS_OPTIONS = RANKS;
+const GROUPS_OPTIONS = GROUPS;
+const TURNS_OPTIONS = TURNS;
+const BATTLE_RESULTS_OPTIONS = BATTLE_RESULTS;
 
 /**
  * 【機能概要】: Battle Log登録フォームコンポーネント
