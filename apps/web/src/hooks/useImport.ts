@@ -1,3 +1,4 @@
+import { BATTLE_RESULTS, BATTLE_TYPES, GROUPS, RANKS, TURNS } from '@shadowverse-log/shared';
 import { useState } from 'react';
 import { apiClient } from '../api/client';
 import type { BattleResult, BattleType, Group, Rank, Turn } from '../types';
@@ -56,24 +57,14 @@ const REQUIRED_FIELDS = [
 
 /**
  * 【定数定義】: 許可されているEnum値
- * 【目的】: バリデーション時にEnum値の妥当性をチェックするための定数
- * 🔵 信頼性レベル: types/index.tsのEnum定義より
+ * Issue 007: @shadowverse-log/sharedパッケージの定数を使用するように修正
+ * 🔵 信頼性レベル: packages/shared/src/constants/index.ts に基づく
  */
-const ALLOWED_BATTLE_TYPES: readonly BattleType[] = ['ランクマッチ', '対戦台', 'ロビー大会'];
-const ALLOWED_RANKS: readonly Rank[] = ['サファイア', 'ダイアモンド', 'ルビー', 'トパーズ', '-'];
-const ALLOWED_GROUPS: readonly Group[] = [
-  'A',
-  'AA',
-  'AAA',
-  'Master',
-  'GrandMaster0',
-  'GrandMaster1',
-  'GrandMaster2',
-  'GrandMaster3',
-  '-',
-];
-const ALLOWED_TURNS: readonly Turn[] = ['先攻', '後攻'];
-const ALLOWED_BATTLE_RESULTS: readonly BattleResult[] = ['勝ち', '負け'];
+const ALLOWED_BATTLE_TYPES = BATTLE_TYPES;
+const ALLOWED_RANKS = RANKS;
+const ALLOWED_GROUPS = GROUPS;
+const ALLOWED_TURNS = TURNS;
+const ALLOWED_BATTLE_RESULTS = BATTLE_RESULTS;
 
 /**
  * 【定数定義】: ファイルサイズの最大値（10MB）
