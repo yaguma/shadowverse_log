@@ -341,7 +341,7 @@ describe('デッキ種別管理機能 統合テスト', () => {
     vi.clearAllMocks();
 
     // デフォルトのモック設定：初期データ取得
-    vi.mocked(apiClient.apiClient.get).mockResolvedValue(mockDeckMasters);
+    vi.mocked(apiClient.apiClient.get).mockResolvedValue({ deckMasters: mockDeckMasters });
   });
 
   // ==================== 追加フロー テスト ====================
@@ -763,7 +763,7 @@ describe('デッキ種別管理機能 統合テスト', () => {
       const networkError = new Error('ネットワークエラー');
       vi.mocked(apiClient.apiClient.get)
         .mockRejectedValueOnce(networkError)
-        .mockResolvedValueOnce(mockDeckMasters);
+        .mockResolvedValueOnce({ deckMasters: mockDeckMasters });
 
       render(<DeckMasterManagementContainer />);
 
