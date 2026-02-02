@@ -77,7 +77,7 @@ describe('DeckStore - DeckMaster CRUD', () => {
         },
       ];
 
-      vi.mocked(apiClient.apiClient.get).mockResolvedValueOnce(mockDeckMasters);
+      vi.mocked(apiClient.apiClient.get).mockResolvedValueOnce({ deckMasters: mockDeckMasters });
 
       await useDeckStore.getState().fetchDeckMastersWithUsage();
 
@@ -92,7 +92,7 @@ describe('DeckStore - DeckMaster CRUD', () => {
       vi.mocked(apiClient.apiClient.get).mockImplementation(() => {
         // 呼び出し時点でisLoadingDeckMastersがtrueであることを確認
         expect(useDeckStore.getState().isLoadingDeckMasters).toBe(true);
-        return Promise.resolve([]);
+        return Promise.resolve({ deckMasters: [] });
       });
 
       await useDeckStore.getState().fetchDeckMastersWithUsage();
