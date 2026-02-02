@@ -1,6 +1,6 @@
 ---
 description: GitHub IssueまたはKairoタスクを順番に自動実行するオーケストレーションコマンド。依存関係確認→実装→PR作成→レビュー→修正のサイクルを自動化する。
-argument-hint: [要件名] [開始ID] [--issue-mode] [--dry-run] [--skip-review] [--max-tasks N]
+argument-hint: [要件名] [開始ID] [--issue-mode] [--dry-run] [--skip-review] [--max-tasks N] [--auto-merge] [--merge-strategy squash|merge|rebase]
 ---
 
 # auto-task-runner
@@ -30,7 +30,11 @@ argument-hint: [要件名] [開始ID] [--issue-mode] [--dry-run] [--skip-review]
 □ Step 8: 修正コミット＆プッシュ (修正した場合のみ)
 □ Step 9: レビューループ判定
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-□ Step 10: タスク完了報告 ← ここで初めて「完了」を報告
+🔀 自動マージ（--auto-merge時のみ）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+□ Step 10: PRマージ (/pr-merge {PR番号} --strategy {戦略})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+□ Step 11: タスク完了報告 ← ここで初めて「完了」を報告
 ```
 
 **🚫 禁止事項**:
@@ -49,6 +53,8 @@ argument-hint: [要件名] [開始ID] [--issue-mode] [--dry-run] [--skip-review]
 | `--dry-run` | - | 実行予定のタスクを表示のみ（実際には実行しない） | - |
 | `--skip-review` | - | レビュー工程をスキップ（高速イテレーション用） | - |
 | `--max-tasks N` | - | 最大N個のタスクを実行して停止 | `--max-tasks 3` |
+| `--auto-merge` | - | PRを自動マージ（/pr-mergeを呼び出し） | - |
+| `--merge-strategy` | - | マージ戦略（squash/merge/rebase）デフォルト: merge | `--merge-strategy squash` |
 
 ---
 
@@ -94,7 +100,16 @@ flowchart TD
         T --> U["📝 Step 8: コミット＆プッシュ"]
         U --> O
 
-        S -->|なし| V["✅ Step 10: タスク完了報告"]
+        S -->|なし| AM{--auto-merge?}
+    end
+
+    subgraph 自動マージフェーズ【オプション】
+        AM -->|はい| S10["🔀 Step 10: /pr-merge 呼び出し"]
+        AM -->|いいえ| V
+        S10 --> MR{マージ結果}
+        MR -->|成功| V["✅ Step 11: タスク完了報告"]
+        MR -->|失敗| SKIP[⚠️ 警告表示して次タスクへ]
+        SKIP --> V
     end
 
     subgraph 次タスク準備
@@ -306,7 +321,39 @@ gh pr comment {PR番号} --body "## 🔒 セキュリティレビュー結果
 
 ---
 
-### Step 10: タスク完了報告 【ここで初めて完了】
+### Step 10: PRマージ (`/pr-merge`) 【オプション】
+
+**実行条件**: `--auto-merge` オプションが指定されている場合のみ
+
+**実行内容**:
+1. `/pr-merge` スキルを呼び出し
+2. CIチェック確認（デフォルト）
+3. マージ戦略に応じたマージ実行（デフォルト: merge）
+4. ブランチ削除（デフォルト）
+
+**コマンド**:
+```bash
+# 基本呼び出し
+/pr-merge {PR番号}
+
+# 戦略指定時（--merge-strategy オプション指定時）
+/pr-merge {PR番号} --strategy {squash|merge|rebase}
+```
+
+**音声通知**:
+- 開始時: 「PRをマージするのだ」
+- 完了時: 「マージが完了したのだ」
+- 失敗時: 「マージに失敗したのだ、次のタスクに進むのだ」
+
+**マージ失敗時の動作**:
+- 警告表示して次タスクへ進む（処理を中断しない）
+- 失敗したPRは後でまとめて表示
+
+**完了条件**: PRがマージされている、またはマージ失敗が記録されている
+
+---
+
+### Step 11: タスク完了報告 【ここで初めて完了】
 
 **⚠️ このステップに到達して初めて「タスク完了」を報告すること**
 
@@ -325,6 +372,7 @@ gh pr comment {PR番号} --body "## 🔒 セキュリティレビュー結果
 - PR: #{PR番号} ({PR URL})
 - レビューループ: {N}回
 - 指摘修正: {N}件
+- マージ: ✅ 完了 ({strategy}) / ⚠️ 失敗 / - スキップ
 
 📝 次のタスク: {次のタスクID}
 ```
@@ -341,10 +389,13 @@ gh pr comment {PR番号} --body "## 🔒 セキュリティレビュー結果
 - 成功: {N}個
 - スキップ: {N}個（依存未完了）
 - 作成PR数: {N}個
+- マージ済みPR: {N}個
+- マージ失敗PR: {N}個
 
 📝 作成されたPR一覧:
-- #{PR番号}: {タスクID} - {タスク名}
-- #{PR番号}: {タスクID} - {タスク名}
+- #{PR番号}: {タスクID} - {タスク名} [✅ Merged]
+- #{PR番号}: {タスクID} - {タスク名} [⚠️ Merge Failed]
+- #{PR番号}: {タスクID} - {タスク名} [- Not Merged]
 ```
 
 **音声通知（必須）**: 「全てのタスクが完了したのだ」
@@ -361,7 +412,10 @@ gh pr comment {PR番号} --body "## 🔒 セキュリティレビュー結果
 | レビュー開始 | 「レビューを開始するのだ」 | Step 5開始時 |
 | レビュー指摘あり | 「{N}件の指摘があるのだ」 | Step 7開始時 |
 | 修正完了 | 「修正が完了したのだ」 | Step 8完了時 |
-| タスク完了 | 「タスク{ID}が完了したのだ」 | Step 10完了時 |
+| マージ開始 | 「PRをマージするのだ」 | Step 10開始時（--auto-merge時） |
+| マージ完了 | 「マージが完了したのだ」 | Step 10完了時（成功時） |
+| マージ失敗 | 「マージに失敗したのだ、次のタスクに進むのだ」 | Step 10完了時（失敗時） |
+| タスク完了 | 「タスク{ID}が完了したのだ」 | Step 11完了時 |
 | 全タスク完了 | 「全てのタスクが完了したのだ」 | 全タスク終了時 |
 | エラー発生 | 「エラーが発生したのだ」 | エラー発生時 |
 
@@ -401,8 +455,17 @@ gh pr comment {PR番号} --body "## 🔒 セキュリティレビュー結果
 # 3タスクまで実行して停止
 /auto-task-runner atelier-guild-rank TASK-0055 --max-tasks 3
 
+# 自動マージ付きで実行（デフォルト: mergeマージ）
+/auto-task-runner atelier-guild-rank TASK-0055 --auto-merge
+
+# マージ戦略を指定（squash）
+/auto-task-runner atelier-guild-rank TASK-0055 --auto-merge --merge-strategy squash
+
+# レビュースキップ + 自動マージ（高速イテレーション用）
+/auto-task-runner atelier-guild-rank TASK-0055 --skip-review --auto-merge
+
 # 複合オプション
-/auto-task-runner atelier-guild-rank TASK-0055 --max-tasks 5 --skip-review
+/auto-task-runner atelier-guild-rank TASK-0055 --max-tasks 5 --skip-review --auto-merge --merge-strategy squash
 ```
 
 ---
