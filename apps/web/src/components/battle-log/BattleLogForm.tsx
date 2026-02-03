@@ -108,8 +108,8 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
         </output>
       )}
 
-      {/* 【フォームアクション】 */}
-      <div className="flex gap-4 justify-end">
+      {/* 【フォームアクション】 - スティッキーフッターでモバイルビューでも常に見える */}
+      <div className="flex gap-4 justify-end sticky bottom-0 bg-white pt-4 pb-2 -mx-6 px-6 border-t border-gray-100 mt-4">
         <button type="button" className="btn-secondary" onClick={handleCancel} disabled={isLoading}>
           キャンセル
         </button>
