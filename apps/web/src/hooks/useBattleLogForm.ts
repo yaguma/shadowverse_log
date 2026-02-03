@@ -5,6 +5,15 @@
  * 🔵 信頼性レベル: 要件定義書（REQ-001, REQ-002, REQ-003, REQ-030, REQ-031）に基づく
  */
 
+import type {
+  BattleResult,
+  BattleType,
+  DeckMasterWithUsage,
+  Group,
+  MyDeck,
+  Rank,
+  Turn,
+} from '@shadowverse-log/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { useBattleLogStore } from '../store/battleLogStore';
 import { useDeckStore } from '../store/deckStore';
@@ -54,8 +63,8 @@ export interface UseBattleLogFormReturn {
   deckMasterError: string | null;
 
   // データ
-  myDecks: ReturnType<typeof useDeckStore>['myDecks'];
-  deckMastersWithUsage: ReturnType<typeof useDeckStore>['deckMastersWithUsage'];
+  myDecks: MyDeck[];
+  deckMastersWithUsage: DeckMasterWithUsage[];
 
   // 送信ボタン無効化判定
   isSubmitDisabled: boolean;

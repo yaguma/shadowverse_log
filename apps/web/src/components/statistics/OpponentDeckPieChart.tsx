@@ -6,7 +6,7 @@
  * 🔵 信頼性レベル: REQ-GRAPH-001〜012に基づいた実装
  */
 
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { StatisticsResponse } from '../../types';
 
