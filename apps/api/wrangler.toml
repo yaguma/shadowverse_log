@@ -22,6 +22,7 @@ ALLOWED_ORIGINS = "https://shadowverse-battle-log.pages.dev"
 binding = "DB"
 database_name = "shadowverse-db"
 database_id = "fd5dbb0e-c674-47c1-8795-0865e46c9bf7"
+migrations_dir = "src/db/migrations"
 
 # 注記: R2は使用しない方針に変更しました
 

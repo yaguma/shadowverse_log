@@ -142,13 +142,12 @@ myDecksRoute.post('/', async (c) => {
     // マイデッキ作成
     // - UUID自動生成（REQ-EXT-106）
     // - isActive = true 固定（REQ-EXT-102）
-    // - className = DeckMasterから取得（REQ-EXT-104）
+    // - classNameはDeckMasterから取得可能なため保存しない（正規化）
     // - createdAt自動設定（REQ-EXT-107）
     const newMyDeck = await myDecksRepository.create({
       deckId,
       deckName,
       deckCode: deckCode || '', // 任意、空文字許可（REQ-EXT-103）
-      className: deckMaster.className,
       isActive: true,
     });
 

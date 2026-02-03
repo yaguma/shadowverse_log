@@ -1051,5 +1051,10 @@
 {"id":"1050",	"date":"2026-02-01",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"後攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"5"},
 {"id":"1051",	"date":"2026-02-01",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"後攻",	"result":"負け",	"season":"8",	"opponentDeckId":"23"},
 {"id":"1052",	"date":"2026-02-01",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"先攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"23"},
-{"id":"1053",	"date":"2026-02-01",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"後攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"10"}
+{"id":"1053",	"date":"2026-02-01",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"後攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"10"},
+{"id":"1054",	"date":"2026-02-02",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"先攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"24"},
+{"id":"1055",	"date":"2026-02-02",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"後攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"10"},
+{"id":"1056",	"date":"2026-02-02",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"先攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"11"},
+{"id":"1057",	"date":"2026-02-02",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"後攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"23"},
+{"id":"1058",	"date":"2026-02-02",	"battleType":"ランクマッチ",	"rank":"-",	"group":"GrandMaster0",	"myDeckId":"2",	"turn":"先攻",	"result":"勝ち",	"season":"8",	"opponentDeckId":"34"}
 ]
