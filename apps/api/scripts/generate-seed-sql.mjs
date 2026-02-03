@@ -49,9 +49,9 @@ function generateMyDecksInserts(data) {
   for (const item of data) {
     const isActive = item.isActive ? 1 : 0;
     const createdAt = item.createdAt ? escapeString(item.createdAt) : "datetime('now')";
-    const deckId = item.deckId ? escapeString(item.deckId) : 'NULL';
-    const className = item.className ? escapeString(item.className) : 'NULL';
-    const sql = `INSERT INTO my_decks (id, user_id, deck_id, deck_code, deck_name, class_name, is_active, created_at, updated_at) VALUES (${escapeString(item.id)}, NULL, ${deckId}, ${escapeString(item.deckCode)}, ${escapeString(item.deckName)}, ${className}, ${isActive}, ${createdAt}, datetime('now'));`;
+    // deckIdは必須（NOT NULL制約）
+    const deckId = escapeString(item.deckId);
+    const sql = `INSERT INTO my_decks (id, user_id, deck_id, deck_code, deck_name, is_active, created_at, updated_at) VALUES (${escapeString(item.id)}, NULL, ${deckId}, ${escapeString(item.deckCode)}, ${escapeString(item.deckName)}, ${isActive}, ${createdAt}, datetime('now'));`;
     lines.push(sql);
   }
 

@@ -4,7 +4,8 @@ import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 /**
  * マイデッキテーブル
  * 自分のデッキ情報を管理するテーブル
- * TASK-0015: deckId, className カラム追加（REQ-EXT-101〜107対応）
+ * TASK-0015: deckId カラム追加（REQ-EXT-101〜107対応）
+ * classNameはDeckMasterから取得可能なため、このテーブルには含めない（正規化）
  * Phase 1: user_id はオプショナル（簡易版）
  * Phase 2: user_id は必須化予定
  */
@@ -13,10 +14,9 @@ export const myDecks = sqliteTable(
   {
     id: text('id').primaryKey(),
     userId: text('user_id'), // Phase 2で必須化
-    deckId: text('deck_id'), // DeckMasterへの参照（REQ-EXT-105）
+    deckId: text('deck_id').notNull(), // DeckMasterへの参照（必須、REQ-EXT-105）
     deckCode: text('deck_code').notNull().default(''), // バリデーションなし、空文字許可
     deckName: text('deck_name').notNull(),
-    className: text('class_name'), // DeckMasterから取得（REQ-EXT-104）
     isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
     createdAt: text('created_at').default(sql`(datetime('now'))`),
     updatedAt: text('updated_at').default(sql`(datetime('now'))`),
