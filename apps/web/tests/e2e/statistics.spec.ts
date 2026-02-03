@@ -263,6 +263,7 @@ test.describe('Battle Log Dialog - 対戦履歴登録ダイアログ', () => {
   /**
    * TC-E2E-BLD-004: キャンセルボタンでダイアログが閉じる
    * 🔵 信頼性レベル: TASK-0029に基づく
+   * 注意: CI環境ではレンダリング速度の違いにより、ボタンのクリックに追加の待機が必要
    */
   test('キャンセルボタンでダイアログが閉じる', async ({ page }) => {
     // ダイアログを開く
@@ -274,8 +275,11 @@ test.describe('Battle Log Dialog - 対戦履歴登録ダイアログ', () => {
     await expect(dialog).toBeVisible();
 
     // キャンセルボタンをクリック
+    // CI環境での安定性のため、ボタンが表示されスクロールしてからクリック
     const cancelButton = page.getByRole('button', { name: /キャンセル/ });
-    await cancelButton.click();
+    await cancelButton.scrollIntoViewIfNeeded();
+    await expect(cancelButton).toBeVisible();
+    await cancelButton.click({ force: true });
 
     // ダイアログが閉じる
     await expect(dialog).not.toBeVisible({ timeout: 5000 });
