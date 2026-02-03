@@ -203,7 +203,7 @@ function DateField({
   onChange,
   onBlur,
 }: {
-  value: string;
+  value: string | undefined;
   error?: string;
   onChange: (field: 'date', value: string) => void;
   onBlur: (field: 'date') => void;
@@ -217,7 +217,7 @@ function DateField({
         id="date"
         type="date"
         className="input-field"
-        value={value}
+        value={value ?? ''}
         onChange={(e) => onChange('date', e.target.value)}
         onBlur={() => onBlur('date')}
         aria-invalid={!!error}

@@ -53,9 +53,9 @@ interface StatisticsState {
   // 【期間状態】: 現在選択されている期間を保持 🔵
   currentPeriod: PeriodType;
 
-  // 【日付範囲状態】: カスタム日付範囲を保持 🔵
-  startDate: string;
-  endDate: string;
+  // 【日付範囲状態】: カスタム日付範囲を保持（nullの場合は未指定） 🔵
+  startDate: string | null;
+  endDate: string | null;
 
   // 【シーズン状態】: シーズン選択機能の状態を保持 (TASK-0027) 🔵
   selectedSeason: number | null;
@@ -66,8 +66,8 @@ interface StatisticsState {
   fetchStatistics: (params: GetStatisticsRequest) => Promise<void>;
   fetchStatisticsByDateRange: (params: GetStatisticsByDateRangeRequest) => Promise<void>;
   setPeriod: (period: PeriodType) => void;
-  setStartDate: (date: string) => void;
-  setEndDate: (date: string) => void;
+  setStartDate: (date: string | null) => void;
+  setEndDate: (date: string | null) => void;
   clearError: () => void;
 
   // 【シーズンアクション】: シーズン関連アクションを定義 (TASK-0027) 🔵
@@ -88,9 +88,9 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
   error: null,
   currentPeriod: '1week',
 
-  // 【日付範囲初期状態】: 🔵
-  startDate: '',
-  endDate: '',
+  // 【日付範囲初期状態】: nullは未指定を表す 🔵
+  startDate: null,
+  endDate: null,
 
   // 【シーズン初期状態】: (TASK-0027) 🔵
   selectedSeason: null,
@@ -185,7 +185,7 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
    * 【実装方針】: startDateを直接更新する同期処理
    * 🔵 信頼性レベル: StatisticsDashboardPageとの統合用
    */
-  setStartDate: (date: string) => {
+  setStartDate: (date: string | null) => {
     set({ startDate: date });
   },
 
@@ -194,7 +194,7 @@ export const useStatisticsStore = create<StatisticsState>((set) => ({
    * 【実装方針】: endDateを直接更新する同期処理
    * 🔵 信頼性レベル: StatisticsDashboardPageとの統合用
    */
-  setEndDate: (date: string) => {
+  setEndDate: (date: string | null) => {
     set({ endDate: date });
   },
 

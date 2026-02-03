@@ -130,10 +130,16 @@ export const DeckManagePage = () => {
   }, []);
 
   // 【DeckMaster操作ハンドラ】: 削除確認ダイアログを開く
-  const handleDeckMasterDelete = useCallback((deckMaster: DeckMasterWithUsage) => {
-    setDeletingDeckMaster(deckMaster);
-    setIsDeckMasterDeleteDialogOpen(true);
-  }, []);
+  const handleDeckMasterDelete = useCallback(
+    (id: string) => {
+      const deckMaster = deckMastersWithUsage.find((dm) => dm.id === id);
+      if (deckMaster) {
+        setDeletingDeckMaster(deckMaster);
+        setIsDeckMasterDeleteDialogOpen(true);
+      }
+    },
+    [deckMastersWithUsage]
+  );
 
   // 【DeckMaster操作ハンドラ】: ダイアログを閉じる
   const handleDeckMasterDialogClose = useCallback(() => {
@@ -201,10 +207,16 @@ export const DeckManagePage = () => {
   }, [fetchDeckMasters]);
 
   // 【MyDeck操作ハンドラ】: 削除確認ダイアログを開く
-  const handleMyDeckDelete = useCallback((myDeck: MyDeck) => {
-    setDeletingMyDeck(myDeck);
-    setIsMyDeckDeleteDialogOpen(true);
-  }, []);
+  const handleMyDeckDelete = useCallback(
+    (id: string) => {
+      const myDeck = myDecks.find((md) => md.id === id);
+      if (myDeck) {
+        setDeletingMyDeck(myDeck);
+        setIsMyDeckDeleteDialogOpen(true);
+      }
+    },
+    [myDecks]
+  );
 
   // 【MyDeck操作ハンドラ】: ダイアログを閉じる
   const handleMyDeckDialogClose = useCallback(() => {

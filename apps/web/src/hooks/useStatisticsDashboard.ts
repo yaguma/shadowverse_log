@@ -7,13 +7,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useStatisticsStore } from '../store/statisticsStore';
+import type { StatisticsResponse } from '../types';
 
 /**
  * 【型定義】: カスタムフックの戻り値
  */
 export interface UseStatisticsDashboardReturn {
   // 統計データ
-  statistics: ReturnType<typeof useStatisticsStore>['statistics'];
+  statistics: StatisticsResponse | null;
   isLoading: boolean;
   error: string | null;
 
