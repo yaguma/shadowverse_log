@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const PROJECT_ROOT = dirname(__dirname);
-const DATA_DIR = join(PROJECT_ROOT, '..', 'data', 'json');
+const DATA_DIR = join(PROJECT_ROOT, '..', '..', 'data', 'json');
 const OUTPUT_FILE = join(PROJECT_ROOT, 'src', 'db', 'migrations', 'seed-data.sql');
 
 function loadJsonFile(filename) {
@@ -49,7 +49,9 @@ function generateMyDecksInserts(data) {
   for (const item of data) {
     const isActive = item.isActive ? 1 : 0;
     const createdAt = item.createdAt ? escapeString(item.createdAt) : "datetime('now')";
-    const sql = `INSERT INTO my_decks (id, user_id, deck_code, deck_name, is_active, created_at, updated_at) VALUES (${escapeString(item.id)}, NULL, ${escapeString(item.deckCode)}, ${escapeString(item.deckName)}, ${isActive}, ${createdAt}, datetime('now'));`;
+    const deckId = item.deckId ? escapeString(item.deckId) : 'NULL';
+    const className = item.className ? escapeString(item.className) : 'NULL';
+    const sql = `INSERT INTO my_decks (id, user_id, deck_id, deck_code, deck_name, class_name, is_active, created_at, updated_at) VALUES (${escapeString(item.id)}, NULL, ${deckId}, ${escapeString(item.deckCode)}, ${escapeString(item.deckName)}, ${className}, ${isActive}, ${createdAt}, datetime('now'));`;
     lines.push(sql);
   }
 

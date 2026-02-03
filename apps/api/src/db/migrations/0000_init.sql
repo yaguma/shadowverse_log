@@ -42,8 +42,10 @@ CREATE INDEX IF NOT EXISTS `idx_deck_master_sort_order` ON `deck_master` (`sort_
 CREATE TABLE IF NOT EXISTS `my_decks` (
 	`id` text PRIMARY KEY NOT NULL,
 	`user_id` text,
-	`deck_code` text NOT NULL,
+	`deck_id` text,
+	`deck_code` text NOT NULL DEFAULT '',
 	`deck_name` text NOT NULL,
+	`class_name` text,
 	`is_active` integer DEFAULT 1 NOT NULL,
 	`created_at` text DEFAULT (datetime('now')),
 	`updated_at` text DEFAULT (datetime('now'))
@@ -51,3 +53,4 @@ CREATE TABLE IF NOT EXISTS `my_decks` (
 
 -- My Decks Indexes
 CREATE INDEX IF NOT EXISTS `idx_my_decks_user_id` ON `my_decks` (`user_id`);
+CREATE INDEX IF NOT EXISTS `idx_my_decks_deck_id` ON `my_decks` (`deck_id`);
