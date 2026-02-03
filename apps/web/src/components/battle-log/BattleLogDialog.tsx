@@ -101,7 +101,7 @@ export const BattleLogDialog: React.FC<BattleLogDialogProps> = ({
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: クリックイベント伝播防止用で、キーボードはダイアログ全体で処理 */}
       <div
         ref={dialogRef}
-        className="relative max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-2xl mx-4 bg-white rounded-lg shadow-md"
         onClick={(e) => e.stopPropagation()}
       >
         {/* BattleLogFormコンポーネントを表示 */}

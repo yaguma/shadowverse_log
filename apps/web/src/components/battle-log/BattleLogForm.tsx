@@ -47,69 +47,68 @@ export const BattleLogForm: React.FC<BattleLogFormProps> = ({ onSuccess, onCance
   } = useBattleLogForm({ onSuccess, onCancel });
 
   return (
-    <form
-      className="p-6 bg-white rounded-lg shadow-md w-full max-w-2xl mx-auto"
-      onSubmit={handleSubmit}
-      onKeyDown={handleKeyDown}
-    >
-      {/* 【フォームタイトル】 */}
-      <h2 className="text-2xl font-bold mb-4">対戦履歴登録</h2>
+    <form className="flex flex-col max-h-[90vh]" onSubmit={handleSubmit} onKeyDown={handleKeyDown}>
+      {/* 【スクロール可能なフォームボディ】 */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {/* 【フォームタイトル】 */}
+        <h2 className="text-2xl font-bold mb-4">対戦履歴登録</h2>
 
-      {/* 【エラーメッセージ表示】 */}
-      <ErrorMessages
-        error={error}
-        deckError={deckError}
-        myDecksError={myDecksError}
-        deckMasterError={deckMasterError}
-      />
+        {/* 【エラーメッセージ表示】 */}
+        <ErrorMessages
+          error={error}
+          deckError={deckError}
+          myDecksError={myDecksError}
+          deckMasterError={deckMasterError}
+        />
 
-      {/* 【シーズン・対戦日フィールド】 */}
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <SeasonField value={formData.season} onChange={handleChange} />
-        <DateField
-          value={formData.date}
-          error={validationErrors.date}
+        {/* 【シーズン・対戦日フィールド】 */}
+        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SeasonField value={formData.season} onChange={handleChange} />
+          <DateField
+            value={formData.date}
+            error={validationErrors.date}
+            onChange={handleChange}
+            onBlur={handleBlur}
+          />
+        </div>
+
+        {/* 【詳細設定（折りたたみ）】 */}
+        <AdvancedSettings formData={formData} onChange={handleChange} />
+
+        {/* 【使用デッキフィールド】 */}
+        <MyDeckField
+          value={formData.myDeckId}
+          error={validationErrors.myDeckId}
+          myDecks={myDecks}
           onChange={handleChange}
           onBlur={handleBlur}
         />
+
+        {/* 【先攻後攻フィールド】 */}
+        <TurnField value={formData.turn} onChange={handleChange} />
+
+        {/* 【対戦結果フィールド】 */}
+        <ResultField value={formData.result} onChange={handleChange} />
+
+        {/* 【相手デッキフィールド】 */}
+        <OpponentDeckField
+          value={formData.opponentDeckId}
+          error={validationErrors.opponentDeckId}
+          deckMasters={deckMastersWithUsage}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
+
+        {/* 【ローディングスピナー】 */}
+        {isLoading && (
+          <output className="mb-4 text-center block">
+            <span className="text-gray-600">送信中...</span>
+          </output>
+        )}
       </div>
 
-      {/* 【詳細設定（折りたたみ）】 */}
-      <AdvancedSettings formData={formData} onChange={handleChange} />
-
-      {/* 【使用デッキフィールド】 */}
-      <MyDeckField
-        value={formData.myDeckId}
-        error={validationErrors.myDeckId}
-        myDecks={myDecks}
-        onChange={handleChange}
-        onBlur={handleBlur}
-      />
-
-      {/* 【先攻後攻フィールド】 */}
-      <TurnField value={formData.turn} onChange={handleChange} />
-
-      {/* 【対戦結果フィールド】 */}
-      <ResultField value={formData.result} onChange={handleChange} />
-
-      {/* 【相手デッキフィールド】 */}
-      <OpponentDeckField
-        value={formData.opponentDeckId}
-        error={validationErrors.opponentDeckId}
-        deckMasters={deckMastersWithUsage}
-        onChange={handleChange}
-        onBlur={handleBlur}
-      />
-
-      {/* 【ローディングスピナー】 */}
-      {isLoading && (
-        <output className="mb-4 text-center block">
-          <span className="text-gray-600">送信中...</span>
-        </output>
-      )}
-
-      {/* 【フォームアクション】 - スティッキーフッターでモバイルビューでも常に見える */}
-      <div className="flex gap-4 justify-end sticky bottom-0 bg-white pt-4 pb-2 -mx-6 px-6 border-t border-gray-100 mt-4">
+      {/* 【フォームアクション】 - 固定フッターでモバイルビューでも常に見える */}
+      <div className="flex-shrink-0 flex gap-4 justify-end p-4 border-t border-gray-200 bg-white">
         <button type="button" className="btn-secondary" onClick={handleCancel} disabled={isLoading}>
           キャンセル
         </button>

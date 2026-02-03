@@ -688,10 +688,11 @@ describe('BattleLogForm', () => {
 
       // 【結果検証】: Tailwind CSSレスポンシブクラスが適用されることを確認
       // 【注記】: HTMLの<form>要素は暗黙的にrole="form"を持たないため、querySelector で取得
+      // 【変更】: フォームはflex構造に変更され、max-w-2xl等のスタイルはダイアログコンテナに移動
       const form = document.querySelector('form');
-      expect(form).toHaveClass('max-w-2xl'); // 【確認内容】: 最大幅が制限される (レスポンシブ対応) 🟡
-      expect(form).toHaveClass('mx-auto'); // 【確認内容】: 中央揃え (レスポンシブ対応) 🟡
-      expect(form).toHaveClass('w-full'); // 【確認内容】: 全幅使用 (モバイル対応) 🟡
+      expect(form).toHaveClass('flex'); // 【確認内容】: flexコンテナ（モバイル対応のレイアウト）
+      expect(form).toHaveClass('flex-col'); // 【確認内容】: 縦方向レイアウト
+      expect(form).toHaveClass('max-h-[90vh]'); // 【確認内容】: 最大高さ制限（モバイル対応）
     });
 
     it('TC-FORM-UI-004: レスポンシブデザインが動作する（タブレット）', () => {
@@ -706,10 +707,11 @@ describe('BattleLogForm', () => {
 
       // 【結果検証】: Tailwind CSSレスポンシブクラスが適用されることを確認
       // 【注記】: HTMLの<form>要素は暗黙的にrole="form"を持たないため、querySelector で取得
+      // 【変更】: フォームはflex構造に変更され、max-w-2xl等のスタイルはダイアログコンテナに移動
       const form = document.querySelector('form');
-      expect(form).toHaveClass('max-w-2xl'); // 【確認内容】: 最大幅が制限される (レスポンシブ対応) 🟡
-      expect(form).toHaveClass('mx-auto'); // 【確認内容】: 中央揃え (レスポンシブ対応) 🟡
-      expect(form).toHaveClass('w-full'); // 【確認内容】: 全幅使用 (タブレット対応) 🟡
+      expect(form).toHaveClass('flex'); // 【確認内容】: flexコンテナ（モバイル対応のレイアウト）
+      expect(form).toHaveClass('flex-col'); // 【確認内容】: 縦方向レイアウト
+      expect(form).toHaveClass('max-h-[90vh]'); // 【確認内容】: 最大高さ制限（モバイル対応）
     });
   });
 
